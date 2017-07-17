@@ -5,7 +5,10 @@
   "main": "index.js",
   "dependencies": {
     "koa": "^2.3.0",
-    "node-fetch": "^1.7.1"
+    "koa-better-router": "^2.1.1",
+    "node-fetch": "^1.7.1",
+    "pg": "^6.4.1",
+    "pg-native": "^2.0.1"
   },
   "devDependencies": {},
   "scripts": {

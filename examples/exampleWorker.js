@@ -1,4 +1,4 @@
-const Worker = require('../src/Worker');
+const Worker = require('../src/classes/Worker');
 
 /**
  * Get a random integer.  Used to pause a random amount of time.

@@ -1,6 +1,6 @@
 const path = require('path');
 const fetch = require('node-fetch');
-const Controller = require('../src/Controller');
+const Controller = require('../src/classes/Controller');
 
 //Create our controller, passing in the script we want to run
 //in the worker proccesses.
