@@ -1,0 +1,24 @@
+{
+  "name": "notification-microservice",
+  "version": "1.0.0",
+  "description": "A micro-service for sending notifications",
+  "main": "index.js",
+  "dependencies": {
+    "koa": "^2.3.0",
+    "node-fetch": "^1.7.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/usful/notification-microservice.git"
+  },
+  "author": "Clinton Robinson",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/usful/notification-microservice/issues"
+  },
+  "homepage": "https://github.com/usful/notification-microservice#readme"
+}
