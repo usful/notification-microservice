@@ -1,6 +1,7 @@
 const Koa = require('koa');
 const Router = require('koa-better-router');
 const router = Router({ prefix: '/api' }).loadMethods();
+const createUser = require('./user/create-user');
 
 const config = require('../../config.json')['env:global'];
 const app = new Koa();
@@ -40,6 +41,8 @@ router.get('user/:id', async (ctx, next) => {
 
   return next();
 });
+
+router.post('user/create', createUser);
 
 app.use(router.middleware());
 app.listen(config.port);
