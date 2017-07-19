@@ -3,7 +3,7 @@ const convert = require('koa-convert');
 const Router = require('koa-better-router');
 const bodyParser = require('koa-better-body');
 const router = Router({ prefix: '/api' }).loadMethods();
-const createUser = require('./user/create-user');
+const userAPI = require('./user');
 
 const config = require('../../config.json')['env:global'];
 const app = new Koa();
@@ -38,13 +38,9 @@ const app = new Koa();
  *
  *
  */
-router.get('user/:id', async (ctx, next) => {
-  ctx.body = `User ${ctx.params.id}`;
 
-  return next();
-});
-
-router.post('user/create', createUser);
+router.post('user/create', userAPI.create);
+router.get('user/:id', userAPI.get);
 
 // Parse body and save it in ctx.request.body
 app.use(convert(bodyParser({ fields: 'body' })));

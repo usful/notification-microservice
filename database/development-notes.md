@@ -8,6 +8,9 @@ pg_ctl -D /usr/local/var/postgres stop
 __Create user__
 curl -X POST -H "Content-Type: application/json" localhost:8080/api/user/create -d '{"external_id":1,"name":"Rubens 1", "email":"rubens1@random.com","delivery":["email"]}'
 
+__Get user__
+curl localhost:8080/api/user/5
+
 ## Postgres queries
 
 __How to query by hour of the day using account's timezone__
