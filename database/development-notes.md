@@ -11,6 +11,9 @@ curl -X POST -H "Content-Type: application/json" localhost:8080/api/user/create 
 __Get user__
 curl localhost:8080/api/user/5
 
+__Update user__
+curl -X PUT -H "Content-Type: application/json" localhost:8080/api/user/5 -d '{"name":"Rubens 55"}'
+
 ## Postgres queries
 
 __How to query by hour of the day using account's timezone__

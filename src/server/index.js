@@ -39,8 +39,9 @@ const app = new Koa();
  *
  */
 
-router.post('user/create', userAPI.create);
+router.post('user', userAPI.create);
 router.get('user/:id', userAPI.get);
+router.put('user/:id', userAPI.update);
 
 // Parse body and save it in ctx.request.body
 app.use(convert(bodyParser({ fields: 'body' })));
@@ -50,7 +51,6 @@ app.use(async function onPgError(ctx, next) {
   try {
     await next();
   } catch (e) {
-
     // TODO: Define the format of the errors
     if (e.code === '23505') {
       ctx.response.status = 400;
