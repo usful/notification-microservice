@@ -1,5 +1,7 @@
 const Koa = require('koa');
+const convert = require('koa-convert');
 const Router = require('koa-better-router');
+const bodyParser = require('koa-better-body');
 const router = Router({ prefix: '/api' }).loadMethods();
 const createUser = require('./user/create-user');
 
@@ -43,6 +45,29 @@ router.get('user/:id', async (ctx, next) => {
 });
 
 router.post('user/create', createUser);
+
+// Parse body and save it in ctx.request.body
+app.use(convert(bodyParser({ fields: 'body' })));
+
+// Catch postgres errors and format them
+app.use(async function onPgError(ctx, next) {
+  try {
+    await next();
+  } catch (e) {
+
+    // TODO: Define the format of the errors
+    if (e.code === '23505') {
+      ctx.response.status = 400;
+      ctx.response.body = {
+        type: 'constraint',
+        constraint: e.constraint,
+      };
+      return;
+    }
+
+    throw e;
+  }
+});
 
 app.use(router.middleware());
 app.listen(config.port);

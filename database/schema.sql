@@ -1,6 +1,6 @@
 
 CREATE TYPE verification_status AS ENUM('verified', 'bounced', 'failed', 'unverified');
-CREATE TYPE delivery_type AS ENUM('Email', 'SMS', 'Push', 'Voice', 'Web');
+CREATE TYPE delivery_type AS ENUM('email', 'sms', 'push', 'voice', 'web');
 
 CREATE OR REPLACE FUNCTION is_timezone( tz TEXT ) RETURNS BOOLEAN as $$
 DECLARE
@@ -15,27 +15,24 @@ $$ language plpgsql STABLE;
 
 CREATE DOMAIN timezone AS TEXT CHECK ( is_timezone( value ) );
 
+-- TODO: not enforcing uniqueness on email, sms, voice on delevopment, enforce later
 CREATE TABLE account (
   id            bigserial           PRIMARY KEY,
-  createdb      timestamp           NOT NULL DEFAULT NOW(),
+  external_id   bigint              UNIQUE NOT NULL,
+  created       timestamp           NOT NULL DEFAULT NOW(),
   updated       timestamp           NOT NULL DEFAULT NOW(),
   name          text                NOT NULL,
-  email         text                UNIQUE NOT NULL,
+  email         text                NULL,
   email_status  verification_status NOT NULL DEFAULT 'unverified',
   sms           text                NULL,
-  sms_status    verification_status NULL,
+  sms_status    verification_status NOT NULL DEFAULT 'unverified',
   voice         text                NULL,
-  voice_status  verification_status NULL,
-  delivery      delivery_type       NOT NULL,
+  voice_status  verification_status NOT NULL DEFAULT 'unverified',
+  delivery      delivery_type[]     NULL,
   language      text                NULL,
   timezone      timezone            NOT NULL DEFAULT 'America/Toronto',
-  active        Boolean             NOT NULL DEFAULT false
+  active        Boolean             NOT NULL DEFAULT true
   -- geo
   -- groups
   -- tags
 );
-
--- CREATE TABLE transport_types (
---  id            bigserial           PRIMARY KEY,
---  name          text                UNIQUE NOT NULL,
--- )
