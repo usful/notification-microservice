@@ -2,6 +2,7 @@ const squel = require('squel').useFlavour('postgres')
 const utils = require('../utils')
 const db = require('../../../database/client')
 
+// TODO: Abstract queries in a library
 module.exports = async function createNotification(ctx) {
   /**
    * Required fields:
@@ -43,11 +44,15 @@ module.exports = async function createNotification(ctx) {
 
   console.log('notification created', notification)
 
+  // Get id's of users
+  const user_ids_res = await db.many('SELECT id FROM account WHERE external_id IN ($1:csv)', [users])
+  const user_ids = user_ids_res.map(user => user.id)
+
   const notificationUsersQuery = squel
     .insert()
     .into('notification_users')
     .setFieldsRows(
-      users.map(user_id => ({
+      user_ids.map(user_id => ({
         notification_id: notification.id,
         user_id,
       }))
@@ -68,5 +73,6 @@ module.exports = async function createNotification(ctx) {
     throw err
   }
 
+  notification.users = users;
   ctx.success(notification)
 }
