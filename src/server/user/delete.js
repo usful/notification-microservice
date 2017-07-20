@@ -9,7 +9,7 @@ module.exports = async function deleteUser(ctx) {
   )
 
   if (!user) {
-    ctx.response.status = 400
+    ctx.response.status = 404
     ctx.fail({ id: `user with id ${external_id} not found` });
     return
   }

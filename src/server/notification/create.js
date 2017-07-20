@@ -2,31 +2,24 @@ const squel = require('squel').useFlavour('postgres')
 const utils = require('../utils')
 const db = require('../../../database/client')
 
-module.exports = async function updateUser(ctx) {
-  const external_id = ctx.params.id
+module.exports = async function createNotification(ctx) {
 
   const {
-    name,
-    email,
-    sms,
-    voice,
-    delivery,
-    language,
-    timezone,
-    active,
+    by,
+    required_by,
+    at,
+    template_id,
+    data,
   } = ctx.request.body
 
   const baseQuery = squel
-    .update()
-    .table('account')
-    .where('external_id = ?', external_id)
+    .insert()
+    .into('notification')
+    .set('by', utils.pgArr(by))
+    .set('at', at)
     .returning('*')
 
-  if (name) {
-    baseQuery.set('name', name)
-  }
-
-  if (email) {
+  if (required_by) {
     baseQuery.set('email', email)
   }
 
@@ -48,6 +41,8 @@ module.exports = async function updateUser(ctx) {
 
   if (language) {
     baseQuery.set('language', language)
+  } else {
+    baseQuery.set('language', 'en')
   }
 
   if (active || active == false) {
@@ -56,14 +51,18 @@ module.exports = async function updateUser(ctx) {
 
   console.log('Running query', baseQuery.toString())
 
-  let user = await db.oneOrNone(baseQuery.toString())
-
-  if (!user) {
-    ctx.response.status = 404
-    ctx.fail({ id: `user with id ${external_id} not found` })
-
-    return
+  let user
+  try {
+    user = await db.one(baseQuery.toString())
+  } catch (err) {
+    // TODO: We are assuming that external_id has the only unique constraint
+    if (err.code === '23505') {
+      ctx.response.status = 400
+      ctx.fail({ id: 'this is is already registered for another user' })
+      return
+    }
   }
 
+  console.log('user registered', user)
   ctx.success(user)
 }

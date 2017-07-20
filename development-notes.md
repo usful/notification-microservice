@@ -14,10 +14,23 @@ curl -v localhost:8080/api/user/5
 __Update user__
 curl -v -X PUT -H "Content-Type: application/json" localhost:8080/api/user/5 -d '{"name":"Rubens 55"}'
 
-## Postgres queries
-
 __Delete user__
 curl -v -X DELETE -H "Content-Type: application/json" localhost:8080/api/user/5
+
+
+__Create template__
+curl -v -X POST -H "Content-Type: application/json" localhost:8080/api/template -d '{"name":"template 1", "email": "string template of email 1"}'
+
+__Get template__
+curl -v localhost:8080/api/template/1
+
+__Update template__
+curl -v -X PUT -H "Content-Type: application/json" localhost:8080/api/template/1 -d '{"name":"template 1_1", "email": "string template of email 1_1"}'
+
+__Delete template__
+curl -v -X DELETE -H "Content-Type: application/json" localhost:8080/api/template/1
+
+## Postgres queries
 
 __How to query by hour of the day using account's timezone__
 ... rest of the query
