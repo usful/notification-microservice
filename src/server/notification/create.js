@@ -6,9 +6,9 @@ module.exports = async function createNotification(ctx) {
 
   const {
     by,
-    required_by,
     at,
     template_id,
+    required_by,
     data,
   } = ctx.request.body
 
@@ -16,53 +16,31 @@ module.exports = async function createNotification(ctx) {
     .insert()
     .into('notification')
     .set('by', utils.pgArr(by))
-    .set('at', at)
+    .set('at', squel.rstr(`to_timestamp(${at})`))
+    .set('template_id', template_id)
     .returning('*')
 
   if (required_by) {
-    baseQuery.set('email', email)
+    baseQuery.set('required_by', email)
   }
 
-  if (sms) {
-    baseQuery.set('sms', sms)
-  }
-
-  if (voice) {
-    baseQuery.set('voice', voice)
-  }
-
-  if (delivery) {
-    baseQuery.set('delivery', utils.pgArr(delivery))
-  }
-
-  if (timezone) {
-    baseQuery.set('timezone', timezone)
-  }
-
-  if (language) {
-    baseQuery.set('language', language)
-  } else {
-    baseQuery.set('language', 'en')
-  }
-
-  if (active || active == false) {
-    baseQuery.set('timezone', active)
+  if (data) {
+    baseQuery.set('sms', data)
   }
 
   console.log('Running query', baseQuery.toString())
 
-  let user
+  let notification
   try {
-    user = await db.one(baseQuery.toString())
+    notification = await db.one(baseQuery.toString())
   } catch (err) {
-    // TODO: We are assuming that external_id has the only unique constraint
-    if (err.code === '23505') {
-      ctx.response.status = 400
-      ctx.fail({ id: 'this is is already registered for another user' })
+    if (err.code === '23503') {
+      ctx.response.status = 404
+      ctx.fail({ template_id: `template with id ${template_id} does not exists` })
       return
     }
   }
 
-  console.log('user registered', user)
-  ctx.success(user)
+  console.log('notification created', notification)
+  ctx.success(notification)
 }

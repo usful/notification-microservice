@@ -5,6 +5,8 @@ pg_ctl -D /usr/local/var/postgres stop
 
 ## API
 
+### User
+
 __Create user__
 curl -v -X POST -H "Content-Type: application/json" localhost:8080/api/user -d '{"external_id":1,"name":"Rubens 1", "email":"rubens1@random.com","delivery":["email"]}'
 
@@ -17,6 +19,7 @@ curl -v -X PUT -H "Content-Type: application/json" localhost:8080/api/user/5 -d 
 __Delete user__
 curl -v -X DELETE -H "Content-Type: application/json" localhost:8080/api/user/5
 
+### Template
 
 __Create template__
 curl -v -X POST -H "Content-Type: application/json" localhost:8080/api/template -d '{"name":"template 1", "email": "string template of email 1"}'
@@ -29,6 +32,23 @@ curl -v -X PUT -H "Content-Type: application/json" localhost:8080/api/template/1
 
 __Delete template__
 curl -v -X DELETE -H "Content-Type: application/json" localhost:8080/api/template/1
+
+### Notification
+
+// Now + one day in seconds
+Math.floor((Date.now() / 1000) + 86400);
+
+__Create notification__
+curl -v -X POST -H "Content-Type: application/json" localhost:8080/api/notification -d '{"by":["email"],"at":1500659152,"template_id":1}'
+
+__Get notification__
+curl -v localhost:8080/api/notification/1
+
+__Update notification__
+curl -v -X PUT -H "Content-Type: application/json" localhost:8080/api/notification/1 -d '{"by":["email", "sms"]}'
+
+__Delete notification__
+curl -v -X DELETE -H "Content-Type: application/json" localhost:8080/api/notification/1
 
 ## Postgres queries
 

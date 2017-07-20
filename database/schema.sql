@@ -54,9 +54,9 @@ CREATE TABLE notification (
   created       timestamp           NOT NULL DEFAULT NOW(),
   updated       timestamp           NOT NULL DEFAULT NOW(),
   by            delivery_type[]     NOT NULL,
-  required_by   delivery_type[]     NULL,
   at            timestamp           NOT NULL,
-  template      bigint              NOT NULL REFERENCES template(id),
+  template_id   bigint              NOT NULL REFERENCES template(id),
+  required_by   delivery_type[]     NULL,
   data          jsonb               NULL,
   sent          timestamp           NULL
   -- user_user_locale
