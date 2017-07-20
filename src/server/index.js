@@ -1,12 +1,13 @@
-const Koa = require('koa');
-const convert = require('koa-convert');
-const Router = require('koa-better-router');
-const bodyParser = require('koa-better-body');
-const router = Router({ prefix: '/api' }).loadMethods();
-const userAPI = require('./user');
+const Koa = require('koa')
+const convert = require('koa-convert')
+const Router = require('koa-better-router')
+const bodyParser = require('koa-better-body')
+const router = Router({ prefix: '/api' }).loadMethods()
+const userAPI = require('./user')
+const koaJsend = require('./middleware/jsend')
 
-const config = require('../../config.json')['env:global'];
-const app = new Koa();
+const config = require('../../config.json')['env:global']
+const app = new Koa()
 
 /**
  * Routes
@@ -39,32 +40,30 @@ const app = new Koa();
  *
  */
 
-router.post('user', userAPI.create);
-router.get('user/:id', userAPI.get);
-router.put('user/:id', userAPI.update);
+router.post('user', userAPI.create)
+router.get('user/:id', userAPI.get)
+router.put('user/:id', userAPI.update)
+router.delete('user/:id', userAPI.delete)
 
 // Parse body and save it in ctx.request.body
-app.use(convert(bodyParser({ fields: 'body' })));
+app.use(convert(bodyParser({ fields: 'body' })))
 
-// Catch postgres errors and format them
-app.use(async function onPgError(ctx, next) {
+// Add jsend formatter to ctx
+app.use(koaJsend())
+
+// Catch Internal Server Errors
+app.use(async function onServerError(ctx, next) {
   try {
-    await next();
+    await next()
   } catch (e) {
-    // TODO: Define the format of the errors
-    if (e.code === '23505') {
-      ctx.response.status = 400;
-      ctx.response.body = {
-        type: 'constraint',
-        constraint: e.constraint,
-      };
-      return;
-    }
-
-    throw e;
+    console.log('[Internal Server Error]', e)
+    ctx.response.status = 500
+    ctx.error('Internal Server Error')
   }
-});
+})
 
-app.use(router.middleware());
-app.listen(config.port);
-console.log(`notifications-microservice ${process.pid} listening on ${config.port}`);
+app.use(router.middleware())
+app.listen(config.port)
+console.log(
+  `notifications-microservice ${process.pid} listening on ${config.port}`
+)
