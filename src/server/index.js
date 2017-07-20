@@ -1,9 +1,13 @@
-const Koa = require('koa');
-const Router = require('koa-better-router');
-const router = Router({ prefix: '/api' }).loadMethods();
+const Koa = require('koa')
+const convert = require('koa-convert')
+const Router = require('koa-better-router')
+const bodyParser = require('koa-better-body')
+const router = Router({ prefix: '/api' }).loadMethods()
+const userAPI = require('./user')
+const koaJsend = require('./middleware/jsend')
 
-const config = require('../../config.json')['env:global'];
-const app = new Koa();
+const config = require('../../config.json')['env:global']
+const app = new Koa()
 
 /**
  * Routes
@@ -35,12 +39,31 @@ const app = new Koa();
  *
  *
  */
-router.get('user/:id', async (ctx, next) => {
-  ctx.body = `User ${ctx.params.id}`;
 
-  return next();
-});
+router.post('user', userAPI.create)
+router.get('user/:id', userAPI.get)
+router.put('user/:id', userAPI.update)
+router.delete('user/:id', userAPI.delete)
 
-app.use(router.middleware());
-app.listen(config.port);
-console.log(`notifications-microservice ${process.pid} listening on ${config.port}`);
+// Parse body and save it in ctx.request.body
+app.use(convert(bodyParser({ fields: 'body' })))
+
+// Add jsend formatter to ctx
+app.use(koaJsend())
+
+// Catch Internal Server Errors
+app.use(async function onServerError(ctx, next) {
+  try {
+    await next()
+  } catch (e) {
+    console.log('[Internal Server Error]', e)
+    ctx.response.status = 500
+    ctx.error('Internal Server Error')
+  }
+})
+
+app.use(router.middleware())
+app.listen(config.port)
+console.log(
+  `notifications-microservice ${process.pid} listening on ${config.port}`
+)
