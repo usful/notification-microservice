@@ -17,10 +17,6 @@ const app = new Koa()
  *
  * Users
  * /api/users/:group  - get users that belong to a group
- *
- * Notifications
- * get /api/notifications/sent  - get sent notifications
- * get /api/notifications/unsent - get unsent notifications
  */
 
 router.post('user', userAPI.create)

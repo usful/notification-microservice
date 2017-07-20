@@ -39,7 +39,7 @@ curl -v -X DELETE -H "Content-Type: application/json" localhost:8080/api/templat
 Math.floor((Date.now() / 1000) + 86400);
 
 __Create notification__
-curl -v -X POST -H "Content-Type: application/json" localhost:8080/api/notification -d '{"by":["email"],"at":1500659152,"template_id":1}'
+curl -v -X POST -H "Content-Type: application/json" localhost:8080/api/notification -d '{"by":["email"],"at":1500659152,"template_id":1,"users":[234234]}'
 
 __Get notification__
 curl -v localhost:8080/api/notification/1
@@ -49,6 +49,9 @@ curl -v -X PUT -H "Content-Type: application/json" localhost:8080/api/notificati
 
 __Delete notification__
 curl -v -X DELETE -H "Content-Type: application/json" localhost:8080/api/notification/1
+
+__Get sent notifications__
+curl -v localhost:8080/api/notification/sent
 
 ## Postgres queries
 
