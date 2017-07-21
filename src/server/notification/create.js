@@ -1,68 +1,59 @@
 const squel = require('squel').useFlavour('postgres')
-const utils = require('../utils')
 const db = require('../../../database/client')
+const queries = require('./queries')
 
+/**
+ * Required fields:
+ * by, at, template_id, users
+ */
 module.exports = async function createNotification(ctx) {
+  const { by, at, template_id, required_by, data, users } = ctx.request.body
 
-  const {
-    by,
-    required_by,
-    at,
-    template_id,
-    data,
-  } = ctx.request.body
-
-  const baseQuery = squel
-    .insert()
-    .into('notification')
-    .set('by', utils.pgArr(by))
-    .set('at', at)
-    .returning('*')
-
-  if (required_by) {
-    baseQuery.set('email', email)
+  /** Check users and get their ids **/
+  const { ids: user_ids } = await queries.getUserIdsFromExternalIds(users)
+  if (user_ids.length !== users.length) {
+    ctx.response.status = 400
+    ctx.fail({ users: 'one or more user ids were not found' })
+    return
   }
 
-  if (sms) {
-    baseQuery.set('sms', sms)
-  }
-
-  if (voice) {
-    baseQuery.set('voice', voice)
-  }
-
-  if (delivery) {
-    baseQuery.set('delivery', utils.pgArr(delivery))
-  }
-
-  if (timezone) {
-    baseQuery.set('timezone', timezone)
-  }
-
-  if (language) {
-    baseQuery.set('language', language)
-  } else {
-    baseQuery.set('language', 'en')
-  }
-
-  if (active || active == false) {
-    baseQuery.set('timezone', active)
-  }
-
-  console.log('Running query', baseQuery.toString())
-
-  let user
+  /** Create notification **/
+  let notification
   try {
-    user = await db.one(baseQuery.toString())
+    notification = await queries.createNotification(
+      by,
+      at,
+      template_id,
+      required_by,
+      data
+    )
   } catch (err) {
-    // TODO: We are assuming that external_id has the only unique constraint
-    if (err.code === '23505') {
-      ctx.response.status = 400
-      ctx.fail({ id: 'this is is already registered for another user' })
+    if (err.code === '23503') {
+      ctx.response.status = 404
+      ctx.fail({
+        template_id: `template with id ${template_id} does not exists`,
+      })
       return
     }
+    throw err
   }
 
-  console.log('user registered', user)
-  ctx.success(user)
+  console.log('notification created', notification)
+
+  /** Add users to notification **/
+  try {
+    await queries.insertNotificationUsers(notification.id, user_ids)
+  } catch (err) {
+    if (err.code === '23503') {
+      ctx.response.status = 400
+      ctx.fail({
+        users: 'one or more ids were not found, notification was created without users',
+      })
+      return
+    }
+    throw err
+  }
+
+  notification.users = users
+  ctx.success(notification)
 }

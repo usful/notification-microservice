@@ -12,34 +12,11 @@ const config = require('../../config.json')['env:global']
 const app = new Koa()
 
 /**
- * Routes
+ * Pending Routes
  * -------
- * User
- * post /api/user/create
- * get /api/user/:id
- * update /api/user/:id
- * delete /api/user/:id
  *
  * Users
  * /api/users/:group  - get users that belong to a group
- *
- * Notification
- * post /api/notification/create
- * get /api/notification/:id
- * update /api/notification/:id
- * delete /api/notification/:id
- *
- * Notifications
- * get /api/notifications/sent  - get sent notifications
- * get /api/notifications/unsent - get unsent notifications
- *
- * Template
- * post /api/template/create
- * get /api/template/:id
- * update /api/template/:id
- * delete /api/template/:id
- *
- *
  */
 
 router.post('user', userAPI.create)
@@ -47,10 +24,13 @@ router.get('user/:id', userAPI.get)
 router.put('user/:id', userAPI.update)
 router.delete('user/:id', userAPI.delete)
 
-// router.post('notification', notificationAPI.create)
-// router.get('notification/:id', notificationAPI.get)
-// router.put('notification/:id', notificationAPI.update)
-// router.delete('notification/:id', notificationAPI.delete)
+router.get('notification/sent', notificationAPI.getSent)
+router.get('notification/unsent', notificationAPI.getUnsent)
+
+router.post('notification', notificationAPI.create)
+router.get('notification/:id', notificationAPI.get)
+router.put('notification/:id', notificationAPI.update)
+router.delete('notification/:id', notificationAPI.delete)
 
 router.post('template', templateAPI.create)
 router.get('template/:id', templateAPI.get)

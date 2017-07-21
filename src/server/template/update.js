@@ -46,7 +46,7 @@ module.exports = async function updateTemplate(ctx) {
     baseQuery.set('timezone', push)
   }
 
-  let template = await db.oneOrNone(baseQuery.toString())
+  const template = await db.oneOrNone(baseQuery.toString())
 
   if (!template) {
     ctx.response.status = 404
