@@ -9,6 +9,7 @@ const templateAPI = require('./template')
 const koaJsend = require('./middleware/jsend')
 
 const config = require('../../config.json')['env:global']
+require('../engine/NotificationController')
 const app = new Koa()
 
 /**
