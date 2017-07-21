@@ -7,51 +7,57 @@ module.exports = class Controller {
     this.workers = [];
     this.maxWorkers = maxWorkers;
     this.script = script;
+    this.createWorker = this.createWorker.bind(this);
+  }
+
+  createWorker(id) {
+    const worker = cp.fork(this.script);
+
+    console.log('Controller', 'Worker', id, 'created');
+
+    worker.on('message', function(message) {
+      switch (message.command) {
+        case 'register':
+          console.log('Controller', 'Worker', this.whoAmI, 'registered');
+          break;
+        case 'available':
+          console.log('Controller', 'Worker', this.whoAmI, 'available');
+          this.available = true;
+          break;
+        case 'done':
+          console.log('Controller', 'Worker', this.whoAmI, 'done');
+          this.available = true;
+          break;
+        case 'failed':
+          console.log('Controller', 'Worker', this.whoAmI, 'failed');
+          this.available = true;
+          break;
+      }
+    });
+
+    worker.on('close', function(code, signal) {
+      this.available = false;
+      console.log('Controller', 'Worker', this.whoAmI, 'closed');
+    });
+
+    worker.on('exit', function(code, signal) {
+      this.available = false;
+      console.log('Controller', 'Worker', this.whoAmI, 'exited');
+    });
+
+    worker.whoAmI = id;
+    //Let the worker know which ID it is.
+    worker.send({ command: 'register', whoAmI: id });
+
+    //We will track who is busy and who is not with this flag.
+    worker.available = false;
+    return worker;
   }
 
   setup() {
     //Launch a worker per CPU
     for (let i = 0; i < this.maxWorkers; i++) {
-      const worker = cp.fork(this.script);
-
-      console.log('Controller', 'Worker', i, 'created');
-
-      worker.on('message', function(message) {
-        switch (message.command) {
-          case 'register':
-            console.log('Controller', 'Worker', worker.whoAmI, 'registered');
-            break;
-          case 'available':
-            console.log('Controller', 'Worker', worker.whoAmI, 'available');
-            this.available = true;
-            break;
-          case 'done':
-            console.log('Controller', 'Worker', worker.whoAmI, 'done');
-            this.available = true;
-            break;
-          case 'failed':
-            console.log('Controller', 'Worker', worker.whoAmI, 'failed');
-            this.available = true;
-            break;
-        }
-      });
-
-      worker.on('close', function(code, signal) {
-        this.available = false;
-        console.log('Controller', 'Worker', worker.whoAmI, 'closed');
-      });
-
-      worker.on('exit', function(code, signal) {
-        this.available = false;
-        console.log('Controller', 'Worker', worker.whoAmI, 'exited');
-      });
-
-      worker.whoAmI = i;
-      //Let the worker know which ID it is.
-      worker.send({ command: 'register', whoAmI: i });
-
-      //We will track who is busy and who is not with this flag.
-      worker.available = false;
+      const worker = this.createWorker(i);
       this.workers.push(worker);
     }
   }
