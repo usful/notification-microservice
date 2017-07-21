@@ -40,7 +40,7 @@ module.exports = async function createNotification(ctx) {
 
   console.log('notification created', notification)
 
-  /** Create users for notification **/
+  /** Add users to notification **/
   try {
     await queries.insertNotificationUsers(notification.id, user_ids)
   } catch (err) {
