@@ -1,3 +1,5 @@
+const squel = require('squel').useFlavour('postgres')
+const utils = require('../utils')
 const db = require('../../../database/client')
 
 function getNotificationById(id) {
@@ -55,8 +57,53 @@ function getNotificationsUnsent() {
   )
 }
 
+function createNotification(by, at, template_id, required_by, data) {
+  const query = squel
+    .insert()
+    .into('notification')
+    .set('by', utils.pgArr(by))
+    .set('at', squel.rstr(`to_timestamp(${at})`))
+    .set('template_id', template_id)
+    .returning('*')
+
+  if (required_by) {
+    query.set('required_by', email)
+  }
+
+  if (data) {
+    query.set('sms', data)
+  }
+
+  console.log('[Query]', query.toString())
+  return db.one(query.toString())
+}
+
+function getUserIdsFromExternalIds(idsArr) {
+  return db.one(
+    'SELECT array_agg(id::int) as ids FROM account WHERE external_id IN ($1:csv)',
+    [idsArr]
+  )
+}
+
+function insertNotificationUsers(notification_id, user_ids) {
+  const notificationUsersQuery = squel
+    .insert()
+    .into('notification_users')
+    .setFieldsRows(
+      user_ids.map(user_id => ({
+        notification_id,
+        user_id,
+      }))
+    )
+  console.log('[Query]', notificationUsersQuery.toString())
+  return db.none(notificationUsersQuery.toString())
+}
+
 module.exports = {
   getNotificationById,
   getNotificationsSent,
   getNotificationsUnsent,
+  createNotification,
+  getUserIdsFromExternalIds,
+  insertNotificationUsers,
 }
