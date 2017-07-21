@@ -10,7 +10,7 @@ module.exports = async function createNotification(ctx) {
   const { by, at, template_id, required_by, data, users } = ctx.request.body
 
   /** Check users and get their ids **/
-  const { ids : user_ids } = await queries.getUserIdsFromExternalIds(users)
+  const { ids: user_ids } = await queries.getUserIdsFromExternalIds(users)
   if (user_ids.length !== users.length) {
     ctx.response.status = 400
     ctx.fail({ users: 'one or more user ids were not found' })
@@ -35,7 +35,7 @@ module.exports = async function createNotification(ctx) {
       })
       return
     }
-    throw err;
+    throw err
   }
 
   console.log('notification created', notification)

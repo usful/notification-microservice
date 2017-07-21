@@ -99,6 +99,44 @@ function insertNotificationUsers(notification_id, user_ids) {
   return db.none(notificationUsersQuery.toString())
 }
 
+function updateNotification(id, by, at, template_id, required_by, data) {
+  const baseQuery = squel
+    .update()
+    .table('notification')
+    .where('id = ?', id)
+    .returning('*')
+
+  if (by) {
+    baseQuery.set('by', utils.pgArr(by))
+  }
+
+  if (at) {
+    baseQuery.set('at', squel.rstr(`to_timestamp(${at})`))
+  }
+
+  if (template_id) {
+    baseQuery.set('template_id', template_id)
+  }
+
+  if (required_by) {
+    baseQuery.set('required_by', email)
+  }
+
+  if (data) {
+    baseQuery.set('sms', data)
+  }
+
+  console.log('[Query]', baseQuery.toString())
+  return db.oneOrNone(baseQuery.toString())
+}
+
+function deteleNotificationUsers(id) {
+  return db.none(
+    'DELETE FROM notification_users where notification_id = $1',
+    id
+  )
+}
+
 module.exports = {
   getNotificationById,
   getNotificationsSent,
@@ -106,4 +144,6 @@ module.exports = {
   createNotification,
   getUserIdsFromExternalIds,
   insertNotificationUsers,
+  updateNotification,
+  deteleNotificationUsers,
 }
