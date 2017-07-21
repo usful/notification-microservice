@@ -58,7 +58,8 @@ CREATE TABLE notification (
   at            timestamp           NOT NULL,
   template      bigint              NOT NULL REFERENCES template(id),
   data          jsonb               NULL,
-  sent          timestamp           NULL
+  sent          timestamp           NULL,
+  status        text                NOT NULL DEFAULT 'waiting'
   -- user_user_locale
   -- geo
   -- groups
