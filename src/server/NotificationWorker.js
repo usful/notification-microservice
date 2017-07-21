@@ -1,4 +1,6 @@
-const Worker = require('../classes/Worker');
+const Worker = require("../classes/Worker");
+const squel = require("squel").useFlavour("postgres");
+const db = require("../../database/client");
 
 /**
  * Get a random integer.  Used to pause a random amount of time.
@@ -15,7 +17,10 @@ function getRandomInt(min, max) {
 /**
  * Return a promise that will pause for a random amount of time, to simulate work being done.
  */
-const pause = () => new Promise(resolve => setTimeout(() => resolve(), getRandomInt(1000,10000)));
+const pause = () =>
+  new Promise(resolve =>
+    setTimeout(() => resolve(), getRandomInt(1000, 10000))
+  );
 
 //Extend the Worker class.
 class MyWorker extends Worker {
@@ -23,17 +28,22 @@ class MyWorker extends Worker {
    * Implement the processData async function.  This function would do any arbitrary amount of work required.
    * IE. this could receive a notification as data, and then do all the work required to send that notification.
    */
-  async processData(data) {
+  async processData({notification}) {
     //Output to the console so we know some work is being done.
-    console.log('Worker', worker.whoAmI, 'got data', data);
+    console.log("Worker", worker.whoAmI, "got data", notification);
 
     //Fake doing some work on the data.
     await pause();
 
-    //Return a result.
-    return {
-      result: this.whoAmI
-    };
+    /**for now will reset the notification status back to 'waiting' to reuse them. Didn't want to have to infinitely
+     * make notifications to test.**/
+    const tempQuery = squel
+      .update()
+      .table("notification")
+      .set("status", "waiting")
+      .where("id = ?", notification.id);
+    db.none(tempQuery.toString());
+
   }
 }
 
