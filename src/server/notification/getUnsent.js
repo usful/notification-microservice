@@ -1,9 +1,7 @@
-const squel = require('squel').useFlavour('postgres')
-const db = require('../../../database/client')
+const queries = require('./queries')
 
 module.exports = async function getSent(ctx, next) {
-  const notifications = await
-    db.any('SELECT * FROM notification WHERE sent IS NULL')
+  const notifications = await queries.getNotificationsUnsent()
 
   ctx.success(notifications)
 }

@@ -2,7 +2,6 @@ const squel = require('squel').useFlavour('postgres')
 const utils = require('../utils')
 const db = require('../../../database/client')
 
-// TODO: Abstract queries in a library
 module.exports = async function updateNotification(ctx) {
   const id = ctx.params.id
 

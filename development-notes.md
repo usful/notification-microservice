@@ -53,6 +53,9 @@ curl -v -X DELETE -H "Content-Type: application/json" localhost:8080/api/notific
 __Get sent notifications__
 curl -v localhost:8080/api/notification/sent
 
+__Get unsent notifications__
+curl -v localhost:8080/api/notification/unsent
+
 ## Postgres queries
 
 __How to query by hour of the day using account's timezone__

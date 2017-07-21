@@ -1,12 +1,11 @@
 const squel = require('squel').useFlavour('postgres')
 const db = require('../../../database/client')
+const queries = require('./queries')
 
 module.exports = async function getNotification(ctx) {
   const id = ctx.params.id
-  const notification = await db.oneOrNone(
-    'SELECT * FROM notification WHERE id = $1',
-    [id]
-  )
+
+  const notification = await queries.getNotificationById(id)
 
   if (!notification) {
     ctx.response.status = 404

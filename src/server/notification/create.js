@@ -2,7 +2,7 @@ const squel = require('squel').useFlavour('postgres')
 const utils = require('../utils')
 const db = require('../../../database/client')
 
-// TODO: Abstract queries in a library
+// TODO: Abstract queries in queries.js ?
 module.exports = async function createNotification(ctx) {
   /**
    * Required fields:
