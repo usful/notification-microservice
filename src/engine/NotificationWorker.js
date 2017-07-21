@@ -40,7 +40,7 @@ class MyWorker extends Worker {
     const tempQuery = squel
       .update()
       .table("notification")
-      .set("status", "waiting")
+      .set("status", "new")
       .where("id = ?", notification.id);
     db.none(tempQuery.toString());
 

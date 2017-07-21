@@ -4,6 +4,7 @@ const squel = require("squel").useFlavour("postgres");
 const pgp = require("pg-promise");
 const db = require("../../database/client");
 const Controller = require("../classes/Controller");
+const queries = require("../server/notification/queries");
 
 const TransactionMode = pgp.txMode.TransactionMode;
 const isolationLevel = pgp.txMode.isolationLevel;
@@ -22,35 +23,28 @@ const transactionMode = new TransactionMode({
   readOnly: false
 });
 
-//need to include something so that notifications that are being worked on aren't taken
-const selectQuery = squel
+const getNextNotificationQuery = squel
   .select()
   .from("notification")
-  .where("notification.sent is NULL")
   .where("notification.at <= NOW()")
-  .where("notification.status != 'inProgress'")
+  .where("notification.status = 'new'")
   .order("notification.at")
-  .limit(1);
+  .limit(1)
+  .toString();
 
-const updateQueryGen = id =>
-  squel
-    .update()
-    .table("notification")
-    .set("status", "inProgress")
-    .where("id = ?", id);
-
-//gets the next notification and marks it as inProgress
+//gets the next notification and marks it as processing
 const transaction = t => {
   return t
-    .oneOrNone(selectQuery.toString())
+    .oneOrNone(getNextNotificationQuery)
     .then(notification => {
-      if(!!notification) {
-        t.none(updateQueryGen(notification.id).toString());
+      if (!!notification) {
+        return queries.updateNotification({
+          id: notification.id,
+          status: "processing"
+        });
       }
-      return notification;
     })
     .catch(error => {
-      //no notification got
       console.log(error);
     });
 };

@@ -19,14 +19,14 @@ module.exports = async function updateNotification(ctx) {
   /** Update notification **/
   let notification
   try {
-    notification = await queries.updateNotification(
+    notification = await queries.updateNotification({
       id,
       by,
       at,
       template_id,
       required_by,
       data
-    )
+    })
   } catch (err) {
     // TODO: how to differenciate between by and required_by errors
     if (err.code === '22P02') {
