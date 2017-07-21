@@ -42,14 +42,16 @@ const updateQueryGen = id =>
 //gets the next notification and marks it as inProgress
 const transaction = t => {
   return t
-    .one(selectQuery.toString())
+    .oneOrNone(selectQuery.toString())
     .then(notification => {
-      t.none(updateQueryGen(notification.id).toString());
+      if(!!notification) {
+        t.none(updateQueryGen(notification.id).toString());
+      }
       return notification;
     })
     .catch(error => {
       //no notification got
-      //console.log('error',error);
+      console.log(error);
     });
 };
 transaction.txMode = transactionMode;
