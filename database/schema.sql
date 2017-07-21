@@ -1,6 +1,7 @@
 
 CREATE TYPE verification_status AS ENUM('verified', 'bounced', 'failed', 'unverified');
 CREATE TYPE delivery_type AS ENUM('email', 'sms', 'push', 'voice', 'web');
+CREATE TYPE notification_status AS ENUM('new', 'failed', 'sent', 'processing');
 
 CREATE OR REPLACE FUNCTION is_timezone( tz TEXT ) RETURNS BOOLEAN as $$
 DECLARE
@@ -59,7 +60,7 @@ CREATE TABLE notification (
   required_by   delivery_type[]     NULL,
   data          jsonb               NULL,
   sent          timestamp           NULL,
-  status        text                NOT NULL DEFAULT 'waiting'
+  status        notification_status NOT NULL DEFAULT 'new'::notification_status
   -- user_user_locale
   -- geo
   -- groups
