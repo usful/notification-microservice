@@ -1,10 +1,10 @@
-const path = require("path");
-const fetch = require("node-fetch");
-const squel = require("squel").useFlavour("postgres");
-const pgp = require("pg-promise");
-const db = require("../../database/client");
-const Controller = require("../classes/Controller");
-const queries = require("../server/notification/queries");
+const path = require('path');
+const fetch = require('node-fetch');
+const squel = require('squel').useFlavour('postgres');
+const pgp = require('pg-promise');
+const db = require('../../database/client');
+const Controller = require('../classes/Controller');
+const queries = require('../server/notification/queries');
 
 const TransactionMode = pgp.txMode.TransactionMode;
 const isolationLevel = pgp.txMode.isolationLevel;
@@ -12,7 +12,7 @@ const isolationLevel = pgp.txMode.isolationLevel;
 const SLEEP_TIME = 1000;
 
 const controller = new Controller({
-  script: path.resolve(__dirname, "./notificationWorker.js")
+  script: path.resolve(__dirname, './notificationWorker.js')
 });
 
 controller.setup();
@@ -25,28 +25,27 @@ const transactionMode = new TransactionMode({
 
 const getNextNotificationQuery = squel
   .select()
-  .from("notification")
-  .where("notification.at <= NOW()")
+  .from('notification')
+  .where('notification.at <= NOW()')
   .where("notification.status = 'new'")
-  .order("notification.at")
+  .order('notification.at')
   .limit(1)
   .toString();
 
 //gets the next notification and marks it as processing
-const transaction = t => {
-  return t
-    .oneOrNone(getNextNotificationQuery)
-    .then(notification => {
-      if (!!notification) {
-        return queries.updateNotification({
-          id: notification.id,
-          status: "processing"
-        });
-      }
-    })
-    .catch(error => {
-      console.log(error);
-    });
+const transaction = async t => {
+  try {
+    const notification = await t.oneOrNone(getNextNotificationQuery);
+    if (!!notification) {
+      queries.updateNotification({
+        id: notification.id,
+        status: 'processing'
+      });
+    }
+    return notification;
+  } catch (error) {
+    console.log(error);
+  }
 };
 transaction.txMode = transactionMode;
 
@@ -61,7 +60,7 @@ controller.run({
         await new Promise(resolve => setTimeout(resolve, SLEEP_TIME));
       }
     } catch (err) {
-      console.log("error", err);
+      console.log('error', err);
     }
   }
 });

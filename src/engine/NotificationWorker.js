@@ -1,6 +1,6 @@
-const Worker = require("../classes/Worker");
-const squel = require("squel").useFlavour("postgres");
-const db = require("../../database/client");
+const Worker = require('../classes/Worker');
+const squel = require('squel').useFlavour('postgres');
+const db = require('../../database/client');
 
 /**
  * Get a random integer.  Used to pause a random amount of time.
@@ -28,9 +28,9 @@ class MyWorker extends Worker {
    * Implement the processData async function.  This function would do any arbitrary amount of work required.
    * IE. this could receive a notification as data, and then do all the work required to send that notification.
    */
-  async processData({notification}) {
+  async processData({ notification }) {
     //Output to the console so we know some work is being done.
-    console.log("Worker", worker.whoAmI, "got data", notification);
+    console.log('Worker', worker.whoAmI, 'got data', notification);
 
     //Fake doing some work on the data.
     await pause();
@@ -39,11 +39,10 @@ class MyWorker extends Worker {
      * make notifications to test.**/
     const tempQuery = squel
       .update()
-      .table("notification")
-      .set("status", "new")
-      .where("id = ?", notification.id);
+      .table('notification')
+      .set('status', 'new')
+      .where('id = ?', notification.id);
     db.none(tempQuery.toString());
-
   }
 }
 
