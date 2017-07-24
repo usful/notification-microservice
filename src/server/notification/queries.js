@@ -99,7 +99,7 @@ function insertNotificationUsers(notification_id, user_ids) {
   return db.none(notificationUsersQuery.toString())
 }
 
-function updateNotification(id, by, at, template_id, required_by, data) {
+function updateNotification({id, by, at, template_id, required_by, data, status}) {
   const baseQuery = squel
     .update()
     .table('notification')
@@ -124,6 +124,10 @@ function updateNotification(id, by, at, template_id, required_by, data) {
 
   if (data) {
     baseQuery.set('sms', data)
+  }
+
+  if(status) {
+    baseQuery.set('status', status)
   }
 
   console.log('[Query]', baseQuery.toString())
