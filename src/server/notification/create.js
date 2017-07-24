@@ -1,37 +1,32 @@
 const squel = require('squel').useFlavour('postgres')
-const utils = require('../utils')
 const db = require('../../../database/client')
+const queries = require('./queries')
 
-// TODO: Abstract queries in queries.js ?
+/**
+ * Required fields:
+ * by, at, template_id, users
+ */
 module.exports = async function createNotification(ctx) {
-  /**
-   * Required fields:
-   * by, at, template_id, users
-   */
-
   const { by, at, template_id, required_by, data, users } = ctx.request.body
 
-  const baseQuery = squel
-    .insert()
-    .into('notification')
-    .set('by', utils.pgArr(by))
-    .set('at', squel.rstr(`to_timestamp(${at})`))
-    .set('template_id', template_id)
-    .returning('*')
-
-  if (required_by) {
-    baseQuery.set('required_by', email)
+  /** Check users and get their ids **/
+  const { ids: user_ids } = await queries.getUserIdsFromExternalIds(users)
+  if (user_ids.length !== users.length) {
+    ctx.response.status = 400
+    ctx.fail({ users: 'one or more user ids were not found' })
+    return
   }
 
-  if (data) {
-    baseQuery.set('sms', data)
-  }
-
-  console.log('Running query', baseQuery.toString())
-
+  /** Create notification **/
   let notification
   try {
-    notification = await db.one(baseQuery.toString())
+    notification = await queries.createNotification(
+      by,
+      at,
+      template_id,
+      required_by,
+      data
+    )
   } catch (err) {
     if (err.code === '23503') {
       ctx.response.status = 404
@@ -40,28 +35,14 @@ module.exports = async function createNotification(ctx) {
       })
       return
     }
+    throw err
   }
 
   console.log('notification created', notification)
 
-  // Get id's of users
-  const user_ids_res = await db.many('SELECT id FROM account WHERE external_id IN ($1:csv)', [users])
-  const user_ids = user_ids_res.map(user => user.id)
-
-  const notificationUsersQuery = squel
-    .insert()
-    .into('notification_users')
-    .setFieldsRows(
-      user_ids.map(user_id => ({
-        notification_id: notification.id,
-        user_id,
-      }))
-    )
-
-  console.log('running query', notificationUsersQuery.toString())
-
+  /** Add users to notification **/
   try {
-    await db.none(notificationUsersQuery.toString())
+    await queries.insertNotificationUsers(notification.id, user_ids)
   } catch (err) {
     if (err.code === '23503') {
       ctx.response.status = 400
@@ -73,6 +54,6 @@ module.exports = async function createNotification(ctx) {
     throw err
   }
 
-  notification.users = users;
+  notification.users = users
   ctx.success(notification)
 }

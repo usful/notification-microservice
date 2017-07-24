@@ -1,3 +1,5 @@
+const squel = require('squel').useFlavour('postgres')
+const utils = require('../utils')
 const db = require('../../../database/client')
 
 function getNotificationById(id) {
@@ -55,8 +57,93 @@ function getNotificationsUnsent() {
   )
 }
 
+function createNotification(by, at, template_id, required_by, data) {
+  const query = squel
+    .insert()
+    .into('notification')
+    .set('by', utils.pgArr(by))
+    .set('at', squel.rstr(`to_timestamp(${at})`))
+    .set('template_id', template_id)
+    .returning('*')
+
+  if (required_by) {
+    query.set('required_by', email)
+  }
+
+  if (data) {
+    query.set('sms', data)
+  }
+
+  console.log('[Query]', query.toString())
+  return db.one(query.toString())
+}
+
+function getUserIdsFromExternalIds(idsArr) {
+  return db.one(
+    'SELECT array_agg(id::int) as ids FROM account WHERE external_id IN ($1:csv)',
+    [idsArr]
+  )
+}
+
+function insertNotificationUsers(notification_id, user_ids) {
+  const notificationUsersQuery = squel
+    .insert()
+    .into('notification_users')
+    .setFieldsRows(
+      user_ids.map(user_id => ({
+        notification_id,
+        user_id,
+      }))
+    )
+  console.log('[Query]', notificationUsersQuery.toString())
+  return db.none(notificationUsersQuery.toString())
+}
+
+function updateNotification(id, by, at, template_id, required_by, data) {
+  const baseQuery = squel
+    .update()
+    .table('notification')
+    .where('id = ?', id)
+    .returning('*')
+
+  if (by) {
+    baseQuery.set('by', utils.pgArr(by))
+  }
+
+  if (at) {
+    baseQuery.set('at', squel.rstr(`to_timestamp(${at})`))
+  }
+
+  if (template_id) {
+    baseQuery.set('template_id', template_id)
+  }
+
+  if (required_by) {
+    baseQuery.set('required_by', email)
+  }
+
+  if (data) {
+    baseQuery.set('sms', data)
+  }
+
+  console.log('[Query]', baseQuery.toString())
+  return db.oneOrNone(baseQuery.toString())
+}
+
+function deteleNotificationUsers(id) {
+  return db.none(
+    'DELETE FROM notification_users where notification_id = $1',
+    id
+  )
+}
+
 module.exports = {
   getNotificationById,
   getNotificationsSent,
   getNotificationsUnsent,
+  createNotification,
+  getUserIdsFromExternalIds,
+  insertNotificationUsers,
+  updateNotification,
+  deteleNotificationUsers,
 }

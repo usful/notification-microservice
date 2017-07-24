@@ -1,45 +1,33 @@
-const squel = require('squel').useFlavour('postgres')
-const utils = require('../utils')
+const queries = require('./queries')
 const db = require('../../../database/client')
 
 module.exports = async function updateNotification(ctx) {
   const id = ctx.params.id
-
   const { by, at, template_id, required_by, data, users } = ctx.request.body
 
-  const baseQuery = squel
-    .update()
-    .table('notification')
-    .where('id = ?', id)
-    .returning('*')
-
-  if (by) {
-    baseQuery.set('by', utils.pgArr(by))
+  /** Check users and get their ids **/
+  let user_ids
+  if (users) {
+    user_ids = (await queries.getUserIdsFromExternalIds(users)).ids
+    if (user_ids.length !== users.length) {
+      ctx.response.status = 400
+      ctx.fail({ users: 'one or more user ids were not found' })
+      return
+    }
   }
 
-  if (at) {
-    baseQuery.set('at', squel.rstr(`to_timestamp(${at})`))
-  }
-
-  if (template_id) {
-    baseQuery.set('template_id', template_id)
-  }
-
-  if (required_by) {
-    baseQuery.set('required_by', email)
-  }
-
-  if (data) {
-    baseQuery.set('sms', data)
-  }
-
-  console.log('Running query', baseQuery.toString())
-
+  /** Update notification **/
   let notification
   try {
-    notification = await db.oneOrNone(baseQuery.toString())
+    notification = await queries.updateNotification(
+      id,
+      by,
+      at,
+      template_id,
+      required_by,
+      data
+    )
   } catch (err) {
-    console.log('[Error updating notification]', err)
     // TODO: how to differenciate between by and required_by errors
     if (err.code === '22P02') {
       ctx.response.status = 400
@@ -59,45 +47,25 @@ module.exports = async function updateNotification(ctx) {
     return
   }
 
+  /** Update users **/
   if (users) {
     console.log('deleting users from notification')
-    await db.none('DELETE FROM notification_users where notification_id = $1', [
-      id,
-    ])
+    await queries.deteleNotificationUsers(id)
 
-    // Get id's of users
-    const user_ids_res = await db.many('SELECT id FROM account WHERE external_id IN ($1:csv)', [users])
-    const user_ids = user_ids_res.map(user => user.id)
-
-    const notificationUsersQuery = squel
-      .insert()
-      .into('notification_users')
-      .setFieldsRows(
-        user_ids.map(user_id => ({
-          notification_id: notification.id,
-          user_id,
-        }))
-      )
-
-      console.log('adding users to notification')
-      console.log('running query', notificationUsersQuery.toString())
-
-      try {
-        await db.none(notificationUsersQuery.toString())
-      } catch (err) {
-        if (err.code === '23503') {
-          ctx.response.status = 400
-          ctx.fail({
-            users: 'one or more ids were not found, notification was updated without users',
-          })
-          return
-        }
-        console.log('[Error] updating users', err)
-        throw err
+    try {
+      await queries.insertNotificationUsers(notification.id, user_ids)
+    } catch (err) {
+      if (err.code === '23503') {
+        ctx.response.status = 400
+        ctx.fail({
+          users: 'one or more ids were not found, notification was updated without users',
+        })
+        return
       }
+      throw err
+    }
   }
 
-  notification.users = users;
-  console.log('notification updated', notification)
+  notification.users = users
   ctx.success(notification)
 }
