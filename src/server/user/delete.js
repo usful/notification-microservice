@@ -1,18 +1,23 @@
-const db = require('../../../database/client')
+const queries = require('./queries');
+const db = require('../../database/client');
 
 module.exports = async function deleteUser(ctx) {
-  const external_id = ctx.params.id
+  const external_id = ctx.params.id;
 
-  const user = await db.oneOrNone(
-    'DELETE FROM account where external_id = $1 returning id',
-    [external_id]
-  )
-
+  const user = await queries.getUserByExternalId(external_id);
   if (!user) {
-    ctx.response.status = 404
+    ctx.response.status = 404;
     ctx.fail({ id: `user with id ${external_id} not found` });
-    return
+    return;
   }
 
-  ctx.success(user)
-}
+  /** TODO: There is the possibility that the user does not exists anymore on this line, its just too unlikely **/
+
+  await queries.deleteUserNotifications(user.id);
+
+  await queries.deleteUserGroups(user.id);
+
+  await queries.deleteUserByExternalId(user.external_id);
+
+  ctx.success({ external_id: user.external_id });
+};

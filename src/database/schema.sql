@@ -1,4 +1,5 @@
 
+-- NOTICE: enums should be the same as in constants.js
 CREATE TYPE verification_status AS ENUM('verified', 'bounced', 'failed', 'unverified');
 CREATE TYPE delivery_type AS ENUM('email', 'sms', 'push', 'voice', 'web');
 CREATE TYPE notification_status AS ENUM('new', 'failed', 'sent', 'processing');
@@ -19,7 +20,7 @@ CREATE DOMAIN timezone AS TEXT CHECK ( is_timezone( value ) );
 -- TODO: not enforcing uniqueness on email, sms, voice on delevopment, enforce later
 CREATE TABLE account (
   id              bigserial           PRIMARY KEY,
-  external_id     bigint              UNIQUE NOT NULL,
+  external_id     text                UNIQUE NOT NULL,
   created         timestamp           NOT NULL DEFAULT NOW(),
   updated         timestamp           NOT NULL DEFAULT NOW(),
   name            text                NOT NULL,
@@ -34,7 +35,6 @@ CREATE TABLE account (
   timezone        timezone            NOT NULL DEFAULT 'America/Toronto',
   active          boolean             NOT NULL DEFAULT true
   -- geo
-  -- groups
   -- tags
 );
 
@@ -72,4 +72,11 @@ CREATE TABLE notification_users (
   notification_id    bigint         NOT NULL REFERENCES notification(id),
   user_id            bigint         NOT NULL REFERENCES account(id),
   PRIMARY KEY(notification_id, user_id)
+);
+
+CREATE TABLE user_groups (
+  id                bigserial,
+  group_name        text,
+  user_id           bigint          NOT NULL REFERENCES account(id),
+  PRIMARY KEY(user_id, group_name)
 );
