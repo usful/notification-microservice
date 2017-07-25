@@ -1,3 +1,4 @@
+const winston = require('winston');
 const squel = require('squel').useFlavour('postgres');
 const utils = require('../utils');
 const db = require('../../database/client');
@@ -67,7 +68,7 @@ function createUser({ external_id, name, email, sms, voice, delivery, timezone, 
     baseQuery.set('timezone', active);
   }
 
-  console.log('[Query]', baseQuery.toString());
+  winston.info('[Query]', baseQuery.toString());
   return db.one(baseQuery.toString());
 }
 
@@ -106,7 +107,7 @@ function updateUser({ external_id, name, email, sms, voice, delivery, timezone, 
     baseQuery.set('timezone', active);
   }
 
-  console.log('[Query]', baseQuery.toString());
+  winston.info('[Query]', baseQuery.toString());
 
   return db.oneOrNone(baseQuery.toString());
 }
@@ -114,7 +115,7 @@ function updateUser({ external_id, name, email, sms, voice, delivery, timezone, 
 function addUserGroups(user_id, groups) {
   const query = squel.insert().into('user_groups').setFieldsRows(groups.map(group_name => ({ user_id, group_name })));
 
-  console.log('[Query]', query.toString());
+  winston.info('[Query]', query.toString());
   return db.none(query.toString());
 }
 

@@ -17,6 +17,9 @@ pg_ctl -D /usr/local/var/postgres stop
 
 ## API
 
+### Ping server
+curl -v localhost:8080/api/ping
+
 ### User
 
 __Create user__
@@ -54,13 +57,13 @@ curl -v -X DELETE -H "Content-Type: application/json" localhost:8080/api/templat
 Math.floor((Date.now() / 1000) + 86400);
 
 __Create notification__
-curl -v -X POST -H "Content-Type: application/json" localhost:8080/api/notification -d '{"by":["email"],"at":1501027243,"template_id":1,"users":[101, 102]}'
+curl -v -X POST -H "Content-Type: application/json" localhost:8080/api/notification -d '{"by":["email"],"at":1501027243,"template_id":1,"users":["101", "102"]}'
 
 __Get notification__
 curl -v localhost:8080/api/notification/1
 
 __Update notification__
-curl -v -X PUT -H "Content-Type: application/json" localhost:8080/api/notification/15 -d '{"by":["email", "sms"],"users":[1, 2]}'
+curl -v -X PUT -H "Content-Type: application/json" localhost:8080/api/notification/1 -d '{"by":["email", "sms"],"users":[1, 2]}'
 
 __Delete notification__
 curl -v -X DELETE -H "Content-Type: application/json" localhost:8080/api/notification/1
