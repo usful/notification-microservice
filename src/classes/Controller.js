@@ -68,19 +68,15 @@ module.exports = class Controller {
     //We will track who is busy and who is not with this flag.
     worker.available = false;
     worker.crashed = false;
-    worker.pingInterval = setInterval(this.crashCheckGen(worker), CHECK_THROTTLE);
-    return worker;
-  }
-
-  crashCheckGen(worker) {
-    return () => {
+    worker.pingInterval = setInterval( () => {
       if (worker.crashed) {
         this.restartWorker(worker);
       } else {
         worker.crashed = true;
         worker.send({ command: 'ping' });
       }
-    };
+    }, CHECK_THROTTLE);
+    return worker;
   }
 
   setup() {
