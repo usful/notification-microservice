@@ -12,55 +12,56 @@ const isolationLevel = pgp.txMode.isolationLevel;
 const SLEEP_TIME = 1000;
 
 const controller = new Controller({
-	script: path.resolve(__dirname, './notificationWorker.js'),
+  script: path.resolve(__dirname, './notificationWorker.js')
 });
 
 controller.setup();
 
 //Sets transaction mode to read/write
 const transactionMode = new TransactionMode({
-	tiLevel: isolationLevel.serializable,
-	readOnly: false,
+  tiLevel: isolationLevel.serializable,
+  readOnly: false
 });
 
 const getNextNotificationQuery = squel
-	.select()
-	.from('notification')
-	.where('notification.at <= NOW()')
-	.where("notification.status = 'new'")
-	.order('notification.at')
-	.limit(1)
-	.toString();
+  .select()
+  .from('notification')
+  .where('notification.at <= NOW()')
+  .where("notification.status = 'new'")
+  .order('notification.at')
+  .limit(1)
+  .toString();
 
 //gets the next notification and marks it as processing
 const transaction = async t => {
-	try {
-		const notification = await t.oneOrNone(getNextNotificationQuery);
-		if (!!notification) {
-			queries.updateNotification({
-				id: notification.id,
-				status: 'processing',
-			});
-		}
-		return notification;
-	} catch (error) {
-		console.log(error);
-	}
+  try {
+    const notification = await t.oneOrNone(getNextNotificationQuery);
+    if (!!notification) {
+      queries.updateNotification({
+        id: notification.id,
+        status: 'processing'
+      });
+    }
+    return notification;
+  } catch (error) {
+    console.log(error);
+  }
 };
+
 transaction.txMode = transactionMode;
 
 controller.run({
-	getData: async () => {
-		try {
-			while (true) {
-				let notification = await db.tx(transaction);
-				if (!!notification) {
-					return { notification };
-				}
-				await new Promise(resolve => setTimeout(resolve, SLEEP_TIME));
-			}
-		} catch (err) {
-			console.log('error', err);
-		}
-	},
+  getData: async () => {
+    try {
+      while (true) {
+        let notification = await db.tx(transaction);
+        if (!!notification) {
+          return { notification };
+        }
+        await new Promise(resolve => setTimeout(resolve, SLEEP_TIME));
+      }
+    } catch (err) {
+      console.log('error', err);
+    }
+  }
 });
