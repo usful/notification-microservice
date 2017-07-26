@@ -1,3 +1,4 @@
+const winston = require('winston');
 const squel = require('squel').useFlavour('postgres');
 const utils = require('../utils');
 const db = require('../../database/client');
@@ -74,7 +75,7 @@ function createNotification(by, at, template_id, required_by, data) {
     query.set('sms', data);
   }
 
-  console.log('[Query]', query.toString());
+  winston.info('[Query]', query.toString());
   return db.one(query.toString());
 }
 
@@ -89,7 +90,7 @@ function insertNotificationUsers(notification_id, user_ids) {
       user_id,
     }))
   );
-  console.log('[Query]', notificationUsersQuery.toString());
+  winston.info('[Query]', notificationUsersQuery.toString());
   return db.none(notificationUsersQuery.toString());
 }
 
@@ -120,7 +121,7 @@ function updateNotification({ id, by, at, template_id, required_by, data, status
     baseQuery.set('status', status);
   }
 
-  console.log('[Query]', baseQuery.toString());
+  winston.info('[Query]', baseQuery.toString());
   return db.oneOrNone(baseQuery.toString());
 }
 

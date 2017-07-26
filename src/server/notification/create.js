@@ -1,3 +1,4 @@
+const winston = require('winston');
 const squel = require('squel').useFlavour('postgres');
 const db = require('../../database/client');
 const queries = require('./queries');
@@ -38,8 +39,6 @@ module.exports = async function createNotification(ctx) {
     throw err;
   }
 
-  console.log('notification created', notification);
-
   /** Add users to notification **/
   try {
     await queries.insertNotificationUsers(notification.id, user_ids);
@@ -56,5 +55,8 @@ module.exports = async function createNotification(ctx) {
   }
 
   notification.users = users;
+
+  winston.info('[CreateNotification] created', notification);
+
   ctx.success(notification);
 };
