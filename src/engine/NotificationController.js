@@ -47,6 +47,7 @@ const transaction = async t => {
     console.log(error);
   }
 };
+
 transaction.txMode = transactionMode;
 
 controller.run({
