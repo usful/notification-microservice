@@ -1,5 +1,5 @@
 const squel = require('squel').useFlavour('postgres');
-const db = require('../../../database/client');
+const db = require('../../database/client');
 const queries = require('./queries');
 
 /**
@@ -7,7 +7,7 @@ const queries = require('./queries');
  * by, at, template_id, users
  */
 module.exports = async function createNotification(ctx) {
-  const { by, at, template_id, required_by, data, users } = ctx.request.body;
+  const { by, at, template_id, users, required_by, data } = ctx.request.body;
 
   /** Check users and get their ids **/
   const { ids: user_ids } = await queries.getUserIdsFromExternalIds(users);

@@ -2,7 +2,7 @@ const path = require('path');
 const fetch = require('node-fetch');
 const squel = require('squel').useFlavour('postgres');
 const pgp = require('pg-promise');
-const db = require('../../database/client');
+const db = require('../database/client');
 const Controller = require('../classes/Controller');
 const queries = require('../server/notification/queries');
 

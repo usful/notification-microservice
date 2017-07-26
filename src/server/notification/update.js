@@ -1,9 +1,9 @@
 const queries = require('./queries')
-const db = require('../../../database/client')
+const db = require('../../database/client')
 
 module.exports = async function updateNotification(ctx) {
   const id = ctx.params.id
-  const { by, at, template_id, required_by, data, users } = ctx.request.body
+  const { by, at, template_id, users, required_by, data } = ctx.request.body
 
   /** Check users and get their ids **/
   let user_ids
