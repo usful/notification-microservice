@@ -8,4 +8,8 @@ function pgArr(array, cast) {
   return arrStr;
 }
 
-module.exports = { pgArr };
+function lowerCaseArr(arr) {
+  return arr.map(str => str.toLowerCase());
+}
+
+module.exports = { pgArr, lowerCaseArr };

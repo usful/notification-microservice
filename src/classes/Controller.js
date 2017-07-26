@@ -12,7 +12,7 @@ module.exports = class Controller {
   }
 
   restartWorker(worker) {
-  	const id = worker.whoAmI;
+    const id = worker.whoAmI;
     clearInterval(worker.pingInterval);
 
     worker.kill();
@@ -62,13 +62,15 @@ module.exports = class Controller {
     });
 
     worker.whoAmI = id;
+
     //Let the worker know which ID it is.
     worker.send({ command: 'register', whoAmI: id });
 
     //We will track who is busy and who is not with this flag.
     worker.available = false;
     worker.crashed = false;
-    worker.pingInterval = setInterval( () => {
+
+    worker.pingInterval = setInterval(() => {
       if (worker.crashed) {
         this.restartWorker(worker);
       } else {
@@ -76,14 +78,14 @@ module.exports = class Controller {
         worker.send({ command: 'ping' });
       }
     }, CHECK_THROTTLE);
+
     return worker;
   }
 
   setup() {
-    //Launch a worker per CPU
+    //Launch a worker per CPU.
     for (let i = 0; i < this.maxWorkers; i++) {
-      const worker = this.createWorker(i);
-      this.workers.push(worker);
+      this.workers.push(this.createWorker(i));
     }
   }
 
@@ -93,7 +95,9 @@ module.exports = class Controller {
    */
   getNextAvailableWorker() {
     const check = resolve => {
-      for (let worker of this.workers) {
+      for (let i = 0; i < this.workers.length; i++) {
+        const worker = this.workers[i];
+
         if (worker.available) {
           worker.available = false;
           resolve(worker);
@@ -119,9 +123,10 @@ module.exports = class Controller {
     while ((data = await getData())) {
       let worker = await this.getNextAvailableWorker();
 
-      worker.deadLockTimeout = setTimeout(() => {
-        this.restartWorker(worker);
-      }, DEADLOCK_THROTTLE);
+      worker.deadLockTimeout = setTimeout(
+        () => this.restartWorker(worker),
+        DEADLOCK_THROTTLE
+      );
 
       worker.send({
         command: 'data',

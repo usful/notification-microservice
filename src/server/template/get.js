@@ -1,5 +1,5 @@
 const squel = require('squel').useFlavour('postgres')
-const db = require('../../../database/client')
+const db = require('../../database/client')
 
 module.exports = async function getTemplate(ctx) {
   const id = ctx.params.id

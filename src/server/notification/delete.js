@@ -1,4 +1,4 @@
-const db = require('../../../database/client');
+const db = require('../../database/client');
 
 module.exports = async function deleteNotification(ctx) {
   const id = ctx.params.id;

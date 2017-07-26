@@ -9,13 +9,21 @@
     "koa-better-body": "^3.0.4",
     "koa-better-router": "^2.1.1",
     "koa-convert": "^1.2.0",
+    "koa-joi-bouncer": "^2.0.8",
     "node-fetch": "^1.7.1",
     "pg-promise": "^6.3.5",
-    "squel": "^5.11.1"
+    "squel": "^5.11.1",
+    "winston": "^2.3.1"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "chai": "^4.1.0",
+    "mocha": "^3.4.2",
+    "supertest": "^3.0.0"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "nodemon ./src/server",
+    "test": "npm run clear-test-data && LOG_LEVEL=error mocha",
+    "clear-test-data": "sh ./src/database/clear-test-data.sh"
   },
   "repository": {
     "type": "git",

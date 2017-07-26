@@ -1,5 +1,5 @@
 const pgPromise = require('pg-promise');
-const dbConfig = require('../config.json')['env:global'].dbConnection;
+const dbConfig = require('../../config.json')['env:global'].dbConnection;
 
 const pgp = pgPromise({
   // global event notification;

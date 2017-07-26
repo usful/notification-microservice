@@ -1,6 +1,7 @@
-const squel = require('squel').useFlavour('postgres')
-const utils = require('../utils')
-const db = require('../../../database/client')
+const winston = require('winston');
+const squel = require('squel').useFlavour('postgres');
+const utils = require('../utils');
+const db = require('../../database/client');
 
 function getNotificationById(id) {
   return db.oneOrNone(
@@ -18,7 +19,7 @@ function getNotificationById(id) {
     WHERE notif.id = $1
     `,
     id
-  )
+  );
 }
 
 function getNotificationsSent() {
@@ -36,7 +37,7 @@ function getNotificationsSent() {
     ON notif.id = users_arrs.notification_id
     WHERE notif.sent IS NOT NULL
     `
-  )
+  );
 }
 
 function getNotificationsUnsent() {
@@ -54,7 +55,7 @@ function getNotificationsUnsent() {
     ON notif.id = users_arrs.notification_id
     WHERE notif.sent IS NULL
     `
-  )
+  );
 }
 
 function createNotification(by, at, template_id, required_by, data) {
@@ -64,81 +65,68 @@ function createNotification(by, at, template_id, required_by, data) {
     .set('by', utils.pgArr(by))
     .set('at', squel.rstr(`to_timestamp(${at})`))
     .set('template_id', template_id)
-    .returning('*')
+    .returning('*');
 
   if (required_by) {
-    query.set('required_by', email)
+    query.set('required_by', email);
   }
 
   if (data) {
-    query.set('sms', data)
+    query.set('sms', data);
   }
 
-  console.log('[Query]', query.toString())
-  return db.one(query.toString())
+  winston.info('[Query]', query.toString());
+  return db.one(query.toString());
 }
 
 function getUserIdsFromExternalIds(idsArr) {
-  return db.one(
-    'SELECT array_agg(id::int) as ids FROM account WHERE external_id IN ($1:csv)',
-    [idsArr]
-  )
+  return db.one('SELECT array_agg(id::int) as ids FROM account WHERE external_id IN ($1:csv)', [idsArr]);
 }
 
 function insertNotificationUsers(notification_id, user_ids) {
-  const notificationUsersQuery = squel
-    .insert()
-    .into('notification_users')
-    .setFieldsRows(
-      user_ids.map(user_id => ({
-        notification_id,
-        user_id,
-      }))
-    )
-  console.log('[Query]', notificationUsersQuery.toString())
-  return db.none(notificationUsersQuery.toString())
+  const notificationUsersQuery = squel.insert().into('notification_users').setFieldsRows(
+    user_ids.map(user_id => ({
+      notification_id,
+      user_id,
+    }))
+  );
+  winston.info('[Query]', notificationUsersQuery.toString());
+  return db.none(notificationUsersQuery.toString());
 }
 
-function updateNotification({id, by, at, template_id, required_by, data, status}) {
-  const baseQuery = squel
-    .update()
-    .table('notification')
-    .where('id = ?', id)
-    .returning('*')
+function updateNotification({ id, by, at, template_id, required_by, data, status }) {
+  const baseQuery = squel.update().table('notification').where('id = ?', id).returning('*');
 
   if (by) {
-    baseQuery.set('by', utils.pgArr(by))
+    baseQuery.set('by', utils.pgArr(by));
   }
 
   if (at) {
-    baseQuery.set('at', squel.rstr(`to_timestamp(${at})`))
+    baseQuery.set('at', squel.rstr(`to_timestamp(${at})`));
   }
 
   if (template_id) {
-    baseQuery.set('template_id', template_id)
+    baseQuery.set('template_id', template_id);
   }
 
   if (required_by) {
-    baseQuery.set('required_by', email)
+    baseQuery.set('required_by', email);
   }
 
   if (data) {
-    baseQuery.set('sms', data)
+    baseQuery.set('sms', data);
   }
 
-  if(status) {
-    baseQuery.set('status', status)
+  if (status) {
+    baseQuery.set('status', status);
   }
 
-  console.log('[Query]', baseQuery.toString())
-  return db.oneOrNone(baseQuery.toString())
+  winston.info('[Query]', baseQuery.toString());
+  return db.oneOrNone(baseQuery.toString());
 }
 
 function deteleNotificationUsers(id) {
-  return db.none(
-    'DELETE FROM notification_users where notification_id = $1',
-    id
-  )
+  return db.none('DELETE FROM notification_users where notification_id = $1', id);
 }
 
 module.exports = {
@@ -150,4 +138,4 @@ module.exports = {
   insertNotificationUsers,
   updateNotification,
   deteleNotificationUsers,
-}
+};
