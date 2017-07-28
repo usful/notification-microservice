@@ -6,6 +6,6 @@ module.exports = class PushTransport extends Transport {
   }
 
   async send({ user, message }) {
-    console.log('Push Transport', user.id, message);
+    console.log('Push Transport', user, message);
   }
 };

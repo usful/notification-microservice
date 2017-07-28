@@ -10,10 +10,10 @@ module.exports = class Transport {
    * Sends a message to the user.
    *
    * @param user
-   * @param data
+   * @param message
    * @returns {Promise.<void>}
    */
-  async send({ user, data }) {
-    console.log(this.constructor.name, 'sending', data, 'to', user.id);
+  async send({ user, message }) {
+    console.log(this.constructor.name, 'sending', message, 'to', user.id);
   }
 }
