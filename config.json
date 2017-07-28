@@ -8,6 +8,20 @@
       "user": "notificator",
       "max": 10,
       "idleTimeoutMillis": 30000
+    },
+    "engine": {
+      "deadlockTimeout": 1800000,
+      "workerPingInterval": 1000,
+      "controllerCheckInterval": 1000,
+      "loadBalancerInterval": 20
+    },
+    "transports": {
+      "email": {
+        "AWSAccessKeyID": "key",
+        "AWSSecretKey": "secret",
+        "region": "us-east-1",
+        "rateLimit": 5
+      }
     }
   }
 }

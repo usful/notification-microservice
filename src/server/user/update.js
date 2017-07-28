@@ -1,5 +1,5 @@
 const queries = require('./queries');
-const utils = require('../utils');
+const utils = require('../../utils');
 const db = require('../../database/client');
 
 module.exports = async function updateUser(ctx) {

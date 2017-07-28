@@ -1,18 +1,18 @@
-const squel = require('squel').useFlavour('postgres')
-const db = require('../../database/client')
-const queries = require('./queries')
+const squel = require('squel').useFlavour('postgres');
+const db = require('../../database/client');
+const queries = require('./queries');
 
 module.exports = async function getNotification(ctx) {
-  const id = ctx.params.id
+  const id = ctx.params.id;
 
-  const notification = await queries.getNotificationById(id)
+  const notification = await queries.getNotificationById(id);
 
   if (!notification) {
-    ctx.response.status = 404
-    ctx.fail({ id: `notification with id ${id} not found` })
+    ctx.response.status = 404;
+    ctx.fail({ id: `notification with id ${id} not found` });
 
-    return
+    return;
   }
 
-  ctx.success(notification)
-}
+  ctx.success(notification);
+};

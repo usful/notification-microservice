@@ -1,22 +1,19 @@
 const nodemailer = require('nodemailer');
-const Transport = require('./TransportBase');
+const aws = require('aws-sdk');
+const Transport = require('../../classes/Transport');
 
-export default class EmailTransport extends Transport {
+module.exports = class EmailTransport extends Transport {
   constructor(config) {
     super(config);
-    
+
+    aws.config.update(config.transports.email);
+
     // put in the actual config here.
     this.transporter = nodemailer.createTransport({
-      host: config.host,
-      port: config.port,
-      secure: true,
-      auth: {
-        user: config.username,
-        pass: config.password
-      }
+      SES: new aws.SES({ apiVersion: '2010-12-01' })
     });
   }
-  
+
   /**
    * Wrap the nodemailer sendMail in a promise to allow async/await
    * @param mailOptions
@@ -30,19 +27,19 @@ export default class EmailTransport extends Transport {
           reject(error);
           return;
         }
-        
+
         resolve(info);
       });
     });
   }
-  
-  async send({ user, data }) {
+
+  async send({ user, message }) {
     await this.sendMail({
       from: this.config.from,
       to: user.email,
-      subject: data.subject,
-      text: data.text,
-      html: data.html
-    })
+      subject: message.subject,
+      text: message.text,
+      html: message.html
+    });
   }
-}
+};

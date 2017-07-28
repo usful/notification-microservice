@@ -1,7 +1,7 @@
 const winston = require('winston');
 const squel = require('squel').useFlavour('postgres');
 const queries = require('./queries');
-const utils = require('../utils');
+const utils = require('../../utils');
 const db = require('../../database/client');
 
 module.exports = async function createUser(ctx) {

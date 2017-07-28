@@ -1,7 +1,7 @@
 /**
  * Interface for Transports.
  */
-export default class Transport {
+module.exports = class Transport {
   constructor(config) {
     this.config = config;
   }

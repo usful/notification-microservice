@@ -1,6 +1,6 @@
 const winston = require('winston');
 const squel = require('squel').useFlavour('postgres');
-const utils = require('../utils');
+const utils = require('../../utils');
 const db = require('../../database/client');
 
 function getUserByExternalId(external_id) {
@@ -64,7 +64,7 @@ function createUser({ external_id, name, email, sms, voice, delivery, timezone, 
     baseQuery.set('language', 'en');
   }
 
-  if (active || active == false) {
+  if (active || active === false) {
     baseQuery.set('timezone', active);
   }
 
@@ -103,7 +103,7 @@ function updateUser({ external_id, name, email, sms, voice, delivery, timezone, 
     baseQuery.set('language', language);
   }
 
-  if (active || active == false) {
+  if (active || active === false) {
     baseQuery.set('timezone', active);
   }
 
