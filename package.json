@@ -4,6 +4,7 @@
   "description": "A micro-service for sending notifications",
   "main": "index.js",
   "dependencies": {
+    "aws-sdk": "^2.91.0",
     "jsend": "^1.0.2",
     "koa": "^2.3.0",
     "koa-better-body": "^3.0.4",
@@ -13,6 +14,7 @@
     "node-fetch": "^1.7.1",
     "pg-promise": "^6.3.5",
     "squel": "^5.11.1",
+    "uuid": "^3.1.0",
     "winston": "^2.3.1"
   },
   "devDependencies": {
