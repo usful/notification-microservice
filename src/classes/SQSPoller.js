@@ -2,9 +2,10 @@ const aws = require('aws-sdk');
 
 class SQSPoller {
   constructor(config, queueUrl) {
-    aws.config.update(config.transports.email);
-
     this.SQS = new aws.SQS({
+      accessKeyId: config.transports.email.AWSAccessKeyID,
+      secretAccessKey: config.transports.email.AWSSecretKey,
+      region: config.transports.email.region,
       apiVersion: '2012-11-05'
     });
 
@@ -13,13 +14,7 @@ class SQSPoller {
     this.interval = null;
   }
 
-  /**
-   * Creates the interval that polls the queue specified by the QueueUrl and stores it in a hashmap.
-   * Returns the key the created interval is stored under
-   * @param processMessage
-   * @param postProcess
-   */
-  startPolling({ processMessage = () => {}, postProcess = () => {} }) {
+  startPolling(processMessage = () => {}) {
     const QueueUrl = this.queueURL;
     this.interval = setInterval(() => {
       this.SQS.receiveMessage({ QueueUrl }, (err, data) => {
@@ -28,10 +23,9 @@ class SQSPoller {
         } else {
           if (data.Messages) {
             const message = data.Messages[0];
-            processMessage(JSON.parse(message.Body));
-            //adds the delete request for the message to the message object exposing it to the postProcess
+            message.Body = JSON.parse(message.Body);
             message.deleteRequest = this.SQS.deleteMessage({ QueueUrl, ReceiptHandle: message.ReceiptHandle });
-            postProcess(message);
+            processMessage(message);
           }
         }
       });
