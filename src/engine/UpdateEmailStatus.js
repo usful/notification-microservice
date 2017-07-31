@@ -32,5 +32,5 @@ const complaintHandler = data => {
   setEmailStatus(recipients, updateQuery);
 };
 
-bounceQueuePoller.startPolling({processMessage: bounceHandler});
-complaintQueuePoller.startPolling({processMessage: complaintHandler});
+bounceQueuePoller.startPolling({processMessage: bounceHandler, postProcess});
+complaintQueuePoller.startPolling({processMessage: complaintHandler, postProcess});
