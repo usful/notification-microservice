@@ -1,8 +1,6 @@
 const cp = require('child_process');
 const NUM_CPU = require('os').cpus().length;
-const THROTTLE = 20; //ms;
-const DEADLOCK_THROTTLE = 1800000; //30 minutes default
-const CHECK_THROTTLE = 1000;
+const config = require('../config');
 
 module.exports = class Controller {
   constructor({ maxWorkers = NUM_CPU, script }) {
@@ -23,29 +21,23 @@ module.exports = class Controller {
   createWorker(id) {
     const worker = cp.fork(this.script);
 
-    console.log('Controller', 'Worker', id, 'created');
-
     worker.on('message', function(message) {
       switch (message.command) {
         case 'register':
           console.log('Controller', 'Worker', this.whoAmI, 'registered');
           break;
         case 'available':
-          console.log('Controller', 'Worker', this.whoAmI, 'available');
           this.available = true;
           break;
         case 'done':
-          console.log('Controller', 'Worker', this.whoAmI, 'done');
           this.available = true;
           clearTimeout(this.deadLockTimeout);
           break;
         case 'failed':
-          console.log('Controller', 'Worker', this.whoAmI, 'failed');
           this.available = true;
           clearTimeout(this.deadLockTimeout);
           break;
         case 'ping':
-          console.log('Worker', this.whoAmI, 'pinged Controller');
           this.crashed = false;
           break;
       }
@@ -77,7 +69,7 @@ module.exports = class Controller {
         worker.crashed = true;
         worker.send({ command: 'ping' });
       }
-    }, CHECK_THROTTLE);
+    }, config.engine.workerPingInterval);
 
     return worker;
   }
@@ -105,7 +97,7 @@ module.exports = class Controller {
         }
       }
 
-      setTimeout(() => check(resolve), THROTTLE);
+      setTimeout(() => check(resolve), config.engine.loadBalancerInterval);
     };
 
     return new Promise(resolve => check(resolve));
@@ -125,7 +117,7 @@ module.exports = class Controller {
 
       worker.deadLockTimeout = setTimeout(
         () => this.restartWorker(worker),
-        DEADLOCK_THROTTLE
+        config.engine.deadlockTimeout
       );
 
       worker.send({

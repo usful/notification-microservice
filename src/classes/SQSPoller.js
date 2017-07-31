@@ -1,10 +1,13 @@
-const AWS = require('aws-sdk');
+const aws = require('aws-sdk');
 const uuidV4 = require('uuid/v4');
-const POLLING_THROTTLE = 1000;
 
 class SQSPoller {
-  constructor(SQSConfig) {
-    this.SQS = new AWS.SQS(SQSConfig);
+  constructor(config) {
+    aws.config.update(config.aws);
+
+    this.SQS = new aws.SQS({apiVersion: '2012-11-05'});
+
+    this.pollingInterval = config.engine.sqsPollingInterval;
     this.pollingSessions = new Map();
   }
 
@@ -14,7 +17,7 @@ class SQSPoller {
    * @param QueueUrl
    * @param processMessage
    * @param postProcess
-   * @returns {String} todo figure out what type this is
+   * @returns {String}
    */
   pollQueue(QueueUrl, { processMessage = () => {}, postProcess = () => {} }) {
     const interval = setInterval(() => {
@@ -31,7 +34,7 @@ class SQSPoller {
           }
         }
       });
-    }, POLLING_THROTTLE);
+    }, this.pollingInterval);
     const key = uuidV4();
     this.pollingSessions.set(key, interval);
     return key;

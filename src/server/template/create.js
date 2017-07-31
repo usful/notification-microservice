@@ -1,6 +1,6 @@
 const winston = require('winston');
 const squel = require('squel').useFlavour('postgres');
-const utils = require('../utils');
+const utils = require('../../utils');
 const db = require('../../database/client');
 
 module.exports = async function createTemplate(ctx) {

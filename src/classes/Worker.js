@@ -23,7 +23,6 @@ class Worker {
 					}
 					break;
 				case 'ping':
-					console.log('Controller pinged Worker', this.whoAmI);
 					process.send({ command: 'ping' });
 					break;
 			}
