@@ -31,4 +31,4 @@ const complaintHandler = messageData => {
 };
 
 bounceQueuePoller.startPolling(bounceHandler);
-//complaintQueuePoller.startPolling(complaintHandler);
+complaintQueuePoller.startPolling(complaintHandler);
