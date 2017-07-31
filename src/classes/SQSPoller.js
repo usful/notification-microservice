@@ -1,26 +1,27 @@
 const aws = require('aws-sdk');
-const uuidV4 = require('uuid/v4');
 
 class SQSPoller {
-  constructor(config) {
-    aws.config.update(config.aws);
+  constructor(config, queueUrl) {
+    aws.config.update(config.transports.email);
 
-    this.SQS = new aws.SQS({apiVersion: '2012-11-05'});
+    this.SQS = new aws.SQS({
+      apiVersion: '2012-11-05'
+    });
 
     this.pollingInterval = config.engine.sqsPollingInterval;
-    this.pollingSessions = new Map();
+    this.queueURL = queueUrl;
+    this.interval = null;
   }
 
   /**
    * Creates the interval that polls the queue specified by the QueueUrl and stores it in a hashmap.
    * Returns the key the created interval is stored under
-   * @param QueueUrl
    * @param processMessage
    * @param postProcess
-   * @returns {String}
    */
-  pollQueue(QueueUrl, { processMessage = () => {}, postProcess = () => {} }) {
-    const interval = setInterval(() => {
+  startPolling({ processMessage = () => {}, postProcess = () => {} }) {
+    const QueueUrl = this.queueURL;
+    this.interval = setInterval(() => {
       this.SQS.receiveMessage({ QueueUrl }, (err, data) => {
         if (err) {
           console.log('error occured', err);
@@ -35,14 +36,10 @@ class SQSPoller {
         }
       });
     }, this.pollingInterval);
-    const key = uuidV4();
-    this.pollingSessions.set(key, interval);
-    return key;
   }
 
-  stopPolling(key) {
-    clearInterval(this.pollingSessions.get(key));
-    this.pollingSessions.delete(key);
+  stopPolling() {
+    clearInterval(this.interval);
   }
 }
 

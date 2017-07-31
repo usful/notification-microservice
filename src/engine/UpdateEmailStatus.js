@@ -3,7 +3,8 @@ const db = require('../database/client');
 const squel = require('squel');
 const config = require('../config');
 
-const poller = new SQSPoller(config.transports.email);
+const bounceQueuePoller = new SQSPoller(config, config.AWS.SQS.BounceURL);
+const complaintQueuePoller = new SQSPoller(config, config.AWS.SQS.ComplaintsURL);
 
 const postProcess = message => {
   message.deleteRequest.send();
@@ -31,5 +32,5 @@ const complaintHandler = data => {
   setEmailStatus(recipients, updateQuery);
 };
 
-poller.pollQueue(config.AWS.SQS.ComplaintsURL, { processMessage: complaintHandler, postProcess });
-poller.pollQueue(config.AWS.SQS.BounceURL, { processMessage: bounceHandler, postProcess });
+bounceQueuePoller.startPolling({processMessage: bounceHandler});
+complaintQueuePoller.startPolling({processMessage: complaintHandler});

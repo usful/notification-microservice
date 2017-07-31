@@ -14,7 +14,7 @@
       "workerPingInterval": 1000,
       "controllerCheckInterval": 1000,
       "loadBalancerInterval": 20,
-      "sqsPollingInterval": 1000,
+      "sqsPollingInterval": 1000
     },
     "transports": {
       "email": {
@@ -27,7 +27,7 @@
     "AWS": {
       "SQS": {
         "BounceURL": "url",
-        "ComplaintsURL": "url",
+        "ComplaintsURL": "url"
       }
     }
   }
