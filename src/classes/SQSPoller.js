@@ -6,17 +6,16 @@ class SQSPoller {
       accessKeyId: config.transports.email.AWSAccessKeyID,
       secretAccessKey: config.transports.email.AWSSecretKey,
       region: config.transports.email.region,
-      apiVersion: '2012-11-05'
+      apiVersion: '2012-11-05',
     });
 
     this.pollingInterval = config.engine.sqsPollingInterval;
     this.queueURL = queueUrl;
-    this.interval = null;
   }
 
-  startPolling(processMessage = () => {}) {
-    const QueueUrl = this.queueURL;
-    this.interval = setInterval(() => {
+  async startPolling(processMessage = () => {}) {
+    while (true) {
+      const QueueUrl = this.queueURL;
       this.SQS.receiveMessage({ QueueUrl }, (err, data) => {
         if (err) {
           console.log('error occured', err);
@@ -29,12 +28,10 @@ class SQSPoller {
           }
         }
       });
-    }, this.pollingInterval);
+      await new Promise(resolve => setTimeout(resolve, this.pollingInterval));
+    }
   }
 
-  stopPolling() {
-    clearInterval(this.interval);
-  }
 }
 
 module.exports = SQSPoller;
