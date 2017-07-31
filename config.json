@@ -26,8 +26,8 @@
     },
     "AWS": {
       "SQS": {
-        "BounceURL": "url",
-        "ComplaintsURL": "url"
+        "BounceURL": "bounceURL",
+        "ComplaintsURL": "complaintURL"
       }
     }
   }
