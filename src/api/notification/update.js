@@ -1,6 +1,5 @@
-const winston = require('winston');
+const logger = require('../logger');
 const queries = require('./queries');
-const db = require('../../database/client');
 
 module.exports = async function updateNotification(ctx) {
   const id = ctx.params.id;
@@ -67,6 +66,6 @@ module.exports = async function updateNotification(ctx) {
   }
 
   notification.users = users;
-  winston.info('[UpdateNotification] updated', notification);
+  logger.info('[UpdateNotification] updated', notification);
   ctx.success(notification);
 };

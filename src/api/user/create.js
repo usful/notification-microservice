@@ -1,8 +1,6 @@
-const winston = require('winston');
-const squel = require('squel').useFlavour('postgres');
 const queries = require('./queries');
+const logger = require('../logger');
 const utils = require('../../utils');
-const db = require('../../database/client');
 
 module.exports = async function createUser(ctx) {
   const { external_id, name, email, sms, voice, delivery, language, timezone, active, groups } = ctx.request.body;
@@ -27,6 +25,6 @@ module.exports = async function createUser(ctx) {
   await queries.addUserGroups(user.id, lowerCasedGroups);
 
   user.groups = lowerCasedGroups;
-  winston.info('[createUser] user created', user);
+  logger.info('[createUser] user created', user);
   ctx.success(user);
 };

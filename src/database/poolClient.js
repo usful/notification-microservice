@@ -1,5 +1,4 @@
 const pgPromise = require('pg-promise');
-const dbConfig = require('../config').dbConnection;
 
 const pgp = pgPromise({
   // global event notification;
@@ -13,7 +12,7 @@ const pgp = pgPromise({
       console.error('Connection details:', e.cn);
       console.error('Error EVENT:', error.message || error);
     }
-  }
+  },
 });
 
 // Parse float numbers instead of leaving them as text
@@ -24,6 +23,22 @@ pgp.pg.types.setTypeParser(20, function(val) {
   return parseInt(val);
 });
 
-const db = pgp(dbConfig);
 
-module.exports = db;
+let databaseObj = null;
+const client = { pgp };
+
+function getDb() {
+  if (databaseObj) {
+    return databaseObj;
+  }
+  throw new Error('[poolClient Error] should connect before getting the db object');
+}
+client.db = getDb;
+
+function connect(dbConfig) {
+  console.log('[dbClient] connecting to db', dbConfig.host, dbConfig.port);
+  databaseObj = pgp(dbConfig);
+}
+client.connect = connect;
+
+module.exports = client;

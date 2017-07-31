@@ -1,5 +1,15 @@
 
-# Development decision notes
+# Development decision notes 2017-jul-31
+- Webhooks are an http (no https) post call to a registered API
+- There is no auth for now, (we can just ip allow the coms between servers)
+- Just one token by transport and is stored in the user table (simplest/fastest way to do it)
+- Transports are harcoded in the workers for now (no transport registration) (future feature)
+- Transports do not know about templates
+- Workers have its own connection to stream big queries of users with node-pg-query-stream and process user by user
+- Template class that knows how to load itself and render itself
+- SQS Poller class that wraps the Amazon SQS polling usage
+
+# Development decision notes 2017-jul-27
 - User contact information is directly on the user to decrease project complexity
 - Each notification has enabled the type of transport it should use
 - verification_status, delivery_type, notification_status are ENUMS on db
@@ -9,6 +19,9 @@
 - Push notifications tokens API, register, unregister, Web hooks for failed deliveries
 - Timezones, for now all is handled in utc + 0 or unixtimestamps
 - Enforce unique user email, sms... in database
+
+# Ideas
+- Add linter detection of unused variables
 
 
 ## Postgres commands

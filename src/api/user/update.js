@@ -1,6 +1,5 @@
 const queries = require('./queries');
 const utils = require('../../utils');
-const db = require('../../database/client');
 
 module.exports = async function updateUser(ctx) {
   const external_id = ctx.params.id;

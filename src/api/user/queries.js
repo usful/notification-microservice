@@ -1,10 +1,10 @@
-const winston = require('winston');
+const logger = require('../logger');
 const squel = require('squel').useFlavour('postgres');
 const utils = require('../../utils');
-const db = require('../../database/client');
+const { db } = require('../../database/poolClient');
 
 function getUserByExternalId(external_id) {
-  return db.oneOrNone(
+  return db().oneOrNone(
     `
     SELECT ac.*, array_agg(ug.group_name)
     FROM account ac
@@ -18,7 +18,7 @@ function getUserByExternalId(external_id) {
 }
 
 function getUsersByGroup(group_name) {
-  return db.manyOrNone(
+  return db().manyOrNone(
     `
     SELECT ac.*, array_agg(ug.group_name)
     FROM user_groups ug
@@ -32,7 +32,7 @@ function getUsersByGroup(group_name) {
 }
 
 function deleteUserByExternalId(external_id) {
-  return db.one('DELETE FROM account where external_id = $1 returning id', external_id);
+  return db().one('DELETE FROM account where external_id = $1 returning id', external_id);
 }
 
 function createUser({ external_id, name, email, sms, voice, delivery, timezone, language, active }) {
@@ -64,12 +64,12 @@ function createUser({ external_id, name, email, sms, voice, delivery, timezone, 
     baseQuery.set('language', 'en');
   }
 
-  if (active || active === false) {
+  if (active || active == false) {
     baseQuery.set('timezone', active);
   }
 
-  winston.info('[Query]', baseQuery.toString());
-  return db.one(baseQuery.toString());
+  logger.info('[Query]', baseQuery.toString());
+  return db().one(baseQuery.toString());
 }
 
 function updateUser({ external_id, name, email, sms, voice, delivery, timezone, language, active }) {
@@ -103,28 +103,28 @@ function updateUser({ external_id, name, email, sms, voice, delivery, timezone, 
     baseQuery.set('language', language);
   }
 
-  if (active || active === false) {
+  if (active || active == false) {
     baseQuery.set('timezone', active);
   }
 
-  winston.info('[Query]', baseQuery.toString());
+  logger.info('[Query]', baseQuery.toString());
 
-  return db.oneOrNone(baseQuery.toString());
+  return db().oneOrNone(baseQuery.toString());
 }
 
 function addUserGroups(user_id, groups) {
   const query = squel.insert().into('user_groups').setFieldsRows(groups.map(group_name => ({ user_id, group_name })));
 
-  winston.info('[Query]', query.toString());
-  return db.none(query.toString());
+  logger.info('[Query]', query.toString());
+  return db().none(query.toString());
 }
 
 function deleteUserGroups(user_id) {
-  return db.none(`DELETE FROM user_groups where user_id = $1`, user_id);
+  return db().none(`DELETE FROM user_groups where user_id = $1`, user_id);
 }
 
 function deleteUserNotifications(user_id) {
-  return db.none(`DELETE FROM notification_users where user_id = $1`, user_id);
+  return db().none(`DELETE FROM notification_users where user_id = $1`, user_id);
 }
 
 module.exports = {

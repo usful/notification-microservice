@@ -3,7 +3,7 @@ const convert = require('koa-convert');
 const Router = require('koa-better-router');
 const bodyParser = require('koa-better-body');
 const router = Router({ prefix: '/api' }).loadMethods();
-const winston = require('winston');
+const logger = require('./logger');
 const userAPI = require('./user');
 const notificationAPI = require('./notification');
 const templateAPI = require('./template');
@@ -11,11 +11,12 @@ const koaJsend = require('./middleware/jsend');
 
 const app = new Koa();
 
-winston.info('Starting Notification Microservice...');
+logger.info('Starting Notification Microservice...');
 
 if (process.env.LOG_LEVEL) {
-  console.log('setting log level to', process.env.LOG_LEVEL);
-  winston.default.transports.console.level = process.env.LOG_LEVEL;
+  // console.log('setting log level to', process.env.LOG_LEVEL);
+  //console.log(logger.transports); ??
+  //logger.default.transports.console.level = process.env.LOG_LEVEL;
 }
 
 router.post('user', userAPI.createSchema, userAPI.create);
@@ -51,7 +52,7 @@ app.use(async function onServerError(ctx, next) {
   try {
     await next();
   } catch (e) {
-    winston.error('[Internal Server Error]', e);
+    logger.error('[Internal Server Error]', e);
     ctx.response.status = 500;
     ctx.error('Internal Server Error');
   }
@@ -65,7 +66,7 @@ app.use(async function onValidationError(ctx, next) {
     if (!error.isJoi) {
       throw error;
     }
-    winston.info('[Validation Error]', error.details);
+    logger.info('[Validation Error]', error.details);
 
     const formatedMessage = error.details.reduce((acc, item) => { acc[item.path] = item.message; return acc; }, {});
 
@@ -75,4 +76,18 @@ app.use(async function onValidationError(ctx, next) {
 });
 
 app.use(router.middleware());
+
+/** Async version of app.listen **/
+app.asyncListen = (port) => {
+  return new Promise((resolve, reject) => {
+    const server = app.listen(port, (error) => {
+      if (error) {
+        reject(error);
+        return;
+      }
+      resolve(server);
+    });
+  });
+}
+
 module.exports = app;

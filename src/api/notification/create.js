@@ -1,6 +1,4 @@
-const winston = require('winston');
-const squel = require('squel').useFlavour('postgres');
-const db = require('../../database/client');
+const logger = require('../logger');
 const queries = require('./queries');
 
 /**
@@ -56,7 +54,7 @@ module.exports = async function createNotification(ctx) {
 
   notification.users = users;
 
-  winston.info('[CreateNotification] created', notification);
+  logger.info('[CreateNotification] created', notification);
 
   ctx.success(notification);
 };

@@ -1,5 +1,4 @@
 const squel = require('squel').useFlavour('postgres');
-const db = require('../../database/client');
 const queries = require('./queries');
 
 module.exports = async function getNotification(ctx) {

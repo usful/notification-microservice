@@ -1,9 +1,9 @@
-const db = require('../../database/client');
+const { db } = require('../../database/poolClient');
 
 module.exports = async function deleteNotification(ctx) {
   const id = ctx.params.id;
 
-  const notification = await db.oneOrNone(
+  const notification = await db().oneOrNone(
     'DELETE FROM notification where id = $1 returning id',
     [id]
   );

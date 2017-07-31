@@ -1,5 +1,4 @@
 const queries = require('./queries');
-const db = require('../../database/client');
 
 module.exports = async function getUser(ctx) {
   const external_id = ctx.params.id;

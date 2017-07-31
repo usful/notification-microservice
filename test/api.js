@@ -1,13 +1,22 @@
 const request = require('supertest');
 const expect = require('chai').expect;
-const app = require('../src/server');
+const { API } = require('../src');
 
+let api;
 let server;
+const apiConfig = {
+  port: 8080,
+  dbConnection: {
+    database: "notifications-test",
+  },
+};
 
-describe('Server', () => {
+describe('API', () => {
   describe('Start', function() {
     it('should intialize server', async () => {
-      server = app.listen();
+      const api = new API(apiConfig);
+      await api.start();
+      server = api.server;
     });
   });
 

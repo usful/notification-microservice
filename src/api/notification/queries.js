@@ -1,10 +1,10 @@
-const winston = require('winston');
+const logger = require('../logger');
 const squel = require('squel').useFlavour('postgres');
 const utils = require('../../utils');
-const db = require('../../database/client');
+const { db } = require('../../database/poolClient');
 
 function getNotificationById(id) {
-  return db.oneOrNone(
+  return db().oneOrNone(
     `
     SELECT notif.*, users_arrs.users as users
     FROM notification notif
@@ -23,7 +23,7 @@ function getNotificationById(id) {
 }
 
 function getNotificationsSent() {
-  return db.any(
+  return db().any(
     `
     SELECT notif.*, users_arrs.users as users
     FROM notification notif
@@ -41,7 +41,7 @@ function getNotificationsSent() {
 }
 
 function getNotificationsUnsent() {
-  return db.any(
+  return db().any(
     `
     SELECT notif.*, users_arrs.users as users
     FROM notification notif
@@ -75,12 +75,12 @@ function createNotification(by, at, template_id, required_by, data) {
     query.set('sms', data);
   }
 
-  winston.info('[Query]', query.toString());
-  return db.one(query.toString());
+  logger.info('[Query]', query.toString());
+  return db().one(query.toString());
 }
 
 function getUserIdsFromExternalIds(idsArr) {
-  return db.one('SELECT array_agg(id::int) as ids FROM account WHERE external_id IN ($1:csv)', [idsArr]);
+  return db().one('SELECT array_agg(id::int) as ids FROM account WHERE external_id IN ($1:csv)', [idsArr]);
 }
 
 function insertNotificationUsers(notification_id, user_ids) {
@@ -90,8 +90,8 @@ function insertNotificationUsers(notification_id, user_ids) {
       user_id,
     }))
   );
-  winston.info('[Query]', notificationUsersQuery.toString());
-  return db.none(notificationUsersQuery.toString());
+  logger.info('[Query]', notificationUsersQuery.toString());
+  return db().none(notificationUsersQuery.toString());
 }
 
 function updateNotification({ id, by, at, template_id, required_by, data, status }) {
@@ -121,12 +121,12 @@ function updateNotification({ id, by, at, template_id, required_by, data, status
     baseQuery.set('status', status);
   }
 
-  winston.info('[Query]', baseQuery.toString());
-  return db.oneOrNone(baseQuery.toString());
+  logger.info('[Query]', baseQuery.toString());
+  return db().oneOrNone(baseQuery.toString());
 }
 
 function deteleNotificationUsers(id) {
-  return db.none('DELETE FROM notification_users where notification_id = $1', id);
+  return db().none('DELETE FROM notification_users where notification_id = $1', id);
 }
 
 module.exports = {
