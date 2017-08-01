@@ -13,6 +13,7 @@
     "koa-better-router": "^2.1.1",
     "koa-convert": "^1.2.0",
     "koa-joi-bouncer": "^2.0.8",
+    "lodash": "^4.17.4",
     "lru-cache": "^4.1.1",
     "node-fetch": "^1.7.1",
     "nodemailer": "^4.0.1",
@@ -28,9 +29,7 @@
     "supertest": "^3.0.0"
   },
   "scripts": {
-    "start": "nodemon ./src/server",
-    "test": "npm run clear-test-data && LOG_LEVEL=error mocha",
-    "clear-test-data": "sh ./src/database/clear-test-data.sh"
+    "test": "mocha './test/0*.*.js'"
   },
   "repository": {
     "type": "git",
