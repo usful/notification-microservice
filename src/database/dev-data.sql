@@ -9,7 +9,21 @@ VALUES
 (105, 'Test User Five', 'info+5@joinlane.com', '+1 416-000-0000', '{"email","sms"}', 'en');
 
 INSERT INTO template
-(name, email)
+(name, email, push, sms, web, voice)
 VALUES
-('template1', 'some lib template'),
-('template2', 'some lib template');
+(
+    'template1',
+    '{"subject": "<%= user.name %> test", "text": "<%= user.name %>, <%= user.id %>", "html": "<%= user.name %>, <%= user.id %>"}',
+    '{"message": "<%= user.name %> test"}',
+    '{"message": "<%= user.name %> test"}',
+    '{"message": "<%= user.name %> test"}',
+    '{"message": "<%= user.name %> test"}'
+),
+(
+    'template2',
+    '{"subject": "<%= user.name %> test", "text": "<%= user.name %>, <%= user.id %>", "html": "<%= user.name %>, <%= user.id %>"}',
+    '{"message": "<%= user.name %> test"}',
+    '{"message": "<%= user.name %> test"}',
+    '{"message": "<%= user.name %> test"}',
+    '{"message": "<%= user.name %> test"}'
+);

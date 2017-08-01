@@ -2,6 +2,8 @@ const path = require('path');
 const fetch = require('node-fetch');
 const squel = require('squel').useFlavour('postgres');
 const pgp = require('pg-promise');
+
+const config = require('../config');
 const db = require('../database/client');
 const Controller = require('../classes/Controller');
 const queries = require('../server/notification/queries');
@@ -9,10 +11,8 @@ const queries = require('../server/notification/queries');
 const TransactionMode = pgp.txMode.TransactionMode;
 const isolationLevel = pgp.txMode.isolationLevel;
 
-const SLEEP_TIME = 1000;
-
 const controller = new Controller({
-  script: path.resolve(__dirname, './notificationWorker.js')
+  script: path.resolve(__dirname, './NotificationWorker.js')
 });
 
 controller.setup();
@@ -52,16 +52,16 @@ transaction.txMode = transactionMode;
 
 controller.run({
   getData: async () => {
-    try {
-      while (true) {
-        let notification = await db.tx(transaction);
-        if (!!notification) {
-          return { notification };
-        }
-        await new Promise(resolve => setTimeout(resolve, SLEEP_TIME));
+    while (true) {
+      const notification = await db.tx(transaction);
+
+      if (!!notification) {
+        return { notification };
       }
-    } catch (err) {
-      console.log('error', err);
+
+      await new Promise(resolve =>
+        setTimeout(resolve, config.engine.controllerCheckInterval)
+      );
     }
   }
 });

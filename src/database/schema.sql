@@ -43,11 +43,11 @@ CREATE TABLE template (
   created       timestamp           NOT NULL DEFAULT NOW(),
   updated       timestamp           NOT NULL DEFAULT NOW(),
   name          text                NOT NULL,
-  email         text                NULL,
-  sms           text                NULL,
-  voice         text                NULL,
-  web           text                NULL,
-  push          text                NULL
+  email         jsonb               NULL,
+  sms           jsonb               NULL,
+  voice         jsonb               NULL,
+  web           jsonb               NULL,
+  push          jsonb               NULL
 );
 
 CREATE TABLE notification (
