@@ -1,10 +1,10 @@
 const logger = require('../logger');
 const squel = require('squel').useFlavour('postgres');
 const utils = require('../../utils');
-const { db } = require('../../database/poolClient');
+const dbClient = require('../../database/poolClient');
 
 function getNotificationById(id) {
-  return db().oneOrNone(
+  return dbClient.db.oneOrNone(
     `
     SELECT notif.*, users_arrs.users as users
     FROM notification notif
@@ -23,7 +23,7 @@ function getNotificationById(id) {
 }
 
 function getNotificationsSent() {
-  return db().any(
+  return dbClient.db.any(
     `
     SELECT notif.*, users_arrs.users as users
     FROM notification notif
@@ -41,7 +41,7 @@ function getNotificationsSent() {
 }
 
 function getNotificationsUnsent() {
-  return db().any(
+  return dbClient.db.any(
     `
     SELECT notif.*, users_arrs.users as users
     FROM notification notif
@@ -76,11 +76,11 @@ function createNotification(by, at, template_id, required_by, data) {
   }
 
   logger.info('[Query]', query.toString());
-  return db().one(query.toString());
+  return dbClient.db.one(query.toString());
 }
 
 function getUserIdsFromExternalIds(idsArr) {
-  return db().one('SELECT array_agg(id::int) as ids FROM account WHERE external_id IN ($1:csv)', [idsArr]);
+  return dbClient.db.one('SELECT array_agg(id::int) as ids FROM account WHERE external_id IN ($1:csv)', [idsArr]);
 }
 
 function insertNotificationUsers(notification_id, user_ids) {
@@ -91,7 +91,7 @@ function insertNotificationUsers(notification_id, user_ids) {
     }))
   );
   logger.info('[Query]', notificationUsersQuery.toString());
-  return db().none(notificationUsersQuery.toString());
+  return dbClient.db.none(notificationUsersQuery.toString());
 }
 
 function updateNotification({ id, by, at, template_id, required_by, data, status }) {
@@ -122,11 +122,11 @@ function updateNotification({ id, by, at, template_id, required_by, data, status
   }
 
   logger.info('[Query]', baseQuery.toString());
-  return db().oneOrNone(baseQuery.toString());
+  return dbClient.db.oneOrNone(baseQuery.toString());
 }
 
 function deteleNotificationUsers(id) {
-  return db().none('DELETE FROM notification_users where notification_id = $1', id);
+  return dbClient.db.none('DELETE FROM notification_users where notification_id = $1', id);
 }
 
 module.exports = {

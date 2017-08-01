@@ -1,44 +1,55 @@
 const pgPromise = require('pg-promise');
 
-const pgp = pgPromise({
-  // global event notification;
-  error: function(error, e) {
-    if (e.cn) {
-      // A connection-related error;
-      //
-      // Connections are reported back with the password hashed,
-      // for safe errors logging, without exposing passwords.
-      console.error('[Error] Database connection:');
-      console.error('Connection details:', e.cn);
-      console.error('Error EVENT:', error.message || error);
-    }
-  },
-});
-
-// Parse float numbers instead of leaving them as text
-pgp.pg.types.setTypeParser(1700, 'text', parseFloat);
-
-// parse all integers, dangerous if numbers are bigger than in js
-pgp.pg.types.setTypeParser(20, function(val) {
-  return parseInt(val);
-});
-
-
-let databaseObj = null;
-const client = { pgp };
-
-function getDb() {
-  if (databaseObj) {
-    return databaseObj;
+class PoolClient {
+  constructor() {
+    this.pgp = null;
+    this.database = null;
   }
-  throw new Error('[poolClient Error] should connect before getting the db object');
-}
-client.db = getDb;
 
-function connect(dbConfig) {
-  console.log('[dbClient] connecting to db', dbConfig.host, dbConfig.port);
-  databaseObj = pgp(dbConfig);
-}
-client.connect = connect;
+  //
+  connect(dbConfig) {
+    this.dbConfig = dbConfig;
 
-module.exports = client;
+    this.pgp = pgPromise({
+      // global event notification;
+      error: function(error, e) {
+        if (e.cn) {
+          // A connection-related error;
+          //
+          // Connections are reported back with the password hashed,
+          // for safe errors logging, without exposing passwords.
+          console.error('[Error] Database connection:');
+          console.error('Connection details:', e.cn);
+          console.error('Error EVENT:', error.message || error);
+        }
+      },
+    });
+
+    // Parse float numbers instead of leaving them as text
+    this.pgp.pg.types.setTypeParser(1700, 'text', parseFloat);
+
+    // parse all integers, dangerous if numbers are bigger than in js
+    this.pgp.pg.types.setTypeParser(20, function(val) {
+      return parseInt(val);
+    });
+
+    console.log('[dbClient] connecting to db', this.dbConfig.host, this.dbConfig.port);
+    this.database = this.pgp(this.dbConfig);
+  }
+
+  get db() {
+    if (this.database) {
+      return this.database;
+    }
+    throw new Error('[poolClient Error] should connect before getting the db object');
+  }
+
+  end() {
+    console.log('[dbClient dissconnection from db]');
+    this.pgp.end();
+    this.pgp = null;
+    this.database = null;
+  }
+}
+
+module.exports = new PoolClient();

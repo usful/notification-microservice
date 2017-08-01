@@ -16,10 +16,21 @@ const defaultConfig = {
   },
 };
 
+// if (process.env.LOG_LEVEL) {
+//   // console.log('setting log level to', process.env.LOG_LEVEL);
+//   //console.log(logger.transports); ??
+//   //logger.default.transports.console.level = process.env.LOG_LEVEL;
+// }
+
 class Server {
   constructor(config) {
     configStore.update(_.merge(defaultConfig, config));
     this.server = null;
+
+    if (config.logLevel) {
+      console.log('[api] setting log level to', config.logLevel);
+      logger.transports.console.level = config.logLevel;
+    }
   }
 
   /** Connect to db and start api server **/
@@ -29,8 +40,18 @@ class Server {
     logger.info(`notifications-microservice listening on ${configStore.config.port}`);
   }
 
+  /** Stop koa server and close database connections **/
   stop() {
-    // TODO: stop server
+    return new Promise((resolve, reject) => {
+      this.server.close((error) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        dbClient.end();
+        resolve();
+      });
+    });
   }
 }
 

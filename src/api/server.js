@@ -13,12 +13,6 @@ const app = new Koa();
 
 logger.info('Starting Notification Microservice...');
 
-if (process.env.LOG_LEVEL) {
-  // console.log('setting log level to', process.env.LOG_LEVEL);
-  //console.log(logger.transports); ??
-  //logger.default.transports.console.level = process.env.LOG_LEVEL;
-}
-
 router.post('user', userAPI.createSchema, userAPI.create);
 router.get('user/:id', userAPI.get);
 router.put('user/:id', userAPI.updateSchema, userAPI.update);

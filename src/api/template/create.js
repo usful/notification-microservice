@@ -1,6 +1,6 @@
 const logger = require('../logger');
 const squel = require('squel').useFlavour('postgres');
-const { db } = require('../../database/poolClient');
+const dbClient = require('../../database/poolClient');
 
 module.exports = async function createTemplate(ctx) {
   const { name, email, sms, voice, web, push } = ctx.request.body;
@@ -27,7 +27,7 @@ module.exports = async function createTemplate(ctx) {
     baseQuery.set('timezone', push);
   }
 
-  const template = await db().one(baseQuery.toString());
+  const template = await dbClient.db.one(baseQuery.toString());
 
   logger.info('[CreateTemplate] created', template);
   ctx.success(template);

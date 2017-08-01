@@ -10,6 +10,7 @@ const config = {
     max: 10,
     idleTimeoutMillis: 30000,
   },
+  // logLevel: ''
 };
 
 const api = new API(config);
