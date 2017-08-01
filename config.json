@@ -13,7 +13,8 @@
       "deadlockTimeout": 1800000,
       "workerPingInterval": 1000,
       "controllerCheckInterval": 1000,
-      "loadBalancerInterval": 20
+      "loadBalancerInterval": 20,
+      "sqsPollingInterval": 1000
     },
     "transports": {
       "email": {
@@ -21,6 +22,12 @@
         "AWSSecretKey": "secret",
         "region": "us-east-1",
         "rateLimit": 5
+      }
+    },
+    "AWS": {
+      "SQS": {
+        "BounceURL": "bounceUrl",
+        "ComplaintsURL": "complaintUrl"
       }
     }
   }
