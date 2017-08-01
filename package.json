@@ -29,7 +29,7 @@
     "supertest": "^3.0.0"
   },
   "scripts": {
-    "test": "LOG_LEVEL=error mocha './test/0*.*.js'"
+    "test": "mocha './test/0*.*.js'"
   },
   "repository": {
     "type": "git",

@@ -15,6 +15,6 @@ const config = {
 
 const api = new API(config);
 
-api.start(() => console.log(`notifications-microservice ${process.pid} listening on ${config.port}`));
+await api.start();
 
-// api.stop(() => console.log('api stopped'));
+// api.stop();
