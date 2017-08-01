@@ -16,12 +16,6 @@ const defaultConfig = {
   },
 };
 
-// if (process.env.LOG_LEVEL) {
-//   // console.log('setting log level to', process.env.LOG_LEVEL);
-//   //console.log(logger.transports); ??
-//   //logger.default.transports.console.level = process.env.LOG_LEVEL;
-// }
-
 class Server {
   constructor(config) {
     configStore.update(_.merge(defaultConfig, config));
