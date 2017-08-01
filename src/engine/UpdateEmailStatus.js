@@ -7,8 +7,8 @@ const bounceQueuePoller = new SQSPoller(config, config.AWS.SQS.BounceURL);
 const complaintQueuePoller = new SQSPoller(config, config.AWS.SQS.ComplaintsURL);
 
 const setEmailStatus = (users, updateQuery) => {
-  for (let index in users) {
-    const updateEmailStatusQuery = updateQuery.where('email = ?', users[index].emailAddress).toString();
+  for (let user of users) {
+    const updateEmailStatusQuery = updateQuery.where('email = ?', user.emailAddress).toString();
     db.none(updateEmailStatusQuery);
   }
 };
