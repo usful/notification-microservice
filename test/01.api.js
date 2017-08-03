@@ -19,6 +19,7 @@ describe('API', () => {
   it('should return ping success', async () => {
     const res = await request(server).get('/api/ping').expect(200);
     expect(res.body).to.be.an('object');
+    expect(res.body.status).to.equal('success');
     expect(res.body.data.time).to.be.a('number');
   });
 

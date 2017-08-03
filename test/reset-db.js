@@ -6,7 +6,7 @@ module.exports = async function resetDB() {
 
   return new Promise((resolve, reject) => {
     exec(
-      `sh ${path.resolve(__dirname, '../src/database/recreate-db.sh')} notifications-test notificator`,
+      `sh ${path.resolve(__dirname, '../src/database/recreate-db.sh')} notifications_test notificator`,
       (error, stdout, stderr) => {
         console.log(stdout);
         if (error !== null) {

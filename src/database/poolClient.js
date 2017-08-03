@@ -6,7 +6,6 @@ class PoolClient {
     this.database = null;
   }
 
-  //
   connect(dbConfig) {
     this.dbConfig = dbConfig;
 
@@ -35,6 +34,14 @@ class PoolClient {
 
     console.log('[dbClient] connecting to db', this.dbConfig.host, this.dbConfig.port);
     this.database = this.pgp(this.dbConfig);
+  }
+
+  // Add parser to convert values to arrays on a custom oid type
+  addArrayParser(oid) {
+    const arrayParser = this.pgp.pg.types.arrayParser;
+    this.pgp.pg.types.setTypeParser(oid, (val) => {
+      return arrayParser.create(val, String).parse();
+    });
   }
 
   get db() {
