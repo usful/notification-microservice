@@ -26,8 +26,8 @@
     },
     "AWS": {
       "SQS": {
-        "BounceURL": "bounceUrl",
-        "ComplaintsURL": "complaintUrl"
+        "BounceURL": "https://sqs.us-east-1.amazonaws.com/686888558054/ses-bounce",
+        "ComplaintsURL": "https://sqs.us-east-1.amazonaws.com/686888558054/ses-complaints"
       }
     }
   }

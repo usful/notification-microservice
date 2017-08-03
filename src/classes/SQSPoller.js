@@ -16,22 +16,29 @@ class SQSPoller {
   async startPolling(processMessage = () => {}) {
     while (true) {
       const QueueUrl = this.queueURL;
-      this.SQS.receiveMessage({ QueueUrl }, (err, data) => {
-        if (err) {
-          console.log('error occured', err);
-        } else {
-          if (data.Messages) {
-            const message = data.Messages[0];
-            message.Body = JSON.parse(message.Body);
-            message.deleteRequest = this.SQS.deleteMessage({ QueueUrl, ReceiptHandle: message.ReceiptHandle });
-            processMessage(message);
-          }
-        }
-      });
-      await new Promise(resolve => setTimeout(resolve, this.pollingInterval));
+      const data = await this.receiveMessage({ QueueUrl });
+      if (data.Messages) {
+        const message = data.Messages[0];
+        message.Body = JSON.parse(message.Body);
+        message.deleteRequest = this.SQS.deleteMessage({ QueueUrl, ReceiptHandle: message.ReceiptHandle });
+        await processMessage(message);
+      } else {
+        await new Promise(resolve => setTimeout(resolve, this.pollingInterval));
+      }
     }
   }
 
+  receiveMessage(sqsOptions) {
+    return new Promise((resolve, reject) => {
+      this.SQS.receiveMessage(sqsOptions, (err, data) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+        resolve(data);
+      });
+    });
+  }
 }
 
 module.exports = SQSPoller;
