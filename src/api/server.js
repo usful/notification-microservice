@@ -5,6 +5,7 @@ const bodyParser = require('koa-better-body');
 const router = Router({ prefix: '/api' }).loadMethods();
 const logger = require('./logger');
 const userAPI = require('./user');
+const groupAPI = require('./group');
 const notificationAPI = require('./notification');
 const templateAPI = require('./template');
 const koaJsend = require('./middleware/jsend');
@@ -18,7 +19,7 @@ router.get('user/:id', userAPI.get);
 router.put('user/:id', userAPI.updateSchema, userAPI.update);
 router.delete('user/:id', userAPI.delete);
 
-router.get('users/:group', userAPI.getByGroup);
+router.get('group/:name', groupAPI.get);
 
 router.get('notification/sent', notificationAPI.getSent);
 router.get('notification/unsent', notificationAPI.getUnsent);

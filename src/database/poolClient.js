@@ -32,7 +32,7 @@ class PoolClient {
       return parseInt(val);
     });
 
-    console.log('[dbClient] connecting to db', this.dbConfig.host, this.dbConfig.port);
+    console.log('[dbClient] connecting to db', this.dbConfig.host, this.dbConfig.port, this.dbConfig.database);
     this.database = this.pgp(this.dbConfig);
   }
 

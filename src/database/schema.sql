@@ -81,9 +81,9 @@ CREATE TABLE notification (
   -- tags
 );
 
-CREATE TABLE notification_users (
-  id                 bigserial,
-  notification_id    bigint         NOT NULL REFERENCES notification(id),
-  user_id            bigint         NOT NULL REFERENCES account(id),
-  PRIMARY KEY(notification_id, user_id)
-);
+-- CREATE TABLE notification_users (
+--   id                 bigserial,
+--   notification_id    bigint         NOT NULL REFERENCES notification(id),
+--   user_id            bigint         NOT NULL REFERENCES account(id),
+--   PRIMARY KEY(notification_id, user_id)
+-- );

@@ -1,15 +1,12 @@
 const request = require('supertest');
 const expect = require('chai').expect;
-const apiConfig = require('./api-config');
-const resetDB = require('./reset-db');
-const { API } = require('../src');
+const apiConfig = require('../api-config');
+const { API } = require('../../src');
 
 let api;
 let server;
 
 describe('API', () => {
-  before(resetDB);
-
   it('should intialize server', async () => {
     api = new API(apiConfig);
     await api.start();
