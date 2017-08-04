@@ -18,6 +18,7 @@ describe('Group', () => {
   });
 
   before(async () => {
+    // Creates 10 users using the API
     await createTestData(api, server, 10);
   });
 
@@ -25,7 +26,7 @@ describe('Group', () => {
     await api.stop();
   });
 
-  it('should get ids of users in a group', async () => {
+  it('should get ids of users in a group success', async () => {
     const res = await request(server)
       .get('/api/group/test-group-a')
       .send()
@@ -44,5 +45,41 @@ describe('Group', () => {
       'test-user-8',
       'test-user-9',
     ]);
+  });
+
+  it('should add user to group successfully', async () => {
+    const postRes = await request(server)
+      .post('/api/group/test-user-0/new-group-01')
+      .send()
+      .set('Accept', 'application/json')
+      .expect(200);
+
+    expect(postRes.body.data).to.deep.equal({ id: 'test-user-0', group: 'new-group-01' });
+
+    const getRes = await request(server)
+      .get('/api/group/new-group-01')
+      .send()
+      .set('Accept', 'application/json')
+      .expect(200);
+
+    expect(getRes.body.data).to.deep.equal(['test-user-0']);
+  });
+
+  it('should remove user from group successfully', async () => {
+    const deleteRes = await request(server)
+      .delete('/api/group/test-user-0/new-group-01')
+      .send()
+      .set('Accept', 'application/json')
+      .expect(200);
+
+    expect(deleteRes.body.data).to.deep.equal({ id: 'test-user-0', group: 'new-group-01' });
+
+    const getRes = await request(server)
+      .get('/api/group/new-group-01')
+      .send()
+      .set('Accept', 'application/json')
+      .expect(200);
+
+    expect(getRes.body.data).to.deep.equal([]);
   });
 });

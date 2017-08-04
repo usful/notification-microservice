@@ -17,6 +17,34 @@ function getUserIdsByGroupName(groupName) {
   );
 }
 
+function addUserGroup(userId, groupName) {
+  return dbClient.db.none(
+    `
+    INSERT INTO account_groups
+    (user_id, group_name)
+    VALUES
+    ($1, $2)
+    `,
+    [userId, groupName]
+  );
+}
+
+function deleteUserGroup(userId, groupName) {
+  return dbClient.db.oneOrNone(
+    `
+    DELETE
+    FROM account_groups
+    WHERE
+      account_groups.user_id = $1 AND
+      account_groups.group_name = $2
+    RETURNING *;
+    `,
+    [userId, groupName]
+  );
+}
+
 module.exports = {
   getUserIdsByGroupName,
+  addUserGroup,
+  deleteUserGroup,
 };

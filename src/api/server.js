@@ -19,7 +19,9 @@ router.get('user/:id', userAPI.get);
 router.put('user/:id', userAPI.updateSchema, userAPI.update);
 router.delete('user/:id', userAPI.delete);
 
+router.post('group/:user_id/:group_name', groupAPI.post);
 router.get('group/:name', groupAPI.get);
+router.delete('group/:user_id/:group_name', groupAPI.delete);
 
 router.get('notification/sent', notificationAPI.getSent);
 router.get('notification/unsent', notificationAPI.getUnsent);
