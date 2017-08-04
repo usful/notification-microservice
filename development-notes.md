@@ -1,3 +1,23 @@
+# Temporal notes
+
+Engine Plan
+
+- Pure Engine
+   - Separate pure engine
+   - Test pure engine
+
+- Notifications Engine Basics
+   - Check controller and worker functionality
+   - Add Fake file transport and template
+   - No webhooks and no real transports or templates
+   - Test functionality
+       - Add users, templates and notifications with script
+       - Boot controller to consume notifications
+       - Listen to controller "sent" events and count to know when it finish
+       - On x sent notifications kill controller
+       - Check database sent notifications
+       - Check file of "sent" notifications
+
 # Ideas
 - Add linter detection of unused variables
 

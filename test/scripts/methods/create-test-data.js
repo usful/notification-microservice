@@ -1,12 +1,11 @@
 const request = require('supertest');
 
-
 /**
  * Gets database name from first console argument
  * creates n (see constants) users
  */
-module.exports = async function createTestData(api, server, usersQTY) {
-
+module.exports = async function createTestData(api, server, usersQTY = 10, templatesQTY = 10) {
+  /** Users **/
   const users = [];
   for (let i = 0; i < usersQTY; i++) {
     users.push({
@@ -29,4 +28,21 @@ module.exports = async function createTestData(api, server, usersQTY) {
     const res = await request(server).post('/api/user').send(user).set('Accept', 'application/json');
   }
   console.log('[createTestData] created', usersQTY, 'users');
-}
+
+  /** Templates **/
+  const templates = [];
+  for (let i = 0; i < templatesQTY; i++) {
+    templates.push({
+      name: `test-template-${i}`,
+      email: {
+        todo: 'This should be a valid EJS Template',
+      },
+    });
+  }
+
+  for (let key in templates) {
+    let template = templates[key];
+    const res = await request(server).post('/api/template').send(template).set('Accept', 'application/json');
+  }
+  console.log('[createTestData] created', templatesQTY, 'templates');
+};
