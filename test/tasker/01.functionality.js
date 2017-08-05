@@ -2,7 +2,8 @@ const path = require('path');
 const Controller = require('./TestController');
 
 const tasks = ['one', 'two', 'three', 'four', 'five'];
-let doneCounter = tasks.length;
+let doneCounter = 0;
+let taskLength = tasks.length;
 
 async function getData(controller) {
   while (controller.live) {
@@ -23,7 +24,8 @@ const controller = new Controller({
 controller.setup();
 controller.on('done', () => {
   doneCounter++;
-  if (doneCounter >= 5) {
+  console.log('[functionality] task done!', doneCounter, ' of ', taskLength);
+  if (doneCounter >= taskLength) {
     console.log('[functionality] Killing controller');
     controller.kill();
   }

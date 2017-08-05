@@ -23,7 +23,7 @@ module.exports = class Controller extends EventEmitter {
 
   restartWorker(workerProcess) {
     const id = workerProcess.whoAmI;
-    logger.warn('[Controller] restarting worker with id', id);
+    logger.warn('[Crl] restarting worker with id', id);
     this.killWorker(workerProcess);
 
     this.workers[id] = this.createWorker(id);
@@ -37,7 +37,7 @@ module.exports = class Controller extends EventEmitter {
   }
 
   createWorker(id) {
-    logger.info('[Controller]', `creating worker ${id}`);
+    // logger.info('[Crl]', `creating worker ${id}`);
 
     const workerProcess = cp.fork(this.script);
 
@@ -53,44 +53,45 @@ module.exports = class Controller extends EventEmitter {
     workerProcess.on('message', (message) => {
       switch (message.command) {
         case 'register':
-          logger.info('[Controller]', 'Worker', workerProcess.whoAmI, 'registered');
+          // logger.info('[Crl]', 'Worker', workerProcess.whoAmI, 'registered');
           break;
         case 'available':
-          logger.info('[Controller]', 'Worker', workerProcess.whoAmI, 'available');
+          // logger.info('[Crl]', 'Worker', workerProcess.whoAmI, 'available');
           workerProcess.available = true;
           break;
         case 'done':
-          logger.info('[Controller]', 'Worker', workerProcess.whoAmI, 'done');
+          logger.info('[Crl]', 'Task Done Worker', workerProcess.whoAmI, 'done');
           workerProcess.available = true;
           clearTimeout(workerProcess.deadLockTimeout);
           this.emit('done');
           break;
         case 'failed':
-          logger.info('[Controller]', 'Worker', workerProcess.whoAmI, 'failed');
+          logger.info('[Crl]', 'Worker', workerProcess.whoAmI, 'failed');
           workerProcess.available = true;
           clearTimeout(workerProcess.deadLockTimeout);
           break;
         case 'ping':
-          logger.info('[Controller]', 'Worker', workerProcess.whoAmI, 'pinged Controller');
+          logger.info('[Crl]', 'Worker', workerProcess.whoAmI, 'pinged Controller');
           workerProcess.crashed = false;
           break;
       }
     });
 
+    // TODO: In theory when there is no error event it will be thrown?
     workerProcess.on('error', (error) => {
       workerProcess.available = false;
-      logger.error('[Controller] worker', workerProcess.whoAmI);
+      logger.error('[Crl] worker', workerProcess.whoAmI);
       logger.error(error);
     });
 
     workerProcess.on('close', function(code, signal) {
       workerProcess.available = false;
-      logger.info('[Controller]', 'Worker', workerProcess.whoAmI, 'closed');
+      logger.info('[Crl]', 'Worker', workerProcess.whoAmI, 'closed');
     });
 
     workerProcess.on('exit', (code, signal) => {
       workerProcess.available = false;
-      logger.info(`[Controller] Worker ${workerProcess.whoAmI} exited with code: ${code}, signal: ${signal}`);
+      logger.info(`[Crl] Worker ${workerProcess.whoAmI} exited with code: ${code}, signal: ${signal}`);
     });
 
     workerProcess.pingInterval = setInterval(() => {
@@ -120,11 +121,11 @@ module.exports = class Controller extends EventEmitter {
    */
   getNextAvailableWorker() {
     const check = (resolve) => {
-      logger.info('[Controller] searching for available worker');
+      // logger.info('[Crl] searching for available worker');
       for (let workerId of Object.keys(this.workers)) {
         const worker = this.workers[workerId];
         if (worker.available) {
-          logger.info('[Controlller] found worker returning worker', worker.whoAmI);
+          // logger.info('[Controlller] found worker returning worker', worker.whoAmI);
           worker.available = false;
           resolve(worker);
           return;
@@ -163,7 +164,7 @@ module.exports = class Controller extends EventEmitter {
 
     let data;
     while ((data = await getNextTask(this)) && this.live) {
-      logger.info('[Controller] got data to process');
+      logger.info('[Crl] got data to process');
       const worker = await this.getNextAvailableWorker();
 
       worker.deadLockTimeout = setTimeout(() => {
@@ -177,7 +178,7 @@ module.exports = class Controller extends EventEmitter {
     }
 
     // Kill all the workers
-    logger.info('[Controller] killing all the workers and commiting suicide');
+    logger.info('[Crl] killing all the workers and commiting suicide');
     Object.keys(this.workers).forEach((workerId) => {
       this.killWorker(this.workers[workerId]);
     });

@@ -6,12 +6,12 @@ const logger = require('../logger');
 class Worker {
 	constructor() {
 		this.whoAmI = -1;
-    logger.info('[Worker] just born');
+    // logger.info('[Worker] just born');
 		process.on('message', async message => {
 			switch (message.command) {
 				case 'register':
 					this.whoAmI = message.whoAmI;
-          logger.info(`[Worker ${this.whoAmI}] got id`);
+          // logger.info(`[Worker ${this.whoAmI}] got id`);
 					process.send({ command: 'register', whoAmI: this.whoAmI });
 					break;
 				case 'data':
@@ -20,7 +20,7 @@ class Worker {
 						process.send({ command: 'done' });
 					} catch (error) {
 						process.send({ command: 'failed' });
-            logger.error(error);
+            // logger.error(error);
 					}
 					break;
 				case 'ping':
@@ -29,7 +29,7 @@ class Worker {
 			}
 		});
 
-    logger.info(`[Worker] regisering to work`);
+    // logger.info(`[Worker] regisering to work`);
 		process.send({ command: 'available' });
 	}
 
