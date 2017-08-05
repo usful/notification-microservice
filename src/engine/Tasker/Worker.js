@@ -1,25 +1,26 @@
+const logger = require('../logger');
+
 /**
  * A class that can be extended to create a worker process.
  */
 class Worker {
 	constructor() {
 		this.whoAmI = -1;
-
+    logger.info('[Worker] just born');
 		process.on('message', async message => {
 			switch (message.command) {
 				case 'register':
 					this.whoAmI = message.whoAmI;
+          logger.info(`[Worker ${this.whoAmI}] got id`);
 					process.send({ command: 'register', whoAmI: this.whoAmI });
 					break;
 				case 'data':
 					try {
 						await this.processData(message.data);
 						process.send({ command: 'done' });
-					} catch (err) {
+					} catch (error) {
 						process.send({ command: 'failed' });
-
-						console.error(err);
-						console.error(err.stack);
+            logger.error(error);
 					}
 					break;
 				case 'ping':
@@ -28,6 +29,7 @@ class Worker {
 			}
 		});
 
+    logger.info(`[Worker] regisering to work`);
 		process.send({ command: 'available' });
 	}
 
@@ -37,7 +39,7 @@ class Worker {
    * @returns {Promise.<boolean>}
    */
 	async processData({ data }) {
-		return true;
+		throw new Error('Please override processData function in Worker Class');
 	}
 }
 

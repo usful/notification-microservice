@@ -1,3 +1,7 @@
+
+# Engine notes
+- Controller receives a getData function and worker is extended with processData, i made the two of them to be extended instead
+
 # Temporal notes
 
 Engine Plan
