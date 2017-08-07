@@ -30,7 +30,7 @@
     "supertest": "^3.0.0"
   },
   "scripts": {
-    "test-api-features": "mocha './test/features/0*.*.js'",
+    "test-api": "mocha './test/features/0*.*.js'",
     "test-notificator": "mocha './test/notificator/0*.*.js'",
     "reset-test-db": "sh ./src/database/recreate-db.sh notifications_test notificator",
     "fill-test-db": "node ./test/scripts/create-test-data.js 'notifications_test'"

@@ -1,4 +1,3 @@
-
 const request = require('supertest');
 const expect = require('chai').expect;
 const apiConfig = require('../api-config');
@@ -11,6 +10,7 @@ let api;
 let server;
 let notificator;
 
+// TODO: Fix dbClient warning
 describe('Notificator', () => {
   before(resetDB);
   before(async () => {
@@ -26,17 +26,16 @@ describe('Notificator', () => {
   it('should intialize notificator', async () => {
     notificator = new Notificator();
     notificator.init();
-    notificator.run()
-    .then(() => console.log('notificator stoped'));
+    notificator.run().then(() => console.log('notificator stoped'));
   });
 
-  it('should send 1000 notifications', async function () {
+  it('should send 1000 notifications', async function() {
     this.timeout(10000);
 
     let sentCount = 0;
     notificator.on('done', () => sentCount++);
     await createTestData(api, server, 10, 10, 1000);
-    await new Promise((resolve) => {
+    await new Promise(resolve => {
       let intervalId;
       intervalId = setInterval(() => {
         if (sentCount >= 1000) {
