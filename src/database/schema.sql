@@ -71,19 +71,11 @@ CREATE TABLE notification (
   by            delivery_type[]     NOT NULL,
   at            timestamp           NOT NULL,
   template_id   bigint              NOT NULL REFERENCES template(id),
+  users         text[]              NULL,
   required_by   delivery_type[]     NULL,
   data          jsonb               NULL,
   sent          timestamp           NULL,
   status        notification_status NOT NULL DEFAULT 'new'::notification_status
   -- user_user_locale
   -- geo
-  -- groups
-  -- tags
 );
-
--- CREATE TABLE notification_users (
---   id                 bigserial,
---   notification_id    bigint         NOT NULL REFERENCES notification(id),
---   user_id            bigint         NOT NULL REFERENCES account(id),
---   PRIMARY KEY(notification_id, user_id)
--- );

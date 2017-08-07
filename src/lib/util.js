@@ -24,12 +24,10 @@ function getRandomInt(min, max) {
 }
 
 /**
- * Return a promise that will pause for a random amount of time, to simulate work being done.
+ * Return a promise that will pause for ms
  */
-function pause() {
-  return new Promise(resolve =>
-    setTimeout(() => resolve(), getRandomInt(1000, 10000))
-  );
+function pause(ms) {
+  return new Promise(resolve => setTimeout(() => resolve(), ms));
 }
 
 module.exports = { pgArr, lowerCaseArr, getRandomInt, pause };

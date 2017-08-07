@@ -6,6 +6,7 @@ const THROTTLE = 100; // ms;
 const DEADLOCK_THROTTLE = 10000; // 30 minutes default
 const CHECK_THROTTLE = 300;
 
+// TODO: is taking logger from the upper folder
 // TODO: should we wait on the setup function until all workers are registered?
 // TODO: timeouts and intervals are not cleared always correctly
 // TODO: Exit handling is not working, Test changing the controller.script to something else
@@ -19,6 +20,10 @@ module.exports = class Controller extends EventEmitter {
     this.script = script;
     this.live = true;
     this.isSetup = false;
+
+    this.getData = this.getData.bind(this);
+    this.launchWorkers = this.launchWorkers.bind(this);
+    this.run = this.run.bind(this);
   }
 
   restartWorker(workerProcess) {
@@ -56,7 +61,7 @@ module.exports = class Controller extends EventEmitter {
           // logger.info('[Crl]', 'Worker', workerProcess.whoAmI, 'registered');
           break;
         case 'available':
-          // logger.info('[Crl]', 'Worker', workerProcess.whoAmI, 'available');
+          logger.info('[Crl]', 'Worker', workerProcess.whoAmI, 'available');
           workerProcess.available = true;
           break;
         case 'done':
@@ -71,7 +76,7 @@ module.exports = class Controller extends EventEmitter {
           clearTimeout(workerProcess.deadLockTimeout);
           break;
         case 'ping':
-          logger.info('[Crl]', 'Worker', workerProcess.whoAmI, 'pinged Controller');
+          // logger.info('[Crl]', 'Worker', workerProcess.whoAmI, 'pinged Controller');
           workerProcess.crashed = false;
           break;
       }
@@ -106,7 +111,7 @@ module.exports = class Controller extends EventEmitter {
     return workerProcess;
   }
 
-  setup() {
+  launchWorkers() {
     // Launch workers on its child processes
     for (let i = 0; i < this.maxWorkers; i++) {
       const worker = this.createWorker(i);
@@ -147,7 +152,7 @@ module.exports = class Controller extends EventEmitter {
    * @returns {Promise.<boolean>}
    */
   async getData() {
-    throw new Error('Please override getData function on Controller class');
+    throw new Error('Please override getData function on Controller class or send it on run()');
   }
 
   /**
@@ -155,15 +160,17 @@ module.exports = class Controller extends EventEmitter {
    *
    * @returns {Promise.<void>}
    */
-  async run({ getData }) {
+  async run({ getData } = {}) {
     if (!this.isSetup) {
       throw new Error('please call controller.setup() before run');
     }
-
     const getNextTask = getData || this.getData;
 
     let data;
-    while ((data = await getNextTask(this)) && this.live) {
+    while (this.live) {
+      logger.info('[Crl] starting pull cycle');
+      data = await getNextTask(this);
+
       logger.info('[Crl] got data to process');
       const worker = await this.getNextAvailableWorker();
 

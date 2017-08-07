@@ -26,12 +26,14 @@
   "devDependencies": {
     "chai": "^4.1.0",
     "mocha": "^3.4.2",
+    "nodemon": "^1.11.0",
     "supertest": "^3.0.0"
   },
   "scripts": {
-    "test-features": "mocha './test/features/0*.*.js'",
+    "test-api-features": "mocha './test/features/0*.*.js'",
+    "test-notificator": "mocha './test/notificator/0*.*.js'",
     "reset-test-db": "sh ./src/database/recreate-db.sh notifications_test notificator",
-    "fill-test-db": "node ./test/scripts/createTestData.js 'notifications_test'"
+    "fill-test-db": "node ./test/scripts/create-test-data.js 'notifications_test'"
   },
   "repository": {
     "type": "git",

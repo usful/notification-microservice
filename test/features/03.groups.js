@@ -3,12 +3,12 @@ const expect = require('chai').expect;
 const apiConfig = require('../api-config');
 const resetDB = require('../scripts/methods/reset-db');
 const createTestData = require('../scripts/methods/create-test-data');
-const { API } = require('../../src');
+const API = require('../../src/api');
 
 let api;
 let server;
 
-describe('Tag', () => {
+describe('Group', () => {
   before(resetDB);
 
   before(async () => {
@@ -19,16 +19,16 @@ describe('Tag', () => {
 
   before(async () => {
     // Creates 10 users using the API
-    await createTestData(api, server, 10);
+    await createTestData(api, server, 10, 0, 0);
   });
 
   after(async () => {
     await api.stop();
   });
 
-  it('should get ids of users in a tag success', async () => {
+  it('should get ids of users in a group success', async () => {
     const res = await request(server)
-      .get('/api/tag/test-tag-a')
+      .get('/api/group/test-group-a')
       .send()
       .set('Accept', 'application/json')
       .expect(200);
@@ -47,17 +47,17 @@ describe('Tag', () => {
     ]);
   });
 
-  it('should add user to tag successfully', async () => {
+  it('should add user to group successfully', async () => {
     const postRes = await request(server)
-      .post('/api/tag/test-user-0/new-tag-01')
+      .post('/api/group/test-user-0/new-group-01')
       .send()
       .set('Accept', 'application/json')
       .expect(200);
 
-    expect(postRes.body.data).to.deep.equal({ id: 'test-user-0', tag: 'new-tag-01' });
+    expect(postRes.body.data).to.deep.equal({ id: 'test-user-0', group: 'new-group-01' });
 
     const getRes = await request(server)
-      .get('/api/tag/new-tag-01')
+      .get('/api/group/new-group-01')
       .send()
       .set('Accept', 'application/json')
       .expect(200);
@@ -65,17 +65,17 @@ describe('Tag', () => {
     expect(getRes.body.data).to.deep.equal(['test-user-0']);
   });
 
-  it('should remove user from tag successfully', async () => {
+  it('should remove user from group successfully', async () => {
     const deleteRes = await request(server)
-      .delete('/api/tag/test-user-0/new-tag-01')
+      .delete('/api/group/test-user-0/new-group-01')
       .send()
       .set('Accept', 'application/json')
       .expect(200);
 
-    expect(deleteRes.body.data).to.deep.equal({ id: 'test-user-0', tag: 'new-tag-01' });
+    expect(deleteRes.body.data).to.deep.equal({ id: 'test-user-0', group: 'new-group-01' });
 
     const getRes = await request(server)
-      .get('/api/tag/new-tag-01')
+      .get('/api/group/new-group-01')
       .send()
       .set('Accept', 'application/json')
       .expect(200);

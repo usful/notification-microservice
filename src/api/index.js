@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const logger = require('./logger');
-const configStore = require('./configStore');
 const server = require('./server');
+const configStore = require('../lib/configStore');
 const dbClient = require('../database/poolClient');
 
 const defaultConfig = {

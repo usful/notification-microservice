@@ -1,7 +1,7 @@
 const request = require('supertest');
 const expect = require('chai').expect;
 const apiConfig = require('../api-config');
-const { API } = require('../../src');
+const API = require('../../src/api');
 
 let api;
 let server;

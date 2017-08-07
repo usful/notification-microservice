@@ -1,5 +1,5 @@
 const queries = require('./queries');
-const utils = require('../../utils');
+const util = require('../../lib/util');
 
 module.exports = async function updateUser(ctx) {
   const external_id = ctx.params.id;
@@ -17,13 +17,13 @@ module.exports = async function updateUser(ctx) {
   /** Update lowercased groups **/
   if (groups) {
     await queries.deleteUserGroups(user.id);
-    await queries.addUserGroups(user.id, utils.lowerCaseArr(groups));
+    await queries.addUserGroups(user.id, util.lowerCaseArr(groups));
   }
 
   /** Update lowercases tags **/
   if (tags) {
     await queries.deleteUserTags(user.id);
-    await queries.addUserTags(user.id, utils.lowerCaseArr(tags));
+    await queries.addUserTags(user.id, util.lowerCaseArr(tags));
   }
 
   /** Get user.groups and user.tags **/
