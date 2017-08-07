@@ -10,12 +10,10 @@ module.exports = async function deleteUser(ctx) {
     return;
   }
 
-  /** TODO: There is the possibility that the user does not exists anymore on this line, its just too unlikely **/
-
-  await queries.deleteUserNotifications(user.id);
+  /** NOTICE: There is the possibility that the user does not exists anymore on this line, its just too unlikely **/
 
   await queries.deleteUserGroups(user.id);
-
+  await queries.deleteUserTags(user.id);
   await queries.deleteUserByExternalId(user.external_id);
 
   ctx.success({ external_id: user.external_id });

@@ -5,5 +5,4 @@ module.exports = {
   update: require('./update'),
   updateSchema: require('./update-schema'),
   delete: require('./delete'),
-  getByGroup: require('./get-by-group'),
 };

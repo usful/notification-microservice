@@ -38,6 +38,20 @@ CREATE TABLE account (
   -- tags
 );
 
+CREATE TABLE account_groups (
+  id                bigserial,
+  group_name        text,
+  user_id           bigint          NOT NULL REFERENCES account(id),
+  PRIMARY KEY(group_name, user_id) -- searched by group_name so group name first
+);
+
+CREATE TABLE account_tags (
+  id                bigserial,
+  tag_name          text,
+  user_id           bigint          NOT NULL REFERENCES account(id),
+  PRIMARY KEY(tag_name, user_id) -- searched by tag_name so group name first
+);
+
 CREATE TABLE template (
   id            bigserial           PRIMARY KEY,
   created       timestamp           NOT NULL DEFAULT NOW(),
@@ -57,26 +71,11 @@ CREATE TABLE notification (
   by            delivery_type[]     NOT NULL,
   at            timestamp           NOT NULL,
   template_id   bigint              NOT NULL REFERENCES template(id),
+  users         text[]              NULL,
   required_by   delivery_type[]     NULL,
   data          jsonb               NULL,
   sent          timestamp           NULL,
   status        notification_status NOT NULL DEFAULT 'new'::notification_status
   -- user_user_locale
   -- geo
-  -- groups
-  -- tags
-);
-
-CREATE TABLE notification_users (
-  id                 bigserial,
-  notification_id    bigint         NOT NULL REFERENCES notification(id),
-  user_id            bigint         NOT NULL REFERENCES account(id),
-  PRIMARY KEY(notification_id, user_id)
-);
-
-CREATE TABLE user_groups (
-  id                bigserial,
-  group_name        text,
-  user_id           bigint          NOT NULL REFERENCES account(id),
-  PRIMARY KEY(user_id, group_name)
 );

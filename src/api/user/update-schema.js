@@ -12,5 +12,6 @@ module.exports = koaJoiBouncer.middleware({
     timezone: Joi.string(),
     active: Joi.boolean(),
     groups: Joi.array().items(Joi.string()),
+    tags: Joi.array().items(Joi.string()),
   }),
 });

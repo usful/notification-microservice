@@ -1,28 +1,9 @@
 
-# Development decision notes 2017-jul-31
-- Webhooks are an http (no https) post call to a registered API
-- There is no auth for now, (we can just ip allow the coms between servers)
-- Just one token by transport and is stored in the user table (simplest/fastest way to do it)
-- Transports are harcoded in the workers for now (no transport registration) (future feature)
-- Transports do not know about templates
-- Workers have its own connection to stream big queries of users with node-pg-query-stream and process user by user
-- Template class that knows how to load itself and render itself
-- SQS Poller class that wraps the Amazon SQS polling usage
-
-# Development decision notes 2017-jul-27
-- User contact information is directly on the user to decrease project complexity
-- Each notification has enabled the type of transport it should use
-- verification_status, delivery_type, notification_status are ENUMS on db
-
-# Future features
-- GeoJSON, possibly postgis
-- Push notifications tokens API, register, unregister, Web hooks for failed deliveries
-- Timezones, for now all is handled in utc + 0 or unixtimestamps
-- Enforce unique user email, sms... in database
-
 # Ideas
 - Add linter detection of unused variables
 
+# Improvements
+- General max-length for all string entries
 
 ## Postgres commands
 pg_ctl -D /usr/local/var/postgres start
@@ -95,3 +76,34 @@ WHERE extract(
   hour FROM current_timestamp
   AT TIME ZONE account.timezone
 ) = 17
+
+# Future features
+- GeoJSON, possibly postgis
+- Push notifications tokens API, register, unregister, Web hooks for failed deliveries
+- Timezones, for now all is handled in utc + 0 or unixtimestamps
+- Enforce unique user email, sms... in database
+
+
+# Meetings development notes
+
+## 2017-jul-27
+- User contact information is directly on the user to decrease project complexity
+- Each notification has enabled the type of transport it should use
+- verification_status, delivery_type, notification_status are ENUMS on db
+
+## 2017-jul-31
+- Webhooks are an http (no https) post call to a registered API
+- There is no auth for now, (we can just ip allow the coms between servers)
+- Just one token by transport and is stored in the user table (simplest/fastest way to do it)
+- Transports are harcoded in the workers for now (no transport registration) (future feature)
+- Transports do not know about templates
+- Workers have its own connection to stream big queries of users with node-pg-query-stream and process user by user
+- Template class that knows how to load itself and render itself
+- SQS Poller class that wraps the Amazon SQS polling usage
+
+## 2017-aug-01
+- On webhooks if the webhook does not works just call the logger with an error
+- Users and notifications are not ensure since we do not handle users, the library is build on a loosely best effort design, app should be responsable on the integrity of the data, an error will be sent to app by webhook if registered
+- Groups works like you would expect, get all users that are on this group
+- Tags are filters over the users gotten by users array or groups array
+- Bad tokens will cause marking the token as bad in the notification database and report the webhook if exists
