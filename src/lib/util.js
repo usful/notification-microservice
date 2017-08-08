@@ -30,4 +30,14 @@ function pause(ms) {
   return new Promise(resolve => setTimeout(() => resolve(), ms));
 }
 
-module.exports = { pgArr, lowerCaseArr, getRandomInt, pause };
+/**
+ * Gets a value and if the value if falsy throws an error
+ */
+function getAssert(val) {
+  if (!val) {
+    throw new Error('Value should exists');
+  }
+  return val;
+}
+
+module.exports = { pgArr, lowerCaseArr, getRandomInt, pause, getAssert };

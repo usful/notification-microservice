@@ -1,9 +1,8 @@
 const path = require('path');
-const _ = require('lodash');
 const BaseController = require('./Tasker/Controller');
 const queries = require('./queries');
 const logger = require('./logger');
-const config = require('../config').notificator;
+const config = require('../config');
 const util = require('../lib/util');
 const dbClient = require('../database/poolClient');
 
@@ -11,19 +10,15 @@ const dirname = __dirname;
 
 class Controller extends BaseController {
   constructor() {
-    const cConfig = _.merge({}, config, {
+    const cConfig = Object.assign({}, {
       script: path.resolve(dirname, './Worker.js'),
-    });
+    }, config.notificator);
     // logger.info('[Controller] constructor', cConfig);
     super(cConfig);
-    this.config = cConfig;
-
-    //this.getData = this.getData.bind(this);
-    this.init = this.init.bind(this);
   }
 
   init() {
-    dbClient.connect(this.config.dbConnection);
+    dbClient.connect(config.db);
     this.launchWorkers();
   }
 
@@ -36,8 +31,8 @@ class Controller extends BaseController {
         return { notification };
       }
 
-      logger.info('[Notificator] data not found, sleeping for ', this.config.getDataPollInterval);
-      await util.pause(this.config.getDataPollInterval);
+      logger.info('[Notificator] data not found, sleeping for ', config.notificator.getDataPollInterval);
+      await util.pause(config.notificator.getDataPollInterval);
     }
   }
 }

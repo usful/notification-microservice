@@ -2,7 +2,7 @@ const { API } = require('../../src');
 
 /** Userland **/
 
-const api = new API(config);
+const api = new API();
 
 await api.start();
 

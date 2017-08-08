@@ -2,28 +2,25 @@ const cp = require('child_process');
 const EventEmitter = require('events');
 const logger = require('../logger');
 const NUM_CPU = require('os').cpus().length;
-const THROTTLE = 100; // ms;
-const DEADLOCK_THROTTLE = 10000; // 30 minutes default
-const CHECK_THROTTLE = 300;
 
 // TODO: is taking logger from the upper folder
 // TODO: should we wait on the setup function until all workers are registered?
 // TODO: timeouts and intervals are not cleared always correctly
 // TODO: Exit handling is not working, Test changing the controller.script to something else
 // TODO: kill() will kill active workers, create an stop method that waits for active workers to finish
+// TODO: Validate config parameters`
 
 module.exports = class Controller extends EventEmitter {
-  constructor({ maxWorkers = NUM_CPU, script }) {
+  constructor({ maxWorkers = NUM_CPU, script, workerPingInterval, getNextWorkerPollInterval, workerDeadlockTimeout }) {
     super();
-    this.workers = {};
+    this.workers = [];
     this.maxWorkers = maxWorkers;
     this.script = script;
     this.live = true;
     this.isSetup = false;
-
-    this.getData = this.getData.bind(this);
-    this.launchWorkers = this.launchWorkers.bind(this);
-    this.run = this.run.bind(this);
+    this.workerPingInterval = workerPingInterval;
+    this.getNextWorkerPollInterval = getNextWorkerPollInterval;
+    this.workerDeadlockTimeout = workerDeadlockTimeout;
   }
 
   restartWorker(workerProcess) {
@@ -106,7 +103,7 @@ module.exports = class Controller extends EventEmitter {
         workerProcess.crashed = true;
         workerProcess.send({ command: 'ping' });
       }
-    }, CHECK_THROTTLE);
+    }, this.workerPingInterval);
 
     return workerProcess;
   }
@@ -127,8 +124,7 @@ module.exports = class Controller extends EventEmitter {
   getNextAvailableWorker() {
     const check = (resolve) => {
       // logger.info('[Crl] searching for available worker');
-      for (let workerId of Object.keys(this.workers)) {
-        const worker = this.workers[workerId];
+      for (let worker of this.workers) {
         if (worker.available) {
           // logger.info('[Controlller] found worker returning worker', worker.whoAmI);
           worker.available = false;
@@ -137,7 +133,7 @@ module.exports = class Controller extends EventEmitter {
         }
       }
 
-      setTimeout(() => check(resolve), THROTTLE);
+      setTimeout(() => check(resolve), this.getNextWorkerPollInterval);
     };
 
     return new Promise(resolve => check(resolve));
@@ -176,7 +172,7 @@ module.exports = class Controller extends EventEmitter {
 
       worker.deadLockTimeout = setTimeout(() => {
         this.restartWorker(worker);
-      }, DEADLOCK_THROTTLE);
+      }, this.workerDeadlockTimeout);
 
       worker.send({
         command: 'data',
@@ -186,8 +182,8 @@ module.exports = class Controller extends EventEmitter {
 
     // Kill all the workers
     logger.info('[Crl] killing all the workers and commiting suicide');
-    Object.keys(this.workers).forEach((workerId) => {
-      this.killWorker(this.workers[workerId]);
+    this.workers.forEach((worker) => {
+      this.killWorker(worker);
     });
   }
 

@@ -1,45 +1,25 @@
-/** Add your own server configuration here **/
+/**
+ * Reads .env.${NODE_ENV} file and put it in process.env
+ */
+const fs = require('fs');
+const path = require('path');
+const dotenv = require('dotenv');
 
-const db = {
-  dbConnection: {
-    host: 'localhost',
-    port: 5432,
-    database: 'notifications_test',
-    user: 'notificator',
-    max: 10,
-    idleTimeoutMillis: 30000,
-  },
+if (!process.env.NODE_ENV) {
+  throw new Error('[config] Please set NODE_ENV so we could load the env file with that name');
+}
+const envFile = path.resolve(__dirname, '../../env', `.env.${process.env.NODE_ENV}`);
+
+try {
+  console.log('loading config', envFile);
+  fs.statSync(envFile);
+  dotenv.load({ path: envFile });
+} catch (error) {
+  throw new Error(`[config] env file not found ${envFile}`);
+}
+
+module.exports = {
+  db: require('./db'),
+  api: require('./api'),
+  notificator: require('./notificator'),
 };
-
-// TODO: use this config on api
-const api = {
-  port: 8080,
-};
-
-const notificator = {
-  maxWorkers: 2,
-  getDataPollInterval: 500,
-  dbConnection: db.dbConnection,
-
-  // deadlockTimeout: 1800000,
-  // workerPingInterval: 1000,
-  // controllerCheckInterval: 1000,
-  // loadBalancerInterval: 20,
-  // sqsPollingInterval: 1000,
-  transports: {
-    email: {
-      AWSAccessKeyID: 'key',
-      AWSSecretKey: 'secret',
-      region: 'us-east-1',
-      rateLimit: 5,
-    },
-  },
-  AWS: {
-    SQS: {
-      BounceURL: 'bounceUrl',
-      ComplaintsURL: 'complaintUrl',
-    },
-  },
-};
-
-module.exports = { api, notificator };
