@@ -1,7 +1,7 @@
 module.exports = {
   port: 8080,
   dbConnection: {
-    database: 'notifications-test',
+    database: 'notifications_test',
   },
-  logLevel: 'error',
+  logLevel: 'error', // when in doubt change it for 'debug', silence it with 'error'
 };
