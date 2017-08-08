@@ -30,6 +30,6 @@ module.exports = async function createTemplate(ctx) {
 
   const template = await dbClient.db.one(baseQuery.toString());
 
-  logger.info('[CreateTemplate] created', template);
+  logger.debug('[CreateTemplate] created', template);
   ctx.success(template);
 };

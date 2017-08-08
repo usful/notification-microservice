@@ -79,7 +79,7 @@ function createNotification(by, at, template_id, users, required_by, data) {
     query.set('data', JSON.stringify(data));
   }
 
-  logger.info('[Query]', query.toString());
+  logger.debug('[Query]', query.toString());
   return dbClient.db.one(query.toString());
 }
 
@@ -95,7 +95,7 @@ function insertNotificationUsers(notification_id, user_ids) {
       user_id,
     }))
   );
-  logger.info('[Query]', notificationUsersQuery.toString());
+  logger.debug('[Query]', notificationUsersQuery.toString());
   return dbClient.db.none(notificationUsersQuery.toString());
 }
 
@@ -126,7 +126,7 @@ function updateNotification({ id, by, at, template_id, required_by, data, status
     baseQuery.set('status', status);
   }
 
-  logger.info('[Query]', baseQuery.toString());
+  logger.debug('[Query]', baseQuery.toString());
   return dbClient.db.oneOrNone(baseQuery.toString());
 }
 

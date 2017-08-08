@@ -17,10 +17,36 @@ function getNextNotificationAndMarkAsProcessing() {
     SET status = 'processing'
     FROM next_notif
     WHERE notifs.id = next_notif.id
-    RETURNING next_notif`
+    RETURNING next_notif.*`
+  );
+}
+
+function markNotificationAsSent(notification_id) {
+  return dbClient.db.one(
+    `
+      UPDATE notification
+      SET status = 'sent'
+      WHERE notification.id = $1
+      returning notification.id
+    `,
+    notification_id
+  );
+}
+
+function markNotificationAsFailed(notification_id) {
+  return dbClient.db.one(
+    `
+      UPDATE notification
+      SET status = 'failed'
+      WHERE notification.id = $1
+      returning notification.id
+    `,
+    notification_id
   );
 }
 
 module.exports = {
   getNextNotificationAndMarkAsProcessing,
+  markNotificationAsSent,
+  markNotificationAsFailed,
 };

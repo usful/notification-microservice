@@ -34,6 +34,6 @@ module.exports = async function createUser(ctx) {
   createdUser.groups = (await queries.getUserGroupsById(createdUser.id)).groups;
   createdUser.tags = (await queries.getUserTagsById(createdUser.id)).tags;
 
-  logger.info('[createUser] user created', createdUser);
+  logger.debug('[createUser] user created', createdUser);
   ctx.success(createdUser);
 };

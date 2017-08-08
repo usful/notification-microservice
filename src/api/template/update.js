@@ -42,6 +42,6 @@ module.exports = async function updateTemplate(ctx) {
     return;
   }
 
-  logger.info('[UpdateTemplate] updated', template);
+  logger.debug('[UpdateTemplate] updated', template);
   ctx.success(template);
 };

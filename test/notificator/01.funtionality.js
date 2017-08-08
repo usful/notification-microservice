@@ -26,7 +26,9 @@ describe('Notificator', () => {
   it('should intialize notificator', async () => {
     notificator = new Notificator();
     notificator.init();
-    notificator.run().then(() => console.log('notificator stoped'));
+    notificator.run()
+      .then(() => console.log('notificator stoped'))
+      .catch((error) => console.error('notificator error', error));
   });
 
   it('should send 1000 notifications', async function() {

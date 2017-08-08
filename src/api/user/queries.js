@@ -116,7 +116,7 @@ function createUser({ external_id, name, email, sms, voice, delivery, timezone, 
     baseQuery.set('active', active);
   }
 
-  logger.info('[Query]', baseQuery.toString());
+  logger.debug('[Query]', baseQuery.toString());
   return dbClient.db.one(baseQuery.toString());
 }
 
@@ -155,7 +155,7 @@ function updateUser({ external_id, name, email, sms, voice, delivery, timezone, 
     baseQuery.set('active', active);
   }
 
-  logger.info('[Query]', baseQuery.toString());
+  logger.debug('[Query]', baseQuery.toString());
 
   return dbClient.db.oneOrNone(baseQuery.toString());
 }
@@ -166,14 +166,14 @@ function addUserGroups(user_id, groups) {
     .into('account_groups')
     .setFieldsRows(groups.map(group_name => ({ user_id, group_name })));
 
-  logger.info('[Query]', query.toString());
+  logger.debug('[Query]', query.toString());
   return dbClient.db.none(query.toString());
 }
 
 function addUserTags(user_id, tags) {
   const query = squel.insert().into('account_tags').setFieldsRows(tags.map(tag_name => ({ user_id, tag_name })));
 
-  logger.info('[Query]', query.toString());
+  logger.debug('[Query]', query.toString());
   return dbClient.db.none(query.toString());
 }
 
