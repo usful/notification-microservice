@@ -1,36 +1,18 @@
 const _ = require('lodash');
 const logger = require('./logger');
-const configStore = require('./configStore');
 const server = require('./server');
 const dbClient = require('../database/poolClient');
-
-const defaultConfig = {
-  port: 8080,
-  dbConnection: {
-    host: 'localhost',
-    port: 5432,
-    database: 'notifications',
-    user: 'notificator',
-    max: 10,
-    idleTimeoutMillis: 30000,
-  },
-};
+const config = require('../config');
 
 class Server {
-  constructor(config) {
-    configStore.update(_.merge(defaultConfig, config));
+  constructor() {
     this.server = null;
-
-    if (config.logLevel) {
-      console.log('[api] setting log level to', config.logLevel);
-      logger.transports.console.level = config.logLevel;
-    }
   }
 
   /** Connect to db and start api server **/
   async start() {
-    dbClient.connect(configStore.config.dbConnection);
-    this.server = await server.asyncListen(configStore.config.port);
+    dbClient.connect(config.db);
+    this.server = await server.asyncListen(config.api.port);
 
     // Custom parsing for enums
     const enums = await dbClient.db.many(
@@ -48,7 +30,7 @@ class Server {
       `
     );
     enums.forEach((en) => dbClient.addArrayParser(en.typarray));
-    logger.info(`notifications-microservice listening on ${configStore.config.port}`);
+    logger.info(`notifications-microservice listening on ${config.api.port}`);
   }
 
   /** Stop koa server and close database connections **/

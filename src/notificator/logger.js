@@ -1,15 +1,14 @@
 const Winston = require('winston');
-const config = require('../config');
 
 const logger = new Winston.Logger({
   transports: [
     new Winston.transports.Console({
-      level: config.api.logLevel,
-      // handleExceptions: true,
+      level: 'debug', // Level for development
       json: false,
       colorize: true,
-      prettyPrint: true,
       humanReadableUnhandledException: true,
+      prettyPrint: true,
+      // handleExceptions: true,
     }),
   ],
 });

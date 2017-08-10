@@ -1,3 +1,4 @@
+
 # Ideas
 - Add linter detection of unused variables
 

@@ -1,6 +1,6 @@
 const queries = require('./queries');
 const logger = require('../logger');
-const utils = require('../../utils');
+const util = require('../../lib/util');
 
 module.exports = async function createUser(ctx) {
   const { external_id, name, email, sms, voice, delivery, language, timezone, active, groups, tags } = ctx.request.body;
@@ -21,12 +21,12 @@ module.exports = async function createUser(ctx) {
 
   /** Add lowercased groups to user **/
   if (groups) {
-    await queries.addUserGroups(user.id, utils.lowerCaseArr(groups));
+    await queries.addUserGroups(user.id, util.lowerCaseArr(groups));
   }
 
   /** Add lowercased tags to user **/
   if (tags) {
-    await queries.addUserTags(user.id, utils.lowerCaseArr(tags));
+    await queries.addUserTags(user.id, util.lowerCaseArr(tags));
   }
 
   /** Get user, user.groups and user.tags **/

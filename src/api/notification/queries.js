@@ -1,6 +1,6 @@
 const logger = require('../logger');
 const squel = require('squel').useFlavour('postgres');
-const utils = require('../../utils');
+const util = require('../../lib/util');
 const dbClient = require('../../database/poolClient');
 
 function getNotificationById(id) {
@@ -58,30 +58,35 @@ function getNotificationsUnsent() {
   );
 }
 
-function createNotification(by, at, template_id, required_by, data) {
+function createNotification(by, at, template_id, users, required_by, data) {
   const query = squel
     .insert()
     .into('notification')
-    .set('by', utils.pgArr(by))
+    .set('by', util.pgArr(by))
     .set('at', squel.rstr(`to_timestamp(${at})`))
     .set('template_id', template_id)
     .returning('*');
 
+  if (users) {
+    query.set('users', util.pgArr(users));
+  }
+
   if (required_by) {
-    query.set('required_by', email);
+    query.set('required_by', util.pgArr(required_by));
   }
 
   if (data) {
-    query.set('sms', data);
+    query.set('data', JSON.stringify(data));
   }
 
   logger.info('[Query]', query.toString());
   return dbClient.db.one(query.toString());
 }
 
-function getUserIdsFromExternalIds(idsArr) {
-  return dbClient.db.one('SELECT array_agg(id::int) as ids FROM account WHERE external_id IN ($1:csv)', [idsArr]);
-}
+// function getUserIdsFromExternalIds(idsArr) {
+//   console.log('WEWEEW', idsArr);
+//   return dbClient.db.one('SELECT array_agg(id::int) as ids FROM account WHERE external_id IN ($1:csv)', [idsArr]);
+// }
 
 function insertNotificationUsers(notification_id, user_ids) {
   const notificationUsersQuery = squel.insert().into('notification_users').setFieldsRows(
@@ -98,7 +103,7 @@ function updateNotification({ id, by, at, template_id, required_by, data, status
   const baseQuery = squel.update().table('notification').where('id = ?', id).returning('*');
 
   if (by) {
-    baseQuery.set('by', utils.pgArr(by));
+    baseQuery.set('by', util.pgArr(by));
   }
 
   if (at) {
@@ -134,7 +139,7 @@ module.exports = {
   getNotificationsSent,
   getNotificationsUnsent,
   createNotification,
-  getUserIdsFromExternalIds,
+  // getUserIdsFromExternalIds,
   insertNotificationUsers,
   updateNotification,
   deteleNotificationUsers,

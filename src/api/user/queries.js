@@ -1,6 +1,6 @@
 const logger = require('../logger');
 const squel = require('squel').useFlavour('postgres');
-const utils = require('../../utils');
+const util = require('../../lib/util');
 const dbClient = require('../../database/poolClient');
 
 /** TODO: One query to get the user with its groups and tags
@@ -99,7 +99,7 @@ function createUser({ external_id, name, email, sms, voice, delivery, timezone, 
   }
 
   if (delivery) {
-    baseQuery.set('delivery', utils.pgArr(delivery));
+    baseQuery.set('delivery', util.pgArr(delivery));
   }
 
   if (timezone) {
@@ -140,7 +140,7 @@ function updateUser({ external_id, name, email, sms, voice, delivery, timezone, 
   }
 
   if (delivery) {
-    baseQuery.set('delivery', utils.pgArr(delivery));
+    baseQuery.set('delivery', util.pgArr(delivery));
   }
 
   if (timezone) {

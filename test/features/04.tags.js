@@ -3,7 +3,7 @@ const expect = require('chai').expect;
 const apiConfig = require('../api-config');
 const resetDB = require('../scripts/methods/reset-db');
 const createTestData = require('../scripts/methods/create-test-data');
-const { API } = require('../../src');
+const API = require('../../src/api');
 
 let api;
 let server;
@@ -19,7 +19,7 @@ describe('Tag', () => {
 
   before(async () => {
     // Creates 10 users using the API
-    await createTestData(api, server, 10);
+    await createTestData(api, server, 10, 0, 0);
   });
 
   after(async () => {
