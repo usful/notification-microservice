@@ -63,7 +63,7 @@ class MyWorker extends Worker {
 
   async processData({ notification }) {
     // Output to the console so we know some work is being done.
-    logger.info('[Worker]', worker.whoAmI, 'got data', notification);
+    logger.debug('[Worker]', worker.whoAmI, 'got data');
 
     // Load the template for this notification.
     // const template = new Template(notification.template_id);

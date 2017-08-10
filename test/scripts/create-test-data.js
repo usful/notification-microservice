@@ -15,13 +15,12 @@ const apiConfig = {
 };
 
 let api;
-(async () => {
+
+module.exports = async function createTestData () {
 
   api = new API(apiConfig);
   await api.start();
   const server = api.server;
 
   await createTestData(api, server, 10, 10, 1000);
-})()
-  .then(() => console.log('[createTestData] finished'))
-  .catch(error => console.error('[Error createTestData]', error));
+};

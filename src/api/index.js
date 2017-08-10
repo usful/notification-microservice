@@ -30,7 +30,7 @@ class Server {
       `
     );
     enums.forEach((en) => dbClient.addArrayParser(en.typarray));
-    logger.info(`notifications-microservice listening on ${config.api.port}`);
+    logger.debug(`notifications-microservice listening on ${config.api.port}`);
   }
 
   /** Stop koa server and close database connections **/

@@ -23,7 +23,7 @@ module.exports = async function createNotification(ctx) {
     throw err;
   }
 
-  logger.info('[CreateNotification] created', notification);
+  logger.info('[CreateNotification] created', notification.id);
 
   ctx.success(notification);
 };

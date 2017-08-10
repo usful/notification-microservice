@@ -39,7 +39,7 @@ module.exports = class Controller extends EventEmitter {
   }
 
   createWorker(id) {
-    // logger.info('[Crl]', `creating worker ${id}`);
+    // logger.debug('[Crl]', `creating worker ${id}`);
 
     const workerProcess = cp.fork(this.script);
 
@@ -55,25 +55,35 @@ module.exports = class Controller extends EventEmitter {
     workerProcess.on('message', (message) => {
       switch (message.command) {
         case 'register':
-          // logger.info('[Crl]', 'Worker', workerProcess.whoAmI, 'registered');
+          // logger.debug('[Crl]', 'Worker', workerProcess.whoAmI, 'registered');
           break;
         case 'available':
-          logger.info('[Crl]', 'Worker', workerProcess.whoAmI, 'available');
+          logger.debug('[Crl]', 'Worker', workerProcess.whoAmI, 'available');
           workerProcess.available = true;
           break;
         case 'done':
-          logger.info('[Crl]', 'Task Done Worker', workerProcess.whoAmI, 'done');
+          logger.debug('[Crl]', 'Task Done Worker', workerProcess.whoAmI, 'done', message);
           workerProcess.available = true;
           clearTimeout(workerProcess.deadLockTimeout);
+          this.postDataProcessSucess({ data: message.data })
+            .catch((error) => {
+              logger.error('[Crl] error on postDataProcess', error);
+              throw new Error(error);
+            });
           this.emit('done');
           break;
         case 'failed':
-          logger.info('[Crl]', 'Worker', workerProcess.whoAmI, 'failed');
+          logger.debug('[Crl]', 'Worker', workerProcess.whoAmI, 'failed');
           workerProcess.available = true;
           clearTimeout(workerProcess.deadLockTimeout);
+          this.postDataProcessFail({ data: message.data })
+            .catch((error) => {
+              logger.error('[Crl] error on postDataProcess');
+              throw new Error(error);
+            });
           break;
         case 'ping':
-          // logger.info('[Crl]', 'Worker', workerProcess.whoAmI, 'pinged Controller');
+          // logger.debug('[Crl]', 'Worker', workerProcess.whoAmI, 'pinged Controller');
           workerProcess.crashed = false;
           break;
       }
@@ -88,12 +98,12 @@ module.exports = class Controller extends EventEmitter {
 
     workerProcess.on('close', function(code, signal) {
       workerProcess.available = false;
-      logger.info('[Crl]', 'Worker', workerProcess.whoAmI, 'closed');
+      logger.debug('[Crl]', 'Worker', workerProcess.whoAmI, 'closed');
     });
 
     workerProcess.on('exit', (code, signal) => {
       workerProcess.available = false;
-      logger.info(`[Crl] Worker ${workerProcess.whoAmI} exited with code: ${code}, signal: ${signal}`);
+      logger.debug(`[Crl] Worker ${workerProcess.whoAmI} exited with code: ${code}, signal: ${signal}`);
     });
 
     workerProcess.pingInterval = setInterval(() => {
@@ -123,10 +133,10 @@ module.exports = class Controller extends EventEmitter {
    */
   getNextAvailableWorker() {
     const check = (resolve) => {
-      // logger.info('[Crl] searching for available worker');
+      // logger.debug('[Crl] searching for available worker');
       for (let worker of this.workers) {
         if (worker.available) {
-          // logger.info('[Controlller] found worker returning worker', worker.whoAmI);
+          // logger.debug('[Controlller] found worker returning worker', worker.whoAmI);
           worker.available = false;
           resolve(worker);
           return;
@@ -152,6 +162,24 @@ module.exports = class Controller extends EventEmitter {
   }
 
   /**
+   * Overridable async function
+   * Extend this function in order to make a post processing of the data
+   * like marking a task as done on database
+   **/
+  async postDataProcessSucess({ data }) {
+    return true;
+  }
+
+  /**
+   * Overridable async function
+   * Extend this function in order to make a post processing of the data
+   * like marking a task as done on database
+   **/
+  async postDataProcessFail({ data }) {
+    return true;
+  }
+
+  /**
    * Start this controller
    *
    * @returns {Promise.<void>}
@@ -164,10 +192,10 @@ module.exports = class Controller extends EventEmitter {
 
     let data;
     while (this.live) {
-      logger.info('[Crl] starting pull cycle');
+      logger.debug('[Crl] starting pull cycle');
       data = await getNextTask(this);
 
-      logger.info('[Crl] got data to process');
+      logger.debug('[Crl] got data to process');
       const worker = await this.getNextAvailableWorker();
 
       worker.deadLockTimeout = setTimeout(() => {
@@ -181,7 +209,7 @@ module.exports = class Controller extends EventEmitter {
     }
 
     // Kill all the workers
-    logger.info('[Crl] killing all the workers and commiting suicide');
+    logger.debug('[Crl] killing all the workers and commiting suicide');
     this.workers.forEach((worker) => {
       this.killWorker(worker);
     });

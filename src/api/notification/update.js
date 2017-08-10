@@ -66,6 +66,6 @@ module.exports = async function updateNotification(ctx) {
   }
 
   notification.users = users;
-  logger.info('[UpdateNotification] updated', notification);
+  logger.debug('[UpdateNotification] updated', notification);
   ctx.success(notification);
 };

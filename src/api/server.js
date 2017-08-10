@@ -13,7 +13,7 @@ const koaJsend = require('./middleware/jsend');
 
 const app = new Koa();
 
-logger.info('Starting Notification Microservice...');
+logger.debug('Starting Notification Microservice...');
 
 router.post('user', userAPI.createSchema, userAPI.create);
 router.get('user/:id', userAPI.get);
@@ -68,7 +68,7 @@ app.use(async function onValidationError(ctx, next) {
     if (!error.isJoi) {
       throw error;
     }
-    logger.info('[Validation Error]', error.details);
+    logger.debug('[Validation Error]', error.details);
 
     const formatedMessage = error.details.reduce((acc, item) => { acc[item.path] = item.message; return acc; }, {});
 
