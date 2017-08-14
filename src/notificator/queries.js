@@ -17,7 +17,7 @@ function getNextNotificationAndMarkAsProcessing() {
     SET status = 'processing'
     FROM next_notif
     WHERE notifs.id = next_notif.id
-    RETURNING next_notif`
+    RETURNING next_notif.*`
   );
 }
 

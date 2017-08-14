@@ -1,12 +1,16 @@
 const nodemailer = require('nodemailer');
 const aws = require('aws-sdk');
-const Transport = require('../../classes/Transport');
+const Transport = require('../Transport');
 
 module.exports = class EmailTransport extends Transport {
   constructor(config) {
     super(config);
-
-    aws.config.update(config.transports.email);
+// todo remove later
+    aws.config.update({
+      accessKeyId: "AKIAIE3OBRX7IXSOYP3A",
+      secretAccessKey: "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",
+      region: "us-east-1",
+    });
 
     // put in the actual config here.
     this.transporter = nodemailer.createTransport({

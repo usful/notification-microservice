@@ -34,7 +34,7 @@
     "test-api": "NODE_ENV=test mocha './test/features/0*.*.js'",
     "test-notificator": "NODE_ENV=test mocha './test/notificator/0*.*.js'",
     "reset-test-db": "sh ./src/database/recreate-db.sh notifications_test notificator",
-    "fill-test-db": "node ./test/scripts/create-test-data.js 'notifications_test'"
+    "fill-test-db": "NODE_ENV=test node ./test/scripts/create-test-data.js 'notifications_test'"
   },
   "repository": {
     "type": "git",
