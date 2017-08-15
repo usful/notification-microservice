@@ -19,13 +19,4 @@ module.exports = class EJSTemplate extends Template {
       }
     });
   }
-
-  async renderPush({ user, data }) {
-
-  }
-
-  async rednerSMS({ user, data }) {
-    await this.load();
-
-  }
 };
