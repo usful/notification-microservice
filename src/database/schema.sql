@@ -17,7 +17,7 @@ $$ language plpgsql STABLE;
 
 CREATE DOMAIN timezone AS TEXT CHECK ( is_timezone( value ) );
 
--- TODO: not enforcing uniqueness on email, sms, voice on delevopment, enforce later
+-- TODO: not enforcing uniqueness on email, sms, voice on development, enforce later
 CREATE TABLE account (
   id              bigserial           PRIMARY KEY,
   external_id     text                UNIQUE NOT NULL,
@@ -30,6 +30,10 @@ CREATE TABLE account (
   sms_status      verification_status NOT NULL DEFAULT 'unverified',
   voice           text                NULL,
   voice_status    verification_status NOT NULL DEFAULT 'unverified',
+  push            text                NULL,
+  push_status     verification_status NOT NULL DEFAULT 'unverified',
+  web             text                NULL,
+  web_status      verification_status NOT NULL DEFAULT 'unverified',
   delivery        delivery_type[]     NULL,
   language        text                NULL,
   timezone        timezone            NOT NULL DEFAULT 'America/Toronto',
