@@ -1,5 +1,6 @@
-const Template = require('../../classes/Template');
+const Template = require('./Template');
 const ejs = require('ejs');
+const _ = require('lodash');
 
 module.exports = class EJSTemplate extends Template {
   constructor(id) {
@@ -9,10 +10,13 @@ module.exports = class EJSTemplate extends Template {
   async renderEmail({ user, data }) {
     await this.load();
 
-    // TODO: implement ejs templating.
+    const template = this.template.email;
+    return _.mapValues(template, (template_string) => {
+      try {
+        return ejs.render(template_string, {user, notificationData:data});
+      }catch(error) {
 
-    return {
-      ...this.template.email
-    };
+      }
+    });
   }
 };

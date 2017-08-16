@@ -1,4 +1,4 @@
-const Transport = require('../../classes/Transport');
+const Transport = require('./TransportBase');
 
 module.exports = class WebTransport extends Transport {
   constructor(config) {

@@ -13,6 +13,7 @@ class Controller extends BaseController {
     const cConfig = Object.assign({}, {
       script: path.resolve(dirname, './Worker.js'),
     }, config.notificator);
+
     // logger.info('[Controller] constructor', cConfig);
     super(cConfig);
   }

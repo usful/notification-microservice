@@ -6,7 +6,7 @@ class SQSPoller {
       accessKeyId: config.transports.email.AWSAccessKeyID,
       secretAccessKey: config.transports.email.AWSSecretKey,
       region: config.transports.email.region,
-      apiVersion: '2012-11-05',
+      apiVersion: '2012-11-05'
     });
 
     this.pollingInterval = config.engine.sqsPollingInterval;
@@ -17,10 +17,14 @@ class SQSPoller {
     while (true) {
       const QueueUrl = this.queueURL;
       const data = await this.receiveMessage({ QueueUrl });
+
       if (data.Messages) {
         const message = data.Messages[0];
         message.Body = JSON.parse(message.Body);
-        message.deleteRequest = this.SQS.deleteMessage({ QueueUrl, ReceiptHandle: message.ReceiptHandle });
+        message.deleteRequest = this.SQS.deleteMessage({
+          QueueUrl,
+          ReceiptHandle: message.ReceiptHandle
+        });
         await processMessage(message);
       } else {
         await new Promise(resolve => setTimeout(resolve, this.pollingInterval));

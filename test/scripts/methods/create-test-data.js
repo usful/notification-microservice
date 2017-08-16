@@ -45,6 +45,9 @@ module.exports = async function createTestData(api, server, usersQTY = 10, templ
       name: `test-template-${i}`,
       email: {
         todo: 'This should be a valid EJS Template',
+        subject: 'subject',
+        html: 'html',
+        text: 'text',
       },
     });
   }

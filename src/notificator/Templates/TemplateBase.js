@@ -1,4 +1,7 @@
-const db = require('../database/client');
+const poolClient = require('../../database/poolClient');
+const config = require('../../config/index');
+poolClient.connect(config.db);
+const db = poolClient.db;
 
 module.exports = class Template {
   constructor(id) {
