@@ -5,10 +5,9 @@ const Transport = require('../Transport');
 module.exports = class EmailTransport extends Transport {
   constructor(config) {
     super(config);
-
     aws.config.update({
       accessKeyId: config.aws.ses.accessKeyId,
-      secretAccessKey: config.aws.ses.sercretAccessKey,
+      secretAccessKey: config.aws.ses.secretAccessKey,
       region: "us-east-1",
     });
 
@@ -39,7 +38,7 @@ module.exports = class EmailTransport extends Transport {
 
   async send({ user, message }) {
     await this.sendMail({
-      from: this.config.from,
+      from: this.config.aws.ses.from,
       to: user.email,
       subject: message.subject,
       text: message.text,

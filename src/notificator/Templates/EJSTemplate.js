@@ -11,22 +11,20 @@ module.exports = class EJSTemplate extends Template {
     await this.load();
 
     const template = this.template.email;
-    return _.mapValues(template, (template_string) => {
-      try {
-        return ejs.render(template_string, {user, notificationData:data});
-      }catch(error) {
-
-      }
-    });
+    return this.ejsRender(template,{user, notificationData:data});
   }
 
   async renderSMS({ user, data }) {
     await this.load();
 
     const template = this.template.sms;
+    return this.ejsRender(template,{user, notificationData:data});
+  }
+
+  ejsRender(template,data) {
     return _.mapValues(template, (template_string) => {
       try {
-        return ejs.render(template_string, {user, notificationData:data});
+        return ejs.render(template_string, data);
       }catch(error) {
 
       }
