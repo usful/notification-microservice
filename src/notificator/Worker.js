@@ -75,7 +75,6 @@ class MyWorker extends Worker {
     const template = new Templates['ejs'](notification.template_id);
 
     const deliveryMethods = notification.by.replace(/({|})/g, '').split(',');
-    console.log(deliveryMethods);
     for (let delivery of deliveryMethods) {
       try {
         template.render({delivery, user: constants.good_user, data: notification.data });
@@ -123,7 +122,6 @@ class MyWorker extends Worker {
           }
 
           try {
-            console.log('sent message');
             receipt = await Transports[delivery].send({ user, message });
           } catch (err) {
             // TODO: do something better on error.

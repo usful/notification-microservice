@@ -5,10 +5,10 @@ const Transport = require('../Transport');
 module.exports = class EmailTransport extends Transport {
   constructor(config) {
     super(config);
-// todo remove later
+
     aws.config.update({
-      accessKeyId: "AKIAIE3OBRX7IXSOYP3A",
-      secretAccessKey: "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",
+      accessKeyId: config.aws.ses.accessKeyId,
+      secretAccessKey: config.aws.ses.sercretAccessKey,
       region: "us-east-1",
     });
 

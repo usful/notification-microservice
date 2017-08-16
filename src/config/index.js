@@ -22,5 +22,16 @@ module.exports = {
   db: require('./db'),
   api: require('./api'),
   notificator: require('./notificator'),
-  from: 'info@joinlane.com' //todo maybe change this later
+  aws: {
+    ses: {
+      from: 'info@joinlane.com',
+      accessKeyId: process.env.accessKeyId,
+      secretAccessKey: process.env.secretAccessKey,
+    }
+  },
+  twilio: {
+    accountSid: process.env.accountSid,
+    authToken: process.env.authToken,
+    from: process.env.twilio_Num
+  }
 };

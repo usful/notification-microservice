@@ -19,4 +19,17 @@ module.exports = class EJSTemplate extends Template {
       }
     });
   }
+
+  async renderSMS({ user, data }) {
+    await this.load();
+
+    const template = this.template.sms;
+    return _.mapValues(template, (template_string) => {
+      try {
+        return ejs.render(template_string, {user, notificationData:data});
+      }catch(error) {
+
+      }
+    });
+  }
 };

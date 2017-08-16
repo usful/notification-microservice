@@ -21,6 +21,7 @@
     "pg-promise": "^6.3.5",
     "pg-query-stream": "^1.0.0",
     "squel": "^5.11.1",
+    "twilio": "^3.6.2",
     "uuid": "^3.1.0",
     "winston": "^2.3.1"
   },
