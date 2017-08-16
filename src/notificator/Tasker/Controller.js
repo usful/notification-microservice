@@ -11,7 +11,13 @@ const NUM_CPU = require('os').cpus().length;
 // TODO: Validate config parameters`
 
 module.exports = class Controller extends EventEmitter {
-  constructor({ maxWorkers = NUM_CPU, script, workerPingInterval, getNextWorkerPollInterval, workerDeadlockTimeout }) {
+  constructor({
+    maxWorkers = NUM_CPU,
+    script,
+    workerPingInterval,
+    getNextWorkerPollInterval,
+    workerDeadlockTimeout
+  }) {
     super();
     this.workers = [];
     this.maxWorkers = maxWorkers;
@@ -32,7 +38,6 @@ module.exports = class Controller extends EventEmitter {
   }
 
   killWorker(workerProcess) {
-    const id = workerProcess.whoAmI;
     clearInterval(workerProcess.pingInterval);
     clearTimeout(workerProcess.deadLockTimeout);
     workerProcess.kill();
@@ -52,7 +57,7 @@ module.exports = class Controller extends EventEmitter {
     workerProcess.send({ command: 'register', whoAmI: id });
 
     // Track the state of the worker
-    workerProcess.on('message', (message) => {
+    workerProcess.on('message', message => {
       switch (message.command) {
         case 'register':
           // logger.info('[Crl]', 'Worker', workerProcess.whoAmI, 'registered');
@@ -62,7 +67,12 @@ module.exports = class Controller extends EventEmitter {
           workerProcess.available = true;
           break;
         case 'done':
-          logger.info('[Crl]', 'Task Done Worker', workerProcess.whoAmI, 'done');
+          logger.info(
+            '[Crl]',
+            'Task Done Worker',
+            workerProcess.whoAmI,
+            'done'
+          );
           workerProcess.available = true;
           clearTimeout(workerProcess.deadLockTimeout);
           this.emit('done');
@@ -73,27 +83,28 @@ module.exports = class Controller extends EventEmitter {
           clearTimeout(workerProcess.deadLockTimeout);
           break;
         case 'ping':
-          // logger.info('[Crl]', 'Worker', workerProcess.whoAmI, 'pinged Controller');
           workerProcess.crashed = false;
           break;
       }
     });
 
     // TODO: In theory when there is no error event it will be thrown?
-    workerProcess.on('error', (error) => {
+    workerProcess.on('error', error => {
       workerProcess.available = false;
       logger.error('[Crl] worker', workerProcess.whoAmI);
       logger.error(error);
     });
 
-    workerProcess.on('close', function(code, signal) {
+    workerProcess.on('close', (code, signal) => {
       workerProcess.available = false;
       logger.info('[Crl]', 'Worker', workerProcess.whoAmI, 'closed');
     });
 
     workerProcess.on('exit', (code, signal) => {
       workerProcess.available = false;
-      logger.info(`[Crl] Worker ${workerProcess.whoAmI} exited with code: ${code}, signal: ${signal}`);
+      logger.info(
+        `[Crl] Worker ${workerProcess.whoAmI} exited with code: ${code}, signal: ${signal}`
+      );
     });
 
     workerProcess.pingInterval = setInterval(() => {
@@ -114,6 +125,7 @@ module.exports = class Controller extends EventEmitter {
       const worker = this.createWorker(i);
       this.workers[i] = worker;
     }
+
     this.isSetup = true;
   }
 
@@ -122,11 +134,9 @@ module.exports = class Controller extends EventEmitter {
    * @returns {Promise}
    */
   getNextAvailableWorker() {
-    const check = (resolve) => {
-      // logger.info('[Crl] searching for available worker');
+    const check = resolve => {
       for (let worker of this.workers) {
         if (worker.available) {
-          // logger.info('[Controlller] found worker returning worker', worker.whoAmI);
           worker.available = false;
           resolve(worker);
           return;
@@ -148,7 +158,9 @@ module.exports = class Controller extends EventEmitter {
    * @returns {Promise.<boolean>}
    */
   async getData() {
-    throw new Error('Please override getData function on Controller class or send it on run()');
+    throw new Error(
+      'Please override getData function on Controller class or send it on run()'
+    );
   }
 
   /**
@@ -160,6 +172,7 @@ module.exports = class Controller extends EventEmitter {
     if (!this.isSetup) {
       throw new Error('please call controller.setup() before run');
     }
+
     const getNextTask = getData || this.getData;
 
     let data;
@@ -182,7 +195,7 @@ module.exports = class Controller extends EventEmitter {
 
     // Kill all the workers
     logger.info('[Crl] killing all the workers and commiting suicide');
-    this.workers.forEach((worker) => {
+    this.workers.forEach(worker => {
       this.killWorker(worker);
     });
   }

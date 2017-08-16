@@ -1,4 +1,4 @@
-const Template = require('../Template');
+const Template = require('./Template');
 const ejs = require('ejs');
 const _ = require('lodash');
 

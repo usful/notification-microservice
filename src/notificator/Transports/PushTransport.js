@@ -1,4 +1,4 @@
-const Transport = require('../Transport');
+const Transport = require('./TransportBase');
 
 module.exports = class PushTransport extends Transport {
   constructor(config) {
