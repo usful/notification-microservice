@@ -7,7 +7,7 @@ module.exports = class EJSTemplate extends Template {
     super(id, dbClient);
   }
 
-  async renderEmail({ user, data }) {
+  renderEmail({ user, data }) {
     const template = this.template.email;
 
     // TODO: This means that we assume all key-values in template are ejs valid templates, but the template creation

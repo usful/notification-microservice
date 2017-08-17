@@ -35,10 +35,10 @@ module.exports = class Template {
     throw new Error('Template base render functions need to be extended');
   }
 
-  async render({ delivery, user, data }) {
+  render({ transportName, user, data }) {
 
     // TODO: use the constants here?
-    switch (delivery) {
+    switch (transportName) {
       case 'sms':
         return this.renderSms({ user, data });
       case 'voice':
@@ -49,6 +49,8 @@ module.exports = class Template {
         return this.renderWeb({ user, data });
       case 'email':
         return this.renderEmail({ user, data });
+      default:
+        throw Error('[Template] transport name does not exists', transportName);
     }
   }
 };

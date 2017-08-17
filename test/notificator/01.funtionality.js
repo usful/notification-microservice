@@ -38,11 +38,11 @@ describe('Notificator', () => {
 
     let sentCount = 0;
     notificator.on('done', () => sentCount++);
-    await createTestData(api, server, 2, 2, 2);
+    await createTestData(api, server, 1, 1, 2);
     await new Promise(resolve => {
       let intervalId;
       intervalId = setInterval(() => {
-        if (sentCount >= 2) {
+        if (sentCount >= 1) {
           clearInterval(intervalId);
           resolve();
         }

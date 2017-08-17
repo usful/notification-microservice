@@ -1,4 +1,7 @@
+const { Writable } = require('stream');
 const QueryStream = require('pg-query-stream');
+const JSONStream = require('JSONStream');
+const es = require('event-stream')
 const _ = require('lodash');
 
 const Worker = require('./Tasker/Worker');
@@ -44,74 +47,48 @@ class MyWorker extends Worker {
     const template = new Template(notification.template_id, dbClient);
     await template.load(); // TODO: Handle not found error as hard error
 
-    const messages = [];
-    for (let transportName of notification.by) {
-      let message;
-      try {
-        message = template.render({ transportName, user: constants.good_user, data: notification.data });
-      } catch (error) {
-        // TODO: handle error as hard error
-        console.error('[Worker] failed to compile template with good user for delivery -', delivery);
-        console.log(error);
-        throw error;
-      }
-
-      console.log(' Rendered message ======> ');
-      console.log(message);
-      console.log('<============');
-    }
-
     // Get the users for this notification
     // Get all users in the notification.users field
     // Get all the users that belong to each group of the groups field
     // Filter out only users who have the tags in the tags field (if provided)
-    //
-    // // We will use a QueryStream for better memory performance.
-    // const stream = this.client.query(new QueryStream('SELECT * FROM account'));
-    //
-    // //Wait for the stream to be readable.
-    // await new Promise(resolve => stream.on('readable', resolve));
-    //
-    // let user;
-    //
-    // // Read the stream row by row.
-    // while (null !== (user = stream.read())) {
-    //   for (let delivery of deliveryMethods) {
-    //     //If the user wants this kind of notification.
-    //     if (user.delivery.includes(delivery)) {
-    //       let message, receipt;
-    //
-    //       try {
-    //         //Use the template to render the notification.
-    //         message = await template.render({
-    //           delivery,
-    //           user,
-    //           data: notification.data
-    //         });
-    //       } catch (err) {
-    //         // TODO: do something better on error.
-    //         console.error(`Template generation failed - render${delivery}`);
-    //         console.error('user', user);
-    //         console.error('data', data);
-    //         console.error(err);
-    //         continue;
-    //       }
-    //
-    //       try {
-    //         console.log('sent message');
-    //         receipt = await Transports[delivery].send({ user, message });
-    //       } catch (err) {
-    //         // TODO: do something better on error.
-    //         console.error(`Transport failed - ${delivery}`);
-    //         console.error('user', user);
-    //         console.error('message', message);
-    //         console.error(err);
-    //         continue;
-    //       }
-    //     }
-    //   }
-    // }
-  } // processData
+
+    const usersQs = new QueryStream('SELECT * FROM account');
+
+    const consumerStream = new Writable({
+      objectMode: true,
+      write(user, encoding, callback) {
+        logger.info('Sending message to user', user.name);
+
+        // const messages = [];
+        for (let transportName of notification.by) {
+          let message;
+          try {
+            logger.info('rendering message', { transportName, user, data: notification.data });
+            message = template.render({ transportName, user, data: notification.data });
+          } catch (error) {
+            // TODO: handle error as hard error
+            console.error('[Worker] failed to compile template with good user for delivery -', delivery);
+            console.log(error);
+            throw error;
+          }
+
+          console.log(' Rendered message ======> ');
+          console.log(message);
+          console.log('<============');
+        }
+
+        callback();
+      },
+    });
+
+    let res
+    try {
+      await dbClient.db.stream(usersQs, s => s.pipe(consumerStream));
+    } catch(error) {
+      console.error('[Worker] failed sending notification')
+      throw error;
+    }
+  }
 }
 
 const worker = new MyWorker();
