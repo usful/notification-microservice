@@ -13,10 +13,10 @@ const constants = require('../constants');
 const dbClient = require('../database/poolClient');
 
 const EmailTransport = require('../Transports/AwsEmail/AwsEmailTransport');
-const PushTransport = require('./Transports/FCMPush/PushTransport');
+const PushTransport = require('../Transports/FCMPush/PushTransport');
 const VoiceTransport = require('../Transports/VoiceTransport');
 const WebTransport = require('../Transports/WebTransport');
-const SMSTransport = require('./Transports/TwilioSMS/SMSTransport');
+const SMSTransport = require('../Transports/TwilioSMS/SMSTransport');
 
 const EJSTemplate = require('../Templates/EJSTemplate');
 
