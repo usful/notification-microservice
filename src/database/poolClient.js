@@ -34,12 +34,36 @@ class PoolClient {
 
     console.log('[dbClient] connecting to db', this.dbConfig.host, this.dbConfig.port, this.dbConfig.database);
     this.database = this.pgp(this.dbConfig);
+
+    this.addCustomParsers().catch(error => {
+      console.error('[poolClient] error adding custom parsers! please check consistency with database!');
+      throw error;
+    });
+  }
+
+  // Custom parsing for enums
+  async addCustomParsers() {
+    const enums = await this.db.many(
+      `
+      SELECT typname, oid, typarray
+      FROM pg_type
+      WHERE
+      (
+        typname = 'verification_status' OR
+        typname = 'delivery_type' OR
+        typname = 'notification_status'
+      ) AND
+      typarray <> 0
+      ORDER by oid
+      `
+    );
+    enums.forEach(en => this.addArrayParser(en.typarray));
   }
 
   // Add parser to convert values to arrays on a custom oid type
   addArrayParser(oid) {
     const arrayParser = this.pgp.pg.types.arrayParser;
-    this.pgp.pg.types.setTypeParser(oid, (val) => {
+    this.pgp.pg.types.setTypeParser(oid, val => {
       return arrayParser.create(val, String).parse();
     });
   }

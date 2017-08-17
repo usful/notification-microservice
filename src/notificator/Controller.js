@@ -36,6 +36,8 @@ class Controller extends BaseController {
       await util.pause(config.notificator.getDataPollInterval);
     }
   }
+
+  // TODO: Bring back managing failed notifications
 }
 
 module.exports = Controller;

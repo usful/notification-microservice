@@ -1,5 +1,7 @@
 const logger = require('../logger');
 
+// TODO: Kill itself when lose contact with Controller
+
 /**
  * A class that can be extended to create a worker process.
  */
@@ -19,8 +21,9 @@ class Worker {
 						await this.processData(message.data);
 						process.send({ command: 'done' });
 					} catch (error) {
-						process.send({ command: 'failed' });
-            // logger.error(error);
+            logger.error('[Worker] failed sending notification');
+            logger.error(error);
+            process.send({ command: 'failed' });
 					}
 					break;
 				case 'ping':

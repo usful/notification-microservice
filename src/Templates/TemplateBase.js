@@ -1,55 +1,41 @@
-const poolClient = require('../../database/poolClient');
-const config = require('../../config/index');
-poolClient.connect(config.db);
-const db = poolClient.db;
 
 module.exports = class Template {
-  constructor(id) {
+  constructor(id, dbClient) {
     this.id = id;
-    this.load();
+    this.dbClient = dbClient;
   }
 
   async load() {
+    this.template = await this.dbClient.db.oneOrNone(
+      `SELECT * FROM template WHERE id = $1`,
+      this.id
+    );
     if (!this.template) {
-      this.template = await db.oneOrNone(
-        `SELECT * FROM template WHERE id = $1`,
-        this.id
-      );
+      throw new Error(`[Template] template id ${this.id} not found`);
     }
   }
 
   async renderWeb({ user, data }) {
-    await this.load();
-
-    return Object.assign({}, this.template.web);
+    throw new Error('Template base render functions need to be extended');
   }
 
   async renderPush({ user, data }) {
-    await this.load();
-
-    return Object.assign({}, this.template.push);
+    throw new Error('Template base render functions need to be extended');
   }
 
   async renderVoice({ user, data }) {
-    await this.load();
-
-    return Object.assign({}, this.template.voice);
+    throw new Error('Template base render functions need to be extended');
   }
 
   async renderSms({ user, data }) {
-    await this.load();
-
-    return Object.assign({}, this.template.sms);
+    throw new Error('Template base render functions need to be extended');
   }
 
   async renderEmail({ user, data }) {
-    await this.load();
-
-    return Object.assign({}, this.template.email);
+    throw new Error('Template base render functions need to be extended');
   }
 
   async render({ delivery, user, data }) {
-    await this.load();
 
     // TODO: use the constants here?
     switch (delivery) {
