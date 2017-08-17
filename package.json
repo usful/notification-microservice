@@ -8,6 +8,7 @@
     "babel-cli": "^6.24.1",
     "dotenv": "^4.0.0",
     "ejs": "^2.5.6",
+    "firebase-admin": "^5.2.0",
     "jsend": "^1.0.2",
     "koa": "^2.3.0",
     "koa-better-body": "^3.0.4",

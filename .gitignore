@@ -1,3 +1,7 @@
+### Confidential Info
+confidential/*
+confidential
+
 ### App .gitignore
 env/.env.*
 !env/.env.example

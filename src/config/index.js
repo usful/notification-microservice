@@ -33,5 +33,10 @@ module.exports = {
     accountSid: process.env.accountSid,
     authToken: process.env.authToken,
     from: process.env.twilio_Num
+  },
+  fcm: {
+    serviceAccountKeyPath: process.env.serviceAccountKeyPath,
+    dbUrl: process.env.fcm_db_url,
+    messagingOptions: {}
   }
 };

@@ -77,7 +77,8 @@ class MyWorker extends Worker {
     const deliveryMethods = notification.by.replace(/({|})/g, '').split(',');
     for (let delivery of deliveryMethods) {
       try {
-        template.render({delivery, user: constants.good_user, data: notification.data });
+        template.render({delivery, user: constants.good_user, data: notification.data || {} });
+        console.log('template rendered');
       }catch(error){
         console.log('Failed to compile template with good user for delivery -', delivery);
         console.log(error);
@@ -111,7 +112,7 @@ class MyWorker extends Worker {
 
           try {
             //Use the template to render the notification.
-            message = await template.render({ delivery, user, data: notification.data });
+            message = await template.render({ delivery, user, data: notification.data || {} });
           } catch (err) {
             // TODO: do something better on error.
             console.error(`Template generation failed - render${delivery}`);
