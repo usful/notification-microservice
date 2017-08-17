@@ -60,19 +60,14 @@ module.exports = class Controller extends EventEmitter {
     workerProcess.on('message', message => {
       switch (message.command) {
         case 'register':
-          // logger.info('[Crl]', 'Worker', workerProcess.whoAmI, 'registered');
+          logger.debug('[Crl]', 'Worker', workerProcess.whoAmI, 'registered');
           break;
         case 'available':
-          logger.info('[Crl]', 'Worker', workerProcess.whoAmI, 'available');
+          logger.debug('[Crl]', 'Worker', workerProcess.whoAmI, 'available');
           workerProcess.available = true;
           break;
         case 'done':
-          logger.info(
-            '[Crl]',
-            'Task Done Worker',
-            workerProcess.whoAmI,
-            'done'
-          );
+          logger.debug('[Crl]', 'Task Done Worker', workerProcess.whoAmI, 'done');
           workerProcess.available = true;
           clearTimeout(workerProcess.deadLockTimeout);
           this.emit('done');
@@ -108,7 +103,9 @@ module.exports = class Controller extends EventEmitter {
     });
 
     workerProcess.pingInterval = setInterval(() => {
+      logger.info('[Crl]', 'Setting worker', workerProcess.whoAmI, 'ping inverval', this.workerPingInterval);
       if (workerProcess.crashed) {
+        logger.warn('[Crl] worker', workerProcess.whoAmI, 'ping timeout');
         this.restartWorker(workerProcess);
       } else {
         workerProcess.crashed = true;

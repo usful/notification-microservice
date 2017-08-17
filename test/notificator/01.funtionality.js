@@ -1,6 +1,5 @@
 const request = require('supertest');
 const expect = require('chai').expect;
-const apiConfig = require('../api-config');
 const resetDB = require('../scripts/methods/reset-db');
 const createTestData = require('../scripts/methods/create-test-data');
 const API = require('../../src/api');
@@ -14,7 +13,7 @@ let notificator;
 describe('Notificator', () => {
   before(resetDB);
   before(async () => {
-    api = new API(apiConfig);
+    api = new API();
     await api.start();
     server = api.server;
   });
@@ -26,23 +25,28 @@ describe('Notificator', () => {
   it('should intialize notificator', async () => {
     notificator = new Notificator();
     notificator.init();
-    notificator.run().then(() => console.log('notificator stoped'));
+    notificator.run()
+    .then(() => console.log('notificator stoped'))
+    .catch((error) => {
+      console.error('[Error] notificator hard error', error);
+      throw error;
+    });
   });
 
-  it('should send 1000 notifications', async function() {
-    this.timeout(10000);
+  it('should send 2 notifications', async function() {
+    this.timeout(5000);
 
     let sentCount = 0;
     notificator.on('done', () => sentCount++);
-    await createTestData(api, server, 10, 10, 1000);
+    await createTestData(api, server, 1, 1, 2);
     await new Promise(resolve => {
       let intervalId;
       intervalId = setInterval(() => {
-        if (sentCount >= 1000) {
+        if (sentCount >= 1) {
           clearInterval(intervalId);
           resolve();
         }
-      }, 500);
+      }, 300);
     });
   });
 });

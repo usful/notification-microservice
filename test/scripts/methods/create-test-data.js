@@ -6,7 +6,6 @@ const expect = require('chai').expect;
  * creates n (see constants) users
  */
 module.exports = async function createTestData(api, server, usersQTY = 10, templatesQTY = 10, notificationsQTY = 10) {
-
   /** Users **/
   const users = [];
   for (let i = 0; i < usersQTY; i++) {
@@ -44,10 +43,8 @@ module.exports = async function createTestData(api, server, usersQTY = 10, templ
     templates.push({
       name: `test-template-${i}`,
       email: {
-        todo: 'This should be a valid EJS Template',
-        subject: 'subject',
-        html: 'html',
-        text: 'text',
+        subject: 'hello <%= data.username %>',
+        text: '<title>This is html content</title><body>and here is a number <%= data.num %> cheers!</body>',
       },
     });
   }
@@ -56,10 +53,7 @@ module.exports = async function createTestData(api, server, usersQTY = 10, templ
     let template = templates[key];
     let res;
     try {
-      res = await request(server)
-        .post('/api/template')
-        .send(template)
-        .set('Accept', 'application/json');
+      res = await request(server).post('/api/template').send(template).set('Accept', 'application/json');
       expect(res.status).to.equal(200);
     } catch (error) {
       console.error('res body', res.body);
@@ -78,7 +72,8 @@ module.exports = async function createTestData(api, server, usersQTY = 10, templ
       users: ['test-user-1'],
       required_by: ['email'],
       data: {
-        name: `test-${i}`,
+        username: `random-user-${i}`,
+        num: 30,
       },
     });
   }
@@ -87,10 +82,7 @@ module.exports = async function createTestData(api, server, usersQTY = 10, templ
     let notification = notifications[key];
     let res;
     try {
-      res = await request(server)
-        .post('/api/notification')
-        .send(notification)
-        .set('Accept', 'application/json');
+      res = await request(server).post('/api/notification').send(notification).set('Accept', 'application/json');
       expect(res.status).to.equal(200);
     } catch (error) {
       console.error('res body', res.body);
