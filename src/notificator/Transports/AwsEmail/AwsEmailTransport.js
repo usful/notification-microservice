@@ -1,17 +1,18 @@
 const nodemailer = require('nodemailer');
 const aws = require('aws-sdk');
-const Transport = require('../Transport');
+const Transport = require('../TransportBase');
 
 module.exports = class EmailTransport extends Transport {
   constructor(config) {
     super(config);
-    aws.config.update({
-      accessKeyId: config.aws.ses.accessKeyId,
-      secretAccessKey: config.aws.ses.secretAccessKey,
-      region: "us-east-1",
-    });
 
     // put in the actual config here.
+    aws.config.update({
+      accessKeyId: config.transports.email.AWSAccessKeyID,
+      secretAccessKey: config.transports.email.AWSSecretKey,
+      region: config.transports.email.region,
+    });
+
     this.transporter = nodemailer.createTransport({
       SES: new aws.SES({ apiVersion: '2010-12-01' })
     });

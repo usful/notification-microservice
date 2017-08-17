@@ -1,5 +1,5 @@
-const poolClient = require('../database/poolClient');
-const config = require('../config');
+const poolClient = require('../../database/poolClient');
+const config = require('../../config/index');
 poolClient.connect(config.db);
 const db = poolClient.db;
 

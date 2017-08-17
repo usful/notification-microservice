@@ -1,4 +1,4 @@
-const Template = require('../Template');
+const Template = require('./TemplateBase');
 const ejs = require('ejs');
 const _ = require('lodash');
 
@@ -23,6 +23,7 @@ module.exports = class EJSTemplate extends Template {
 
   async renderPush({ user, data }) {
     await this.load();
+    data = data || {};
     const template = this.template.push;
     /*
       With this implementation push data is loaded into the returned message by the ejsTemplate from the data object
@@ -31,7 +32,7 @@ module.exports = class EJSTemplate extends Template {
      */
     return {
       notification: this.ejsRender(template, { user, notificationData: data }),
-      data: data.pushData || {}
+      data: data.pushData || {},
     };
   }
 

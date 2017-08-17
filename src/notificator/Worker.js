@@ -1,16 +1,14 @@
 const pg = require('pg');
 const QueryStream = require('pg-query-stream');
 
-const EmailTransport = require('./Transports/EmailTransport');
-const PushTransport = require('./Transports/PushTransport');
+const EmailTransport = require('./Transports/AwsEmail/AwsEmailTransport');
+const PushTransport = require('./Transports/FCMPush/PushTransport');
 const VoiceTransport = require('./Transports/VoiceTransport');
 const WebTransport = require('./Transports/WebTransport');
-const SMSTransport = require('./Transports/SMSTransport');
+const SMSTransport = require('./Transports/TwilioSMS/SMSTransport');
 
 const EJSTemplate = require('./Templates/EJSTemplate');
 
-const path = require('path');
-const _ = require('lodash');
 const Worker = require('./Tasker/Worker');
 const logger = require('./logger');
 const config = require('../config');
@@ -28,16 +26,9 @@ const Transports = {
   sms: new SMSTransport(config),
 };
 
-const dirname = __dirname;
-
 class MyWorker extends Worker {
   constructor() {
-    const wConfig = _.merge({}, config, {
-      script: path.resolve(dirname, './Worker.js'),
-    });
-
-    super(wConfig);
-    this.config = wConfig;
+    super();
 
     // Use a raw pooled connection because we will be using QueryStream
     const pool = new pg.Pool(config.db);
@@ -75,11 +66,15 @@ class MyWorker extends Worker {
     const template = new Templates['ejs'](notification.template_id);
 
     const deliveryMethods = notification.by.replace(/({|})/g, '').split(',');
+
     for (let delivery of deliveryMethods) {
       try {
-        template.render({delivery, user: constants.good_user, data: notification.data || {} });
-        console.log('template rendered');
-      }catch(error){
+        template.render({
+          delivery,
+          user: constants.good_user,
+          data: notification.data,
+        });
+      } catch (error) {
         console.log('Failed to compile template with good user for delivery -', delivery);
         console.log(error);
         return;
@@ -112,7 +107,11 @@ class MyWorker extends Worker {
 
           try {
             //Use the template to render the notification.
-            message = await template.render({ delivery, user, data: notification.data || {} });
+            message = await template.render({
+              delivery,
+              user,
+              data: notification.data,
+            });
           } catch (err) {
             // TODO: do something better on error.
             console.error(`Template generation failed - render${delivery}`);
