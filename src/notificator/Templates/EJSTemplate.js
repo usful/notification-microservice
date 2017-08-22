@@ -21,9 +21,8 @@ module.exports = class EJSTemplate extends Template {
     return this.ejsRender(template, { user, notificationData: data });
   }
 
-  async renderPush({ user, data }) {
+  async renderPush({ user, data = {} }) {
     await this.load();
-    data = data || {};
     const template = this.template.push;
     /*
       With this implementation push data is loaded into the returned message by the ejsTemplate from the data object
@@ -44,19 +43,12 @@ module.exports = class EJSTemplate extends Template {
    */
   ejsRender(template, data) {
     return _.mapValues(template, value => {
-      try {
-        if (typeof value === 'object') {
-          if (Array.isArray(value)) {
-            return value.map(elem => {
-              return ejs.render(elem, data);
-            });
-          }
-          return this.ejsRender(value, data);
-        }
-        return ejs.render(value, data);
-      } catch (error) {
-        console.log(error);
+      if (Array.isArray(value)) {
+        return value.map(ejs.render(elem, data));
+      } else if (typeof value === 'object') {
+        return this.ejsRender(value, data);
       }
+      return this.ejsRender(value, data);
     });
   }
 };

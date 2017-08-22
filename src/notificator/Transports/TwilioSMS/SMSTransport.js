@@ -8,7 +8,7 @@ module.exports = class SMSTransport extends Transport {
   }
 
   async send({ user, message }) {
-    this.client.messages.create({
+    await this.client.messages.create({
       body: message.body,
       to: user.sms,
       from: this.config.twilio.from,
