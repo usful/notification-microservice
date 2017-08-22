@@ -22,5 +22,5 @@ module.exports = {
   db: require('./db'),
   api: require('./api'),
   notificator: require('./notificator'),
-  from: 'info@joinlane.com' //todo maybe change this later
+  transports: require('./transports'),
 };

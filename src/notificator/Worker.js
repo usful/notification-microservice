@@ -1,61 +1,42 @@
-const pg = require('pg');
+const { Writable } = require('stream');
 const QueryStream = require('pg-query-stream');
-
-const EmailTransport = require('./Transports/AwsEmail/AwsEmailTransport');
-const PushTransport = require('./Transports/PushTransport');
-const VoiceTransport = require('./Transports/VoiceTransport');
-const WebTransport = require('./Transports/WebTransport');
-const SMSTransport = require('./Transports/SMSTransport');
-
-const EJSTemplate = require('./Templates/EJSTemplate');
+const JSONStream = require('JSONStream');
+const es = require('event-stream');
+const _ = require('lodash');
 
 const Worker = require('./Tasker/Worker');
 const logger = require('./logger');
+
 const config = require('../config');
 const constants = require('../constants');
+const util = require('../lib/util');
+
+const dbClient = require('../database/poolClient');
+
+const EmailTransport = require('../Transports/AwsEmail/AwsEmailTransport');
+const PushTransport = require('../Transports/FCMPush/PushTransport');
+const VoiceTransport = require('../Transports/VoiceTransport');
+const WebTransport = require('../Transports/WebTransport');
+const SMSTransport = require('../Transports/TwilioSMS/SMSTransport');
+
+const EJSTemplate = require('../Templates/EJSTemplate');
 
 const Templates = {
-  ejs: EJSTemplate
+  ejs: EJSTemplate,
 };
 
 const Transports = {
   email: new EmailTransport(config),
-  push: new PushTransport(config),
-  voice: new VoiceTransport(config),
-  web: new WebTransport(config),
-  sms: new SMSTransport(config)
+  // push: new PushTransport(config),
+  // voice: new VoiceTransport(config),
+  // web: new WebTransport(config),
+  // sms: new SMSTransport(config)
 };
 
 class MyWorker extends Worker {
   constructor() {
     super();
-
-    // Use a raw pooled connection because we will be using QueryStream
-    const pool = new pg.Pool(config.db);
-
-    pool.connect((err, client, done) => {
-      if (err) {
-        console.error(err);
-        process.exit();
-      }
-
-      this.client = client;
-      this.done = done;
-    });
-  }
-
-  ready() {
-    //Waits until the DB connection is ready.
-    const check = resolve => {
-      if (this.client) {
-        resolve();
-        return;
-      }
-
-      setTimeout(() => check(resolve), 100);
-    };
-
-    return new Promise(resolve => check(resolve));
+    dbClient.connect(config.db);
   }
 
   async processData({ notification }) {
@@ -63,80 +44,66 @@ class MyWorker extends Worker {
     logger.info('[Worker]', worker.whoAmI, 'got data', notification);
 
     // Load the template for this notification.
-    const template = new Templates['ejs'](notification.template_id);
+    const Template = Templates['ejs'];
+    const template = new Template(notification.template_id, dbClient);
+    await template.load(); // TODO: Handle not found error as hard error
 
-    const deliveryMethods = notification.by.replace(/({|})/g, '').split(',');
+    // Get the users for this notification
+    // Get all users in the notification.users
+    // Get all the users that belong to each group of the groups field
+    // Filter out only users who have the tags in the tags field (if provided)
+    const usersQs = new QueryStream(`
+      SELECT acc.* FROM account acc
+      LEFT JOIN account_groups a_g
+        ON acc.id = a_g.user_id
+      LEFT JOIN account_tags a_t
+        ON acc.id = a_t.user_id
+      WHERE
+        acc.external_id = ANY($1::text[])
+        OR
+        a_g.group_name = ANY($2::text[])
+      GROUP BY acc.id
+        HAVING
+          array_agg(a_t.tag_name::text) && ($3::text[])
+      `, [
+      util.pgArr(notification.users),
+      util.pgArr(notification.groups),
+      util.pgArr(notification.tags),
+    ]);
 
-    for (let delivery of deliveryMethods) {
-      try {
-        template.render({
-          delivery,
-          user: constants.good_user,
-          data: notification.data
-        });
-      } catch (error) {
-        console.log(
-          'Failed to compile template with good user for delivery -',
-          delivery
-        );
-        console.log(error);
-        return;
-      }
-    }
+    const consumerStream = new Writable({
+      objectMode: true,
+      write(user, encoding, callback) {
+        logger.info('Sending message to user', user.name);
 
-    // Wait for the connection to be ready.
-    await this.ready();
-
-    // TODO: this is just a place holder until the below logic is implemented.
-    //Get the users for this notification
-    //Get all users in the notification.users field
-    //Get all the users that belong to each group of the groups field
-    //Filter out only users who have the tags in the tags field (if provided)
-
-    // We will use a QueryStream for better memory performance.
-    const stream = this.client.query(new QueryStream('SELECT * FROM account'));
-
-    //Wait for the stream to be readable.
-    await new Promise(resolve => stream.on('readable', resolve));
-
-    let user;
-
-    // Read the stream row by row.
-    while (null !== (user = stream.read())) {
-      for (let delivery of deliveryMethods) {
-        //If the user wants this kind of notification.
-        if (user.delivery.includes(delivery)) {
-          let message, receipt;
-
+        const messages = [];
+        for (let transportName of notification.by) {
+          let message;
           try {
-            //Use the template to render the notification.
-            message = await template.render({
-              delivery,
-              user,
-              data: notification.data
-            });
-          } catch (err) {
-            // TODO: do something better on error.
-            console.error(`Template generation failed - render${delivery}`);
-            console.error('user', user);
-            console.error('data', data);
-            console.error(err);
-            continue;
+            logger.info('rendering message', { transportName, user, data: notification.data });
+            message = template.render({ transportName, user, data: notification.data });
+          } catch (error) {
+            // TODO: handle error as hard error
+            console.error('[Worker] failed to compile template with good user for delivery -', delivery);
+            console.log(error);
+            throw error;
           }
 
-          try {
-            console.log('sent message');
-            receipt = await Transports[delivery].send({ user, message });
-          } catch (err) {
-            // TODO: do something better on error.
-            console.error(`Transport failed - ${delivery}`);
-            console.error('user', user);
-            console.error('message', message);
-            console.error(err);
-            continue;
-          }
+          console.log(' Rendered message ======> ');
+          console.log(message);
+          console.log('<============');
         }
-      }
+
+        callback();
+      },
+    });
+
+    let res;
+    try {
+      await dbClient.db.stream(usersQs, s => s.pipe(consumerStream));
+    } catch (error) {
+      console.error('[Worker] failed sending notification');
+      throw error;
     }
   }
 }

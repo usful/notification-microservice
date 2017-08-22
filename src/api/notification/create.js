@@ -6,12 +6,12 @@ const queries = require('./queries');
  * by, at, template_id, users
  */
 module.exports = async function createNotification(ctx) {
-  const { by, at, template_id, users, required_by, data } = ctx.request.body;
+  const { by, at, template_id, users, groups, tags, required_by, data } = ctx.request.body;
 
   /** Create notification **/
   let notification;
   try {
-    notification = await queries.createNotification(by, at, template_id, users, required_by, data);
+    notification = await queries.createNotification(by, at, template_id, users, groups, tags, required_by, data);
   } catch (err) {
     if (err.code === '23503') {
       ctx.response.status = 404;
