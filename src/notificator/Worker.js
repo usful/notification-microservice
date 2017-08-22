@@ -4,7 +4,7 @@ const QueryStream = require('pg-query-stream');
 const EmailTransport = require('./Transports/AwsEmail/AwsEmailTransport');
 const PushTransport = require('./Transports/FCMPush/PushTransport');
 const VoiceTransport = require('./Transports/VoiceTransport');
-const WebTransport = require('./Transports/WebTransport');
+const WebTransport = require('./Transports/FCMPush/WebTransport');
 const SMSTransport = require('./Transports/TwilioSMS/SMSTransport');
 
 const EJSTemplate = require('./Templates/EJSTemplate');

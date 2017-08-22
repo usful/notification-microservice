@@ -1,6 +1,5 @@
 const Template = require('./TemplateBase');
 const ejs = require('ejs');
-const _ = require('lodash');
 
 module.exports = class EJSTemplate extends Template {
   constructor(id) {
@@ -14,7 +13,7 @@ module.exports = class EJSTemplate extends Template {
     return this.ejsRender(template, { user, notificationData: data });
   }
 
-  async renderSMS({ user, data }) {
+  async renderSms({ user, data }) {
     await this.load();
 
     const template = this.template.sms;
@@ -35,6 +34,15 @@ module.exports = class EJSTemplate extends Template {
     };
   }
 
+  async renderWeb({ user, data = {} }) {
+    await this.load();
+    const template = this.template.push;
+    return {
+      notification: this.ejsRender(template, { user, notificationData: data }),
+      data: data.pushData || {},
+    };
+  }
+
   /**
    *  ejsRender can now render templates with multiple layers, and can render strings in arrays as well.
    * @param template
@@ -42,7 +50,7 @@ module.exports = class EJSTemplate extends Template {
    * @returns {Object}
    */
   ejsRender(template, data) {
-    return _.mapValues(template, value => {
+    return Object.keys(template).map(value => {
       if (Array.isArray(value)) {
         return value.map(ejs.render(elem, data));
       } else if (typeof value === 'object') {
