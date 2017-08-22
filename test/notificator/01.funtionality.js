@@ -33,12 +33,12 @@ describe('Notificator', () => {
     });
   });
 
-  it('should send 2 notifications', async function() {
+  it('should send 1 notifications', async function() {
     this.timeout(5000);
 
     let sentCount = 0;
     notificator.on('done', () => sentCount++);
-    await createTestData(api, server, 1, 1, 2);
+    await createTestData(api, server, 2, 2, 1);
     await new Promise(resolve => {
       let intervalId;
       intervalId = setInterval(() => {

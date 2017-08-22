@@ -1,7 +1,7 @@
 const { Writable } = require('stream');
 const QueryStream = require('pg-query-stream');
 const JSONStream = require('JSONStream');
-const es = require('event-stream')
+const es = require('event-stream');
 const _ = require('lodash');
 
 const Worker = require('./Tasker/Worker');
@@ -9,6 +9,7 @@ const logger = require('./logger');
 
 const config = require('../config');
 const constants = require('../constants');
+const util = require('../lib/util');
 
 const dbClient = require('../database/poolClient');
 
@@ -48,18 +49,34 @@ class MyWorker extends Worker {
     await template.load(); // TODO: Handle not found error as hard error
 
     // Get the users for this notification
-    // Get all users in the notification.users field
+    // Get all users in the notification.users
     // Get all the users that belong to each group of the groups field
     // Filter out only users who have the tags in the tags field (if provided)
-
-    const usersQs = new QueryStream('SELECT * FROM account');
+    const usersQs = new QueryStream(`
+      SELECT acc.* FROM account acc
+      LEFT JOIN account_groups a_g
+        ON acc.id = a_g.user_id
+      LEFT JOIN account_tags a_t
+        ON acc.id = a_t.user_id
+      WHERE
+        acc.external_id = ANY($1::text[])
+        OR
+        a_g.group_name = ANY($2::text[])
+      GROUP BY acc.id
+        HAVING
+          array_agg(a_t.tag_name::text) && ($3::text[])
+      `, [
+      util.pgArr(notification.users),
+      util.pgArr(notification.groups),
+      util.pgArr(notification.tags),
+    ]);
 
     const consumerStream = new Writable({
       objectMode: true,
       write(user, encoding, callback) {
         logger.info('Sending message to user', user.name);
 
-        // const messages = [];
+        const messages = [];
         for (let transportName of notification.by) {
           let message;
           try {
@@ -81,11 +98,11 @@ class MyWorker extends Worker {
       },
     });
 
-    let res
+    let res;
     try {
       await dbClient.db.stream(usersQs, s => s.pipe(consumerStream));
-    } catch(error) {
-      console.error('[Worker] failed sending notification')
+    } catch (error) {
+      console.error('[Worker] failed sending notification');
       throw error;
     }
   }

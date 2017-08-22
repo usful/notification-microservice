@@ -1,8 +1,7 @@
 const request = require('supertest');
 const expect = require('chai').expect;
-const apiConfig = require('../api-config');
 const resetDB = require('../scripts/methods/reset-db');
-const API = require('../../src/api');
+const API = require('../../src/API');
 
 let api;
 let server;
@@ -10,7 +9,7 @@ let server;
 describe('User', () => {
   before(resetDB);
   before(async () => {
-    api = new API(apiConfig);
+    api = new API();
     await api.start();
     server = api.server;
   });

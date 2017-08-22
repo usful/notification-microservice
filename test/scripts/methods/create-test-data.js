@@ -9,8 +9,19 @@ module.exports = async function createTestData(api, server, usersQTY = 10, templ
   /** Users **/
   const users = [];
   for (let i = 0; i < usersQTY; i++) {
+
+    const groups = ['group-a', 'group-b', 'group-c'];
+    const tags = ['tag-a', 'tag-b', 'tag-c'];
+    if (i % 2 === 0) {
+      groups.push('group-pair');
+      tags.push('tag-pair');
+    } else {
+      groups.push('group-none');
+      tags.push('tag-none');
+    }
+
     users.push({
-      external_id: `test-user-${i}`,
+      external_id: `user-${i}`,
       name: `test-user-${i}`,
       email: `info+test-${i}@joinlane.com`,
       email_status: 'verified',
@@ -19,8 +30,8 @@ module.exports = async function createTestData(api, server, usersQTY = 10, templ
       // voice: '+1 416-000-0001',
       // voice_status: 'unverified',
       delivery: ['email'],
-      groups: [`test-group-a`, `test-group-b`, `test-group-c`],
-      tags: [`test-tag-a`, `test-tag-b`, `test-tag-c`],
+      groups,
+      tags,
     });
   }
 
@@ -69,10 +80,12 @@ module.exports = async function createTestData(api, server, usersQTY = 10, templ
       by: ['email'],
       at: Math.floor(Date.now() / 1000),
       template_id: 1,
-      users: ['test-user-1'],
+      users: [`user-1`],
+      groups: [`group-a`],
+      tags: [`tag-pair`],
       required_by: ['email'],
       data: {
-        username: `random-user-${i}`,
+        username: `random-username-${i}`,
         num: 30,
       },
     });
