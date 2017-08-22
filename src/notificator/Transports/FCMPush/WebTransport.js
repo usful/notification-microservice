@@ -1,7 +1,7 @@
 const admin = require('firebase-admin');
 const Transport = require('../TransportBase');
 
-module.exports = class PushTransport extends Transport {
+module.exports = class WebTransport extends Transport {
   constructor(config) {
     super(config);
 
