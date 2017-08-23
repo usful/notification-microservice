@@ -2,10 +2,10 @@ const pg = require('pg');
 const QueryStream = require('pg-query-stream');
 
 const EmailTransport = require('./Transports/AwsEmail/AwsEmailTransport');
-const PushTransport = require('./Transports/PushTransport');
+const PushTransport = require('./Transports/FCMPush/PushTransport');
 const VoiceTransport = require('./Transports/VoiceTransport');
-const WebTransport = require('./Transports/WebTransport');
-const SMSTransport = require('./Transports/SMSTransport');
+const WebTransport = require('./Transports/FCMPush/WebTransport');
+const SMSTransport = require('./Transports/TwilioSMS/SMSTransport');
 
 const EJSTemplate = require('./Templates/EJSTemplate');
 
@@ -15,7 +15,7 @@ const config = require('../config');
 const constants = require('../constants');
 
 const Templates = {
-  ejs: EJSTemplate
+  ejs: EJSTemplate,
 };
 
 const Transports = {
@@ -23,7 +23,7 @@ const Transports = {
   push: new PushTransport(config),
   voice: new VoiceTransport(config),
   web: new WebTransport(config),
-  sms: new SMSTransport(config)
+  sms: new SMSTransport(config),
 };
 
 class MyWorker extends Worker {
@@ -72,13 +72,10 @@ class MyWorker extends Worker {
         template.render({
           delivery,
           user: constants.good_user,
-          data: notification.data
+          data: notification.data,
         });
       } catch (error) {
-        console.log(
-          'Failed to compile template with good user for delivery -',
-          delivery
-        );
+        console.log('Failed to compile template with good user for delivery -', delivery);
         console.log(error);
         return;
       }
@@ -113,7 +110,7 @@ class MyWorker extends Worker {
             message = await template.render({
               delivery,
               user,
-              data: notification.data
+              data: notification.data,
             });
           } catch (err) {
             // TODO: do something better on error.
@@ -125,7 +122,6 @@ class MyWorker extends Worker {
           }
 
           try {
-            console.log('sent message');
             receipt = await Transports[delivery].send({ user, message });
           } catch (err) {
             // TODO: do something better on error.
