@@ -5,9 +5,10 @@
 # Improvements
 - General max-length for all string entries
 
-## Postgres commands
+## Some dev commands
 pg_ctl -D /usr/local/var/postgres start
 pg_ctl -D /usr/local/var/postgres stop
+ps -ef | grep Worker.js | grep -v grep | awk '{print $2}' | xargs kill -9
 
 ## API
 

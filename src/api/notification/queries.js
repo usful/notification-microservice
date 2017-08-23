@@ -58,7 +58,7 @@ function getNotificationsUnsent() {
   );
 }
 
-function createNotification(by, at, template_id, users, required_by, data) {
+function createNotification(by, at, template_id, users, groups, tags, required_by, data) {
   const query = squel
     .insert()
     .into('notification')
@@ -69,6 +69,14 @@ function createNotification(by, at, template_id, users, required_by, data) {
 
   if (users) {
     query.set('users', util.pgArr(users));
+  }
+
+  if (groups) {
+    query.set('groups', util.pgArr(groups));
+  }
+
+  if (tags) {
+    query.set('tags', util.pgArr(tags));
   }
 
   if (required_by) {
