@@ -14,22 +14,6 @@ class Server {
     dbClient.connect(config.db);
     this.server = await server.asyncListen(config.api.port);
 
-    // Custom parsing for enums
-    const enums = await dbClient.db.many(
-      `
-      SELECT typname, oid, typarray
-      FROM pg_type
-      WHERE
-      (
-        typname = 'verification_status' OR
-        typname = 'delivery_type' OR
-        typname = 'notification_status'
-      ) AND
-      typarray <> 0
-      ORDER by oid
-      `
-    );
-    enums.forEach((en) => dbClient.addArrayParser(en.typarray));
     logger.info(`notifications-microservice listening on ${config.api.port}`);
   }
 

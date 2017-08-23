@@ -1,9 +1,8 @@
 const request = require('supertest');
 const expect = require('chai').expect;
-const apiConfig = require('../api-config');
 const resetDB = require('../scripts/methods/reset-db');
 const createTestData = require('../scripts/methods/create-test-data');
-const API = require('../../src/api');
+const API = require('../../src/API');
 
 let api;
 let server;
@@ -11,7 +10,7 @@ let server;
 describe('Template', () => {
   before(resetDB);
   before(async () => {
-    api = new API(apiConfig);
+    api = new API();
     await api.start();
     server = api.server;
   });

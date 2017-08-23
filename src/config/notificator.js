@@ -6,19 +6,5 @@ module.exports = {
   getNextWorkerPollInterval: getAssert(process.env.NOTI_GET_NEXT_WORKER_POLL_INTERVAL),
   workerDeadlockTimeout: getAssert(process.env.NOTI_WORKER_DEADLOCK_TIMEOUT),
   workerPingInterval: getAssert(process.env.NOTI_WORKER_PING_INTERVAL),
-
-  // transports: {
-  //   email: {
-  //     AWSAccessKeyID: 'key',
-  //     AWSSecretKey: 'secret',
-  //     region: 'us-east-1',
-  //     rateLimit: 5,
-  //   },
-  // },
-  // AWS: {
-  //   SQS: {
-  //     BounceURL: 'bounceUrl',
-  //     ComplaintsURL: 'complaintUrl',
-  //   },
-  // },
+  logLevel: getAssert(process.env.NOTI_LOG_LEVEL),
 };
