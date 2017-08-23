@@ -76,10 +76,18 @@ CREATE TABLE notification (
   at            timestamp           NOT NULL,
   template_id   bigint              NOT NULL REFERENCES template(id),
   users         text[]              NULL,
+  groups        text[]              NULL,
+  tags          text[]              NULL,
   required_by   delivery_type[]     NULL,
   data          jsonb               NULL,
   sent          timestamp           NULL,
   status        notification_status NOT NULL DEFAULT 'new'::notification_status
   -- user_user_locale
   -- geo
+);
+
+CREATE TABLE webhook (
+  id            bigserial           PRIMARY KEY,
+  url           text                UNIQUE NOT NULL,
+  transport    delivery_type        NOT NULL
 );

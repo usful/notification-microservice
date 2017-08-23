@@ -1,8 +1,8 @@
 const squel = require('squel');
 
 const SQSPoller = require('./SQSPoller');
-const db = require('../../../database/poolClient');
-const config = require('../../../config/index');
+const db = require('../../database/poolClient');
+const config = require('../../config/index');
 
 const bounceQueuePoller = new SQSPoller(config, config.AWS.SQS.BounceURL);
 const complaintQueuePoller = new SQSPoller(

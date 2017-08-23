@@ -22,21 +22,5 @@ module.exports = {
   db: require('./db'),
   api: require('./api'),
   notificator: require('./notificator'),
-  transports: {
-    email: {
-      from: 'info@joinlane.com',
-      accessKeyId: process.env.accessKeyId,
-      secretAccessKey: process.env.secretAccessKey,
-    },
-    push: {
-      serviceAccountKeyPath: process.env.serviceAccountKeyPath,
-      dbUrl: process.env.fcm_db_url,
-      messagingOptions: {},
-    },
-    sms: {
-      accountSid: process.env.accountSid,
-      authToken: process.env.authToken,
-      from: process.env.twilio_Num,
-    },
-  },
+  transports: require('./transports'),
 };
