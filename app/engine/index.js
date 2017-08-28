@@ -1,6 +1,6 @@
 /** Userland **/
 
-const Notificator = require('../../notificator');
+const Notificator = require('../../src/notificator');
 
 const notificator = new Notificator();
 notificator.init();
