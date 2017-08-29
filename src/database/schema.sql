@@ -3,6 +3,7 @@
 CREATE TYPE verification_status AS ENUM('verified', 'bounced', 'failed', 'unverified');
 CREATE TYPE delivery_type AS ENUM('email', 'sms', 'push', 'voice', 'web');
 CREATE TYPE notification_status AS ENUM('new', 'failed', 'sent', 'processing');
+CREATE TYPE webhook_type as ENUM('NotificationFailed', 'NotificationSuccess', 'UserDeliveryFailed', 'UserDeliveryConfirmed', 'SystemError');
 
 CREATE OR REPLACE FUNCTION is_timezone( tz TEXT ) RETURNS BOOLEAN as $$
 DECLARE
@@ -89,5 +90,6 @@ CREATE TABLE notification (
 CREATE TABLE webhook (
   id            bigserial           PRIMARY KEY,
   url           text                UNIQUE NOT NULL,
-  transport    delivery_type        NOT NULL
+  type          webhook_type[]        NOT NULL DEFAULT ARRAY[]::webhook_type[],
+  transport    delivery_type[]        NOT NULL DEFAULT ARRAY[]::delivery_type[]
 );

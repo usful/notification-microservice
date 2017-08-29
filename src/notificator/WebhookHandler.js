@@ -4,6 +4,7 @@ const url = require('url');
 const util = require('../lib/util');
 const poolClient = require('../database/poolClient');
 const config = require('../config');
+const logger = require('./logger');
 
 //Abstraction of a webhook
 module.exports = class WebhookHandler {
@@ -21,14 +22,17 @@ module.exports = class WebhookHandler {
    */
   async setup() {
     //Connect to db and load all the webhooks required to fire due to event.
+    //todo creates a duplicate database object for the same connection when creating multiple webhooks.
     await poolClient.connect(config.db);
 
     const db = poolClient.db;
-    const query = squel.select().from('webhook').where('type = ?', this.event).toString();
+    const query = squel.select().from('webhook').where('type @> ARRAY[?]::webhook_type[]', this.event).toString();
 
     this.webhooks = await db.manyOrNone(query);
+    logger.info('Webhook Handler loaded webhooks',this.webhooks);
 
     this.ready = true;
+    logger.info('Webhook Handler loaded webhooks for event', this.event);
   }
 
   /**
@@ -37,6 +41,7 @@ module.exports = class WebhookHandler {
    * @returns {Promise.<void>}
    */
   async fire(data) {
+    logger.info('firing webhook with data', data);
     while (!this.ready) {
       util.pause(100);
     }

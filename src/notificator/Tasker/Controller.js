@@ -45,7 +45,7 @@ module.exports = class Controller extends EventEmitter {
 
   createWorker(id) {
     // logger.info('[Crl]', `creating worker ${id}`);
-
+    const controller = this;
     const workerProcess = cp.fork(this.script);
 
     // Initial tracking state for worker
@@ -70,12 +70,13 @@ module.exports = class Controller extends EventEmitter {
           logger.debug('[Crl]', 'Task Done Worker', workerProcess.whoAmI, 'done');
           workerProcess.available = true;
           clearTimeout(workerProcess.deadLockTimeout);
-          this.emit('done');
+          controller.emit('fireWebhook', 'NotificationSuccess', message.notification);
           break;
         case 'failed':
           logger.info('[Crl]', 'Worker', workerProcess.whoAmI, 'failed');
           workerProcess.available = true;
           clearTimeout(workerProcess.deadLockTimeout);
+          controller.emit('fireWebhook', 'NotificationFailed', message.notification);
           break;
         case 'ping':
           workerProcess.crashed = false;
@@ -88,6 +89,7 @@ module.exports = class Controller extends EventEmitter {
       workerProcess.available = false;
       logger.error('[Crl] worker', workerProcess.whoAmI);
       logger.error(error);
+      controller.emit('fireWebhook', 'SystemError', error);
     });
 
     workerProcess.on('close', (code, signal) => {

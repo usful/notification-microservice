@@ -24,10 +24,10 @@ const Templates = {
 
 const Transports = {
   email: new EmailTransport(config),
-  // push: new PushTransport(config),
+  push: new PushTransport(config),
   // voice: new VoiceTransport(config),
-  // web: new WebTransport(config),
-  // sms: new SMSTransport(config)
+  web: new WebTransport(config),
+  sms: new SMSTransport(config)
 };
 
 class MyWorker extends Worker {
@@ -81,14 +81,19 @@ class MyWorker extends Worker {
             message = template.render({ transportName, user, data: notification.data });
           } catch (error) {
             // TODO: handle error as hard error
-            console.error('[Worker] failed to compile template with good user for transport -', transportName);
-            console.log(error);
+            logger.error('[Worker] failed to compile template for transport -', transportName);
+            logger.info(error);
             throw error;
           }
 
-          console.log(' Rendered message ======> ');
-          console.log(message);
-          console.log('<============');
+          try {
+            logger.info('sending message', {transportName, user, data: notification.data });
+            Transports[transportName].send({user, message})
+          }catch (error) {
+            logger.error('[Worker] failed to send message');
+            logger.info(error);
+            throw error;
+          }
         }
 
         callback();
@@ -98,8 +103,10 @@ class MyWorker extends Worker {
     let res;
     try {
       await dbClient.db.stream(usersQs, s => s.pipe(consumerStream));
+      process.send({command: 'done', notification});
     } catch (error) {
       console.error('[Worker] failed sending notification');
+      process.send({command: 'failed', notification});
       throw error;
     }
   }

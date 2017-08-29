@@ -11,7 +11,7 @@ module.exports = class EJSTemplate extends Template {
     return this.ejsRender(template, { user, data });
   }
 
-  renderSMS({ user, data }) {
+  renderSms({ user, data }) {
     const template = this.template.sms;
     return this.ejsRender(template, { user, data });
   }

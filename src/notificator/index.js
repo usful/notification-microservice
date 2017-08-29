@@ -5,7 +5,9 @@ const WebHookHandler = require('./WebhookHandler');
 const webhookHandlers = {
   NotificationFailed: new WebHookHandler('NotificationFailed'),
   NotificationSuccess: new WebHookHandler('NotificationSuccess'),
-  UserDeliveryFailed: new WebHookHandler('UserDeliveryFailed')
+  UserDeliveryFailed: new WebHookHandler('UserDeliveryFailed'),
+  UserDeliveryConfirmed: new WebHookHandler('UserDeliveryConfirmed'),
+  SystemError: new WebHookHandler('SystemError')
 };
 
 class Notificator {
@@ -15,12 +17,17 @@ class Notificator {
   }
 
   init() {
-    this.controller.init({
-
+    this.controller.init();
+    this.controller.on('fireWebhook', (eventString, data = {}) => {
+      webhookHandlers[eventString].fire(data);
     });
   }
 
   async run() {
-    this.controller.run();
+    await this.controller.run()
+      .then(() => console.log('controller stoped'))
+      .catch((error) => console.error('[Error] controller error', error));
   }
 }
+
+module.exports = Notificator;
