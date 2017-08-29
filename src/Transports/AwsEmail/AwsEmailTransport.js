@@ -38,8 +38,8 @@ module.exports = class EmailTransport extends Transport {
   }
 
   async send({ user, message }) {
-    await this.sendMail({
-      from: this.config.aws.ses.from,
+    const info = await this.sendMail({
+      from: this.config.transports.email.from,
       to: user.email,
       subject: message.subject,
       text: message.text,

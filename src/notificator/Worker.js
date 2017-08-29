@@ -27,7 +27,7 @@ const Transports = {
   push: new PushTransport(config),
   // voice: new VoiceTransport(config),
   web: new WebTransport(config),
-  sms: new SMSTransport(config)
+  sms: new SMSTransport(config),
 };
 
 class MyWorker extends Worker {
@@ -43,13 +43,16 @@ class MyWorker extends Worker {
     // Load the template for this notification.
     const Template = Templates['ejs'];
     const template = new Template(notification.template_id, dbClient);
+    logger.info('[Worker]', worker.whoAmI, 'loading template');
     await template.load(); // TODO: Handle not found error as hard error
+    logger.info('[Worker]', worker.whoAmI, 'loaded template');
 
     // Get the users for this notification
     // Get all users in the notification.users
     // Get all the users that belong to each group of the groups field
     // Filter out only users who have the tags in the tags field (if provided)
-    const usersQs = new QueryStream(`
+    const usersQs = new QueryStream(
+      `
       SELECT acc.* FROM account acc
       LEFT JOIN account_groups a_g
         ON acc.id = a_g.user_id
@@ -59,14 +62,14 @@ class MyWorker extends Worker {
         acc.external_id = ANY($1::text[])
         OR
         a_g.group_name = ANY($2::text[])
+        OR
+        (cardinality($1::text[]) = 0 AND cardinality($2::text[]) = 0)
       GROUP BY acc.id
         HAVING
-          array_agg(a_t.tag_name::text) && ($3::text[])
-      `, [
-      util.pgArr(notification.users),
-      util.pgArr(notification.groups),
-      util.pgArr(notification.tags),
-    ]);
+          ((array_agg(a_t.tag_name::text) && ($3::text[])) OR cardinality($3::text[]) = 0)
+      `,
+      [util.pgArr(notification.users), util.pgArr(notification.groups), util.pgArr(notification.tags)]
+    );
 
     const consumerStream = new Writable({
       objectMode: true,
@@ -87,9 +90,11 @@ class MyWorker extends Worker {
           }
 
           try {
-            logger.info('sending message', {transportName, user, data: notification.data });
-            Transports[transportName].send({user, message})
-          }catch (error) {
+            logger.info('sending message', { transportName, user, data: notification.data, message });
+            Transports[transportName].send({ user, message }).then(() => {
+              process.send({ command: 'done', notification });
+            });
+          } catch (error) {
             logger.error('[Worker] failed to send message');
             logger.info(error);
             throw error;
@@ -103,10 +108,9 @@ class MyWorker extends Worker {
     let res;
     try {
       await dbClient.db.stream(usersQs, s => s.pipe(consumerStream));
-      process.send({command: 'done', notification});
     } catch (error) {
       console.error('[Worker] failed sending notification');
-      process.send({command: 'failed', notification});
+      process.send({ command: 'failed', notification });
       throw error;
     }
   }

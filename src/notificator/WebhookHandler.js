@@ -22,7 +22,6 @@ module.exports = class WebhookHandler {
    */
   async setup() {
     //Connect to db and load all the webhooks required to fire due to event.
-    //todo creates a duplicate database object for the same connection when creating multiple webhooks.
     await poolClient.connect(config.db);
 
     const db = poolClient.db;
@@ -41,7 +40,7 @@ module.exports = class WebhookHandler {
    * @returns {Promise.<void>}
    */
   async fire(data) {
-    logger.info('firing webhook with data', data);
+    logger.info(`[${this.event}]firing webhook with data`, data);
     while (!this.ready) {
       util.pause(100);
     }
