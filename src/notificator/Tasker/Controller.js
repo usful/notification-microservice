@@ -78,6 +78,10 @@ module.exports = class Controller extends EventEmitter {
           clearTimeout(workerProcess.deadLockTimeout);
           controller.emit('fireWebhook', 'NotificationFailed', message.notification);
           break;
+        case 'userDeliveryFailed':
+          logger.info('[Crl]', 'Worker', workerProcess.whoAmI, 'user delivery failed');
+          controller.emit('fireWebhook', 'UserDeliveryFailed', message.data);
+          break;
         case 'ping':
           workerProcess.crashed = false;
           break;

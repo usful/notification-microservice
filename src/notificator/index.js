@@ -25,7 +25,7 @@ class Notificator {
 
   async run() {
     await this.controller.run()
-      .then(() => console.log('controller stoped'))
+      .then(() => console.log('controller stopped'))
       .catch((error) => console.error('[Error] controller error', error));
   }
 }

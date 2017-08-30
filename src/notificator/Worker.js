@@ -97,6 +97,7 @@ class MyWorker extends Worker {
           } catch (error) {
             logger.error('[Worker] failed to send message');
             logger.info(error);
+            process.send({ command: 'userDeliveryFailed', data: {notification, user}});
             throw error;
           }
         }

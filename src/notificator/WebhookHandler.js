@@ -22,7 +22,6 @@ module.exports = class WebhookHandler {
    */
   async setup() {
     //Connect to db and load all the webhooks required to fire due to event.
-    await poolClient.connect(config.db);
 
     const db = poolClient.db;
     const query = squel.select().from('webhook').where('type @> ARRAY[?]::webhook_type[]', this.event).toString();
