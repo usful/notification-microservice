@@ -4,6 +4,7 @@ const url = require('url');
 const util = require('../lib/util');
 const poolClient = require('../database/poolClient');
 const config = require('../config');
+poolClient.connect(config.db);
 const logger = require('./logger');
 
 //Abstraction of a webhook

@@ -19,11 +19,11 @@ class Worker {
 				case 'data':
 					try {
 						await this.processData(message.data);
-						process.send({ command: 'done' });
+						//process.send({ command: 'done' });
 					} catch (error) {
             logger.error('[Worker] failed sending notification');
             logger.error(error);
-            process.send({ command: 'failed' });
+           // process.send({ command: 'failed' });
 					}
 					break;
 				case 'ping':

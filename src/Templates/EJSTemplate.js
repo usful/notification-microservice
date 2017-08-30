@@ -31,8 +31,7 @@ module.exports = class EJSTemplate extends Template {
     };
   }
 
-  async renderWeb({ user, data = {} }) {
-    await this.load();
+  renderWeb({ user, data = {} }) {
     const template = this.template.push;
     return {
       notification: this.ejsRender(template, { user, notificationData: data }),

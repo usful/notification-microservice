@@ -43,9 +43,7 @@ class MyWorker extends Worker {
     // Load the template for this notification.
     const Template = Templates['ejs'];
     const template = new Template(notification.template_id, dbClient);
-    logger.info('[Worker]', worker.whoAmI, 'loading template');
     await template.load(); // TODO: Handle not found error as hard error
-    logger.info('[Worker]', worker.whoAmI, 'loaded template');
 
     // Get the users for this notification
     // Get all users in the notification.users
@@ -73,7 +71,7 @@ class MyWorker extends Worker {
 
     const consumerStream = new Writable({
       objectMode: true,
-      write(user, encoding, callback) {
+      write: async(user, encoding, callback) => {
         logger.info('Sending message to user', user.name);
 
         const messages = [];
@@ -81,34 +79,38 @@ class MyWorker extends Worker {
           let message;
           try {
             logger.info('rendering message', { transportName, user, data: notification.data });
-            message = template.render({ transportName, user, data: notification.data });
+            message = await template.render({ transportName, user, data: notification.data });
           } catch (error) {
             // TODO: handle error as hard error
             logger.error('[Worker] failed to compile template for transport -', transportName);
-            logger.info(error);
-            throw error;
+            logger.error(error);
+            callback(error);
           }
 
           try {
             logger.info('sending message', { transportName, user, data: notification.data, message });
-            Transports[transportName].send({ user, message }).then(() => {
-              process.send({ command: 'done', notification });
-            });
+            await Transports[transportName].send({ user, message });
           } catch (error) {
-            logger.error('[Worker] failed to send message');
-            logger.info(error);
+            logger.error('[Worker] failed to send message to user');
+            logger.error(error);
             process.send({ command: 'userDeliveryFailed', data: {notification, user}});
-            throw error;
           }
+          callback();
         }
-
-        callback();
       },
+    });
+
+    consumerStream.on('error', (error) => {
+      logger.info('[consumerStream] failed sending notification');
+      process.send({ command: 'failed', notification });
     });
 
     let res;
     try {
       await dbClient.db.stream(usersQs, s => s.pipe(consumerStream));
+      await new Promise(resolve => consumerStream.on('finish', resolve));
+      logger.info('[Worker] successfully sent notification');
+      process.send({ command: 'done', notification});
     } catch (error) {
       console.error('[Worker] failed sending notification');
       process.send({ command: 'failed', notification });
