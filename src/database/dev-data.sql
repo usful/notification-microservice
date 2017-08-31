@@ -1,4 +1,3 @@
-
 INSERT INTO account
 (external_id, name, email, sms, delivery, language)
 VALUES
@@ -15,7 +14,7 @@ VALUES
     'template1',
     '{"subject": "<%= user.name %> test", "text": "<%= user.name %>, <%= user.id %>", "html": "<%= user.name %>, <%= user.id %>"}',
     '{"message": "<%= user.name %> test"}',
-    '{"message": "<%= user.name %> test"}',
+    '{"body": "<%= user.name %> test"}',
     '{"message": "<%= user.name %> test"}',
     '{"message": "<%= user.name %> test"}'
 ),

@@ -49,7 +49,8 @@ class MyWorker extends Worker {
     // Get all users in the notification.users
     // Get all the users that belong to each group of the groups field
     // Filter out only users who have the tags in the tags field (if provided)
-    const usersQs = new QueryStream(`
+    const usersQs = new QueryStream(
+      `
       SELECT acc.* FROM account acc
       LEFT JOIN account_groups a_g
         ON acc.id = a_g.user_id
@@ -59,14 +60,14 @@ class MyWorker extends Worker {
         acc.external_id = ANY($1::text[])
         OR
         a_g.group_name = ANY($2::text[])
+        OR
+        (cardinality($1::text[]) = 0 AND cardinality($2::text[]) = 0)
       GROUP BY acc.id
         HAVING
-          array_agg(a_t.tag_name::text) && ($3::text[])
-      `, [
-      util.pgArr(notification.users),
-      util.pgArr(notification.groups),
-      util.pgArr(notification.tags),
-    ]);
+          ((array_agg(a_t.tag_name::text) && ($3::text[])) OR cardinality($3::text[]) = 0)
+      `,
+      [util.pgArr(notification.users), util.pgArr(notification.groups), util.pgArr(notification.tags)]
+    );
 
     const consumerStream = new Writable({
       objectMode: true,
