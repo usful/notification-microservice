@@ -5,11 +5,9 @@ const url = require('url');
 const logger = require('../notificator/logger');
 
 //Abstraction of a collection of webhooks by related event
-module.exports = class Webhooks extends EventEmitter {
+module.exports = class Webhooks {
   constructor(db) {
-    super();
     this.db = db;
-    this.on('fireWebhooks', (eventString, data = {}) => this.fire(eventString, data)) ;
   }
 
   async fire(eventString, data) {

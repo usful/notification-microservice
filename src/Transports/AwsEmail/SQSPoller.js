@@ -2,14 +2,10 @@ const aws = require('aws-sdk');
 
 class SQSPoller {
   constructor(config, queueUrl) {
-    this.SQS = new aws.SQS({
-      accessKeyId: config.transports.email.AWSAccessKeyID,
-      secretAccessKey: config.transports.email.AWSSecretKey,
-      region: config.transports.email.region,
-      apiVersion: '2012-11-05'
-    });
+    //todo adjust config
+    this.SQS = new aws.SQS(config.sqs.init_conf);
 
-    this.pollingInterval = config.engine.sqsPollingInterval;
+    this.pollingInterval = config.sqs.pollingInterval;
     this.queueURL = queueUrl;
   }
 

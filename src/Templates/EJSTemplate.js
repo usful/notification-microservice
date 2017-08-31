@@ -1,5 +1,6 @@
 const Template = require('./TemplateBase');
 const ejs = require('ejs');
+const _ = require('lodash');
 
 module.exports = class EJSTemplate extends Template {
   constructor(id, dbClient) {
@@ -30,8 +31,7 @@ module.exports = class EJSTemplate extends Template {
     };
   }
 
-  async renderWeb({ user, data = {} }) {
-    await this.load();
+  renderWeb({ user, data = {} }) {
     const template = this.template.push;
     return {
       notification: this.ejsRender(template, { user, notificationData: data }),
@@ -47,8 +47,7 @@ module.exports = class EJSTemplate extends Template {
    */
   ejsRender(template, data) {
     console.log('[ejsRender] template', template, 'data', data);
-    return Object.keys(template).map(key => {
-      const value = template[key];
+    return _.mapValues(template, value => {
       if (Array.isArray(value)) {
         return value.map(ejs.render(value, data));
       } else if (typeof value === 'object') {

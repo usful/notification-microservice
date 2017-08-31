@@ -23,4 +23,16 @@ module.exports = {
   api: require('./api'),
   notificator: require('./notificator'),
   transports: require('./transports'),
+  sqs: {
+    init_conf: {
+      accessKeyId: process.env.TPS_EMAIL_AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.TPS_EMAIL_AWS_SECRET_KEY,
+      region: process.env.AWS_REGION,
+      apiVersion: '2012-11-05',
+    },
+    pollingInterval: 1000,
+    complaintQueue: process.env.SQS_COMPLAINTS,
+    bounceQueue: process.env.SQS_BOUNCE,
+    deliveredQueue: process.env.SQS_DELIVERED,
+  }
 };
