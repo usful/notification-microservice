@@ -1,5 +1,4 @@
 const http = require('http');
-const EventEmitter = require('events');
 const squel = require('squel');
 const url = require('url');
 const logger = require('../notificator/logger');

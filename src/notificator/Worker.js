@@ -13,7 +13,7 @@ const dbClient = require('../database/poolClient');
 const EmailTransport = require('../Transports/AwsEmail/AwsEmailTransport');
 const PushTransport = require('../Transports/FCMPush/PushTransport');
 const VoiceTransport = require('../Transports/VoiceTransport');
-const WebTransport = require('../Transports/WebTransport');
+const WebTransport = require('../Transports/FCMPush/WebTransport');
 const SMSTransport = require('../Transports/TwilioSMS/SMSTransport');
 
 const EJSTemplate = require('../Templates/EJSTemplate');
@@ -92,9 +92,14 @@ class MyWorker extends Worker {
 
           try {
             await Transports[transportName].send({ user, message});
+            //todo firing UserDeliverySuccess for cases where the transport is immediate? perhaps make transports event emitters
           }catch (error){
             logger.info('[Worker] failed to send message to user -', user);
             logger.info(error);
+            /**
+             * If an implemented transport never sends back a failed immediately firing the webhook should
+             * be implemented in a seperate file. Example is AWS email
+             */
             this.webhooks.fire('UserDeliveryFailed', user);
           }
         }
