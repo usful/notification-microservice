@@ -8,6 +8,8 @@ module.exports = koaJoiBouncer.middleware({
     at: Joi.number().integer().required(),
     template_id: Joi.number().integer().required(),
     users: Joi.array().items(Joi.string()),
+    groups: Joi.array().items(Joi.string()),
+    tags: Joi.array().items(Joi.string()),
     required_by: Joi.array().items(Joi.string().valid(constants.delivery_type)),
     data: Joi.object(),
   }),

@@ -33,10 +33,12 @@
     "supertest": "^3.0.0"
   },
   "scripts": {
-    "test-api": "NODE_ENV=test mocha './test/features/0*.*.js'",
-    "test-notificator": "NODE_ENV=test mocha './test/notificator/0*.*.js'",
+    "heroku-start": "NODE_ENV=test node ./app/herokuApp/index.js",
+    "test-api": "NODE_ENV=test mocha './test/api/0*.*.js'",
+    "test-notificator": "npm run kill-lost-workers && NODE_ENV=test mocha './test/notificator/0*.*.js'",
     "reset-test-db": "sh ./src/database/recreate-db.sh notifications_test notificator",
-    "fill-test-db": "NODE_ENV=test node ./test/scripts/create-test-data.js 'notifications_test'"
+    "fill-test-db": "NODE_ENV=test node ./test/scripts/create-test-data.js 'notifications_test'",
+    "kill-lost-workers": "ps -ef | grep Worker.js | grep -v grep | awk '{print $2}' | xargs kill -9"
   },
   "repository": {
     "type": "git",

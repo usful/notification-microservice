@@ -5,11 +5,13 @@ module.exports = class PushTransport extends Transport {
   constructor(config) {
     super(config);
 
-    const serviceAccount = require(config.transports.push.serviceAccountKeyPath);
-    admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount),
-      databaseURL: config.transports.push.dbUrl,
-    });
+    if (admin.apps.length === 0) {
+      const serviceAccount = require(config.transports.push.serviceAccountKeyPath);
+      admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+        databaseURL: config.transports.push.dbUrl,
+      });
+    }
   }
 
   async send({ user, message }) {

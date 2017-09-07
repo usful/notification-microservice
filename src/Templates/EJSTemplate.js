@@ -1,27 +1,24 @@
 const Template = require('./TemplateBase');
 const ejs = require('ejs');
+const _ = require('lodash');
 
 module.exports = class EJSTemplate extends Template {
-  constructor(id) {
-    super(id);
+  constructor(id, dbClient) {
+    super(id, dbClient);
   }
 
-  async renderEmail({ user, data }) {
-    await this.load();
-
+  renderEmail({ user, data }) {
     const template = this.template.email;
-    return this.ejsRender(template, { user, notificationData: data });
+    return this.ejsRender(template, { user, data });
   }
 
-  async renderSms({ user, data }) {
-    await this.load();
-
+  renderSMS({ user, data }) {
     const template = this.template.sms;
-    return this.ejsRender(template, { user, notificationData: data });
+    return this.ejsRender(template, { user, data });
   }
 
-  async renderPush({ user, data = {} }) {
-    await this.load();
+  renderPush({ user, data }) {
+    data = data || {};
     const template = this.template.push;
     /*
       With this implementation push data is loaded into the returned message by the ejsTemplate from the data object
@@ -29,13 +26,12 @@ module.exports = class EJSTemplate extends Template {
       data parameter to never be null. Could change schema to set data of notification to NOT NULL
      */
     return {
-      notification: this.ejsRender(template, { user, notificationData: data }),
+      notification: this.ejsRender(template, { user, data }),
       data: data.pushData || {},
     };
   }
 
-  async renderWeb({ user, data = {} }) {
-    await this.load();
+  renderWeb({ user, data = {} }) {
     const template = this.template.push;
     return {
       notification: this.ejsRender(template, { user, notificationData: data }),
@@ -50,13 +46,14 @@ module.exports = class EJSTemplate extends Template {
    * @returns {Object}
    */
   ejsRender(template, data) {
-    return Object.keys(template).map(value => {
+    console.log('[ejsRender] template', template, 'data', data);
+    return _.mapValues(template, value => {
       if (Array.isArray(value)) {
-        return value.map(ejs.render(elem, data));
+        return value.map(ejs.render(value, data));
       } else if (typeof value === 'object') {
         return this.ejsRender(value, data);
       }
-      return this.ejsRender(value, data);
+      return ejs.render(value, data);
     });
   }
 };

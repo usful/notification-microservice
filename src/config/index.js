@@ -22,21 +22,17 @@ module.exports = {
   db: require('./db'),
   api: require('./api'),
   notificator: require('./notificator'),
-  transports: {
-    email: {
-      from: 'info@joinlane.com',
-      accessKeyId: process.env.accessKeyId,
-      secretAccessKey: process.env.secretAccessKey,
+  transports: require('./transports'),
+  sqs: {
+    init_conf: {
+      accessKeyId: process.env.TPS_EMAIL_AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.TPS_EMAIL_AWS_SECRET_KEY,
+      region: process.env.AWS_REGION,
+      apiVersion: '2012-11-05',
     },
-    push: {
-      serviceAccountKeyPath: process.env.serviceAccountKeyPath,
-      dbUrl: process.env.fcm_db_url,
-      messagingOptions: {},
-    },
-    sms: {
-      accountSid: process.env.accountSid,
-      authToken: process.env.authToken,
-      from: process.env.twilio_Num,
-    },
-  },
+    pollingInterval: 1000,
+    complaintQueue: process.env.SQS_COMPLAINTS,
+    bounceQueue: process.env.SQS_BOUNCE,
+    deliveredQueue: process.env.SQS_DELIVERED,
+  }
 };

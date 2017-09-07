@@ -1,9 +1,9 @@
-const { API } = require('../../src');
+const { API } = require('../../src/api');
 
 /** Userland **/
 
 const api = new API();
 
-await api.start();
+api.start();
 
 // api.stop();
