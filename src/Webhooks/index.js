@@ -1,7 +1,8 @@
-const http = require('http');
+const https = require('https');
 const squel = require('squel');
 const url = require('url');
 const logger = require('../notificator/logger');
+//todo test sending webhooks by https
 
 //Abstraction of a collection of webhooks by related event
 module.exports = class Webhooks {
@@ -23,7 +24,7 @@ module.exports = class Webhooks {
       const url_info = url.parse(webhook.url);
       const post_options = {
         host: url_info.host,
-        port: '80',
+        port: '443',
         path: url_info.path,
         method: 'POST',
         headers: {
@@ -31,7 +32,7 @@ module.exports = class Webhooks {
           'Content-Length': Buffer.byteLength(post_data)
         }
       };
-      const post_req = http.request(post_options, (res) => {
+      const post_req = https.request(post_options, (res) => {
         res.setEncoding('utf8');
         res.on('data', (data) => {
           logger.info('[Webhooks] response data', data)
