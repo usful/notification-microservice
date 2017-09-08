@@ -97,7 +97,7 @@ class MyWorker extends Worker {
             logger.info('[Worker] failed to send message to user -', user);
             logger.info(error);
             /**
-             * If an implemented transport never sends back a failed immediately firing the _webhook should
+             * If an implemented transport never sends back a failed immediately firing the webhook should
              * be implemented in a seperate file. Example is AWS email
              */
             this.webhooks.fire('UserDeliveryFailed', user);

@@ -17,11 +17,11 @@ describe('Webhook', () => {
     await api.stop();
   });
 
-  it('should create a _webhook successfully', async () => {
+  it('should create a webhook successfully', async () => {
     const res = await request(server)
-      .post('/api/_webhook')
+      .post('/api/webhook')
       .send({
-        url: 'my-test-domain.com/notification-service/_webhook/email',
+        url: 'my-test-domain.com/notification-service/webhook/email',
         transport: 'email',
       })
       .set('Accept', 'application/json')
@@ -30,24 +30,24 @@ describe('Webhook', () => {
 
   it('should get all webhooks successfully', async () => {
     const res = await request(server)
-      .get('/api/_webhook')
+      .get('/api/webhook')
       .send()
       .set('Accept', 'application/json')
       .expect(200);
 
     expect(res.body.data).to.be.an('array');
-    expect(res.body.data[0].url).to.equal('my-test-domain.com/notification-service/_webhook/email');
+    expect(res.body.data[0].url).to.equal('my-test-domain.com/notification-service/webhook/email');
   });
 
-  it('should delete a _webhook successfully', async () => {
+  it('should delete a webhook successfully', async () => {
     const delRes = await request(server)
-      .delete('/api/_webhook/my-test-domain.com%2Fnotification-service%2Fwebhook%2Femail')
+      .delete('/api/webhook/my-test-domain.com%2Fnotification-service%2Fwebhook%2Femail')
       .send()
       .set('Accept', 'application/json')
       .expect(200);
 
     const getRes = await request(server)
-      .get('/api/_webhook')
+      .get('/api/webhook')
       .send()
       .set('Accept', 'application/json')
       .expect(200);
