@@ -12,7 +12,7 @@ module.exports = class Webhooks {
 
   async fire(eventString, data) {
     logger.info('[Webhooks] loading webhooks for', eventString);
-    const query = squel.select().from('webhook').where('type @> ARRAY[?]::webhook_type[]', eventString).toString();
+    const query = squel.select().from('_webhook').where('type @> ARRAY[?]::webhook_type[]', eventString).toString();
 
     const webhooks = await this.db.manyOrNone(query);
     logger.info('[Webhooks] loaded webhooks', webhooks);
