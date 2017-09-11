@@ -76,6 +76,8 @@ CREATE TABLE notification (
   at            timestamp           NOT NULL,
   template_id   bigint              NOT NULL REFERENCES template(id),
   users         text[]              NULL,
+  groups        text[]              NULL,
+  tags          text[]              NULL,
   required_by   delivery_type[]     NULL,
   data          jsonb               NULL,
   sent          timestamp           NULL,
