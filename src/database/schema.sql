@@ -85,3 +85,9 @@ CREATE TABLE notification (
   -- user_user_locale
   -- geo
 );
+
+CREATE TABLE webhook (
+  id            bigserial           PRIMARY KEY,
+  url           text                UNIQUE NOT NULL,
+  transport    delivery_type        NOT NULL
+);

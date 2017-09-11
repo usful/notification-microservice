@@ -9,6 +9,7 @@ const groupAPI = require('./group');
 const tagAPI = require('./tag');
 const notificationAPI = require('./notification');
 const templateAPI = require('./template');
+const webhookAPI = require('./webhook');
 const koaJsend = require('./middleware/jsend');
 
 const app = new Koa();
@@ -40,6 +41,10 @@ router.post('template', templateAPI.create);
 router.get('template/:id', templateAPI.get);
 router.put('template/:id', templateAPI.update);
 router.delete('template/:id', templateAPI.delete);
+
+router.post('webhook', webhookAPI.createSchema, webhookAPI.create);
+router.get('webhook', webhookAPI.get);
+router.delete('webhook/:url', webhookAPI.delete);
 
 router.get('ping', async ctx => ctx.success({ time: Math.floor(Date.now() / 1000) }));
 
