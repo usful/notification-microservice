@@ -13,10 +13,12 @@ const dbClient = require('../database/poolClient');
 const EmailTransport = require('../Transports/AwsEmail/AwsEmailTransport');
 const PushTransport = require('../Transports/FCMPush/PushTransport');
 const VoiceTransport = require('../Transports/VoiceTransport');
-const WebTransport = require('../Transports/WebTransport');
+const WebTransport = require('../Transports/FCMPush/WebTransport');
 const SMSTransport = require('../Transports/TwilioSMS/SMSTransport');
 
 const EJSTemplate = require('../Templates/EJSTemplate');
+
+const Webhooks = require('../Webhooks');
 
 const Templates = {
   ejs: EJSTemplate,
@@ -24,16 +26,17 @@ const Templates = {
 
 const Transports = {
   email: new EmailTransport(config),
-  // push: new PushTransport(config),
-  // voice: new VoiceTransport(config),
-  // web: new WebTransport(config),
-  // sms: new SMSTransport(config)
+  push: new PushTransport(config),
+  voice: new VoiceTransport(config),
+  web: new WebTransport(config),
+  sms: new SMSTransport(config),
 };
 
 class MyWorker extends Worker {
   constructor() {
     super();
     dbClient.connect(config.db);
+    this.webhooks = new Webhooks(dbClient.db);
   }
 
   async processData({ notification }) {
@@ -49,7 +52,8 @@ class MyWorker extends Worker {
     // Get all users in the notification.users
     // Get all the users that belong to each group of the groups field
     // Filter out only users who have the tags in the tags field (if provided)
-    const usersQs = new QueryStream(`
+    const usersQs = new QueryStream(
+      `
       SELECT acc.* FROM account acc
       LEFT JOIN account_groups a_g
         ON acc.id = a_g.user_id
@@ -59,18 +63,18 @@ class MyWorker extends Worker {
         acc.external_id = ANY($1::text[])
         OR
         a_g.group_name = ANY($2::text[])
+        OR
+        (cardinality($1::text[]) = 0 AND cardinality($2::text[]) = 0)
       GROUP BY acc.id
         HAVING
-          array_agg(a_t.tag_name::text) && ($3::text[])
-      `, [
-      util.pgArr(notification.users),
-      util.pgArr(notification.groups),
-      util.pgArr(notification.tags),
-    ]);
+          ((array_agg(a_t.tag_name::text) && ($3::text[])) OR cardinality($3::text[]) = 0)
+      `,
+      [util.pgArr(notification.users), util.pgArr(notification.groups), util.pgArr(notification.tags)]
+    );
 
     const consumerStream = new Writable({
       objectMode: true,
-      write(user, encoding, callback) {
+      write: async (user, encoding, callback) => {
         logger.info('Sending message to user', user.name);
 
         const messages = [];
@@ -78,17 +82,20 @@ class MyWorker extends Worker {
           let message;
           try {
             logger.info('rendering message', { transportName, user, data: notification.data });
-            message = template.render({ transportName, user, data: notification.data });
+            message = await template.render({ transportName, user, data: notification.data });
           } catch (error) {
-            // TODO: handle error as hard error
-            console.error('[Worker] failed to compile template with good user for transport -', transportName);
-            console.log(error);
-            throw error;
+            logger.info('[Worker] failed to compile template with good user for transport -', transportName);
+            logger.info(error);
+            callback(error);
           }
 
-          console.log(' Rendered message ======> ');
-          console.log(message);
-          console.log('<============');
+          try {
+            await Transports[transportName].send({ user, message });
+          } catch (error) {
+            logger.info('[Worker] failed to send message to user -', user);
+            logger.info(error);
+            this.webhooks.fire('UserDeliveryFailed', user);
+          }
         }
 
         callback();
@@ -98,8 +105,12 @@ class MyWorker extends Worker {
     let res;
     try {
       await dbClient.db.stream(usersQs, s => s.pipe(consumerStream));
+      await new Promise(resolve => consumerStream.on('finish', resolve));
+      logger.info('[Worker] successfully sent notification');
+      this.webhooks.fire('NotificationSuccess', notification);
     } catch (error) {
-      console.error('[Worker] failed sending notification');
+      logger.error('[Worker] failed sending notification');
+      this.webhooks.fire('NotificationFailed', notification);
       throw error;
     }
   }

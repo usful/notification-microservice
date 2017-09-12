@@ -5,7 +5,7 @@ module.exports = class Transport {
   constructor(config) {
     this.config = config;
   }
-  
+
   /**
    * Sends a message to the user.
    *
@@ -16,4 +16,4 @@ module.exports = class Transport {
   async send({ user, message }) {
     console.log(this.constructor.name, 'sending', message, 'to', user.id);
   }
-}
+};
