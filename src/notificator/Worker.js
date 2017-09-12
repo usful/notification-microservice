@@ -29,7 +29,7 @@ const Transports = {
   push: new PushTransport(config),
   voice: new VoiceTransport(config),
   web: new WebTransport(config),
-  sms: new SMSTransport(config)
+  sms: new SMSTransport(config),
 };
 
 class MyWorker extends Worker {
@@ -74,7 +74,7 @@ class MyWorker extends Worker {
 
     const consumerStream = new Writable({
       objectMode: true,
-      write: async(user, encoding, callback) => {
+      write: async (user, encoding, callback) => {
         logger.info('Sending message to user', user.name);
 
         const messages = [];
@@ -84,22 +84,16 @@ class MyWorker extends Worker {
             logger.info('rendering message', { transportName, user, data: notification.data });
             message = await template.render({ transportName, user, data: notification.data });
           } catch (error) {
-            // TODO: handle error as hard error
             logger.info('[Worker] failed to compile template with good user for transport -', transportName);
             logger.info(error);
             callback(error);
           }
 
           try {
-            await Transports[transportName].send({ user, message});
-            //todo firing UserDeliverySuccess for cases where the transport is immediate? perhaps make transports event emitters
-          }catch (error){
+            await Transports[transportName].send({ user, message });
+          } catch (error) {
             logger.info('[Worker] failed to send message to user -', user);
             logger.info(error);
-            /**
-             * If an implemented transport never sends back a failed immediately firing the webhook should
-             * be implemented in a seperate file. Example is AWS email
-             */
             this.webhooks.fire('UserDeliveryFailed', user);
           }
         }
