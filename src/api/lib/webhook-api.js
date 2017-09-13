@@ -1,7 +1,7 @@
 const command = require('../../lib/command');
 
 module.exports = port => {
-  const partialUri = `localhost:${port}/api/webhook`;
+  const partialUri = `http://localhost:${port}/api/webhook`;
   return {
     addWebHook: async ({ webhook }) => {
       return await command({ uri: partialUri, body: webhook, method: 'POST' });

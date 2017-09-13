@@ -1,7 +1,7 @@
 const command = require('../../lib/command');
 
 module.exports = port => {
-  const partialUri = `localhost:${port}/api/template`;
+  const partialUri = `http://localhost:${port}/api/template`;
   return {
     createTemplate: async ({ template }) => {
       return await command({ uri: partialUri, body: template, method: 'POST' });

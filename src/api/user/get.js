@@ -11,8 +11,8 @@ module.exports = async function getUser(ctx) {
     return;
   }
 
-  user.groups = (await queries.getUserGroupsById(user.id)).groups;
-  user.tags = (await queries.getUserTagsById(user.id)).tags;
+  user.groups = (await queries.getUserGroupsById(user.id));
+  user.tags = (await queries.getUserTagsById(user.id));
 
   ctx.success(user);
 };

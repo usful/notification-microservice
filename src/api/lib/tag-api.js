@@ -1,7 +1,7 @@
 const command = require('../../lib/command');
 
 module.exports = port => {
-  const partialUri = `localhost:${port}/api/tag`;
+  const partialUri = `http://localhost:${port}/api/tag`;
   return {
     addTagToUser: async ({ userId, tag }) => {
       return await command({ uri: `${partialUri}/${userId}/${tag}`, method: 'POST' });

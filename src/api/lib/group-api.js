@@ -1,7 +1,7 @@
 const command = require('../../lib/command');
 
 module.exports = port => {
-  const partialUri = `localhost:${port}/api/group`;
+  const partialUri = `http://localhost:${port}/api/group`;
   return {
     addUserToGroup: async ({ userId, group }) => {
       return await command({ uri: `${partialUri}/${userId}/${group}`, method: 'POST' });

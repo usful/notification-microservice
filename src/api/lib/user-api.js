@@ -1,7 +1,7 @@
 const command = require('../../lib/command');
 
 module.exports = port => {
-  const partialUri = `localhost:${port}/api/user`;
+  const partialUri = `http://localhost:${port}/api/user`;
   return {
     createUser: async ({user}) =>{
       return await command({ uri:partialUri, body: user, method: 'POST' });

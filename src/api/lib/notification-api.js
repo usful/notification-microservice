@@ -1,7 +1,7 @@
 const command = require('../../lib/command');
 
 module.exports = port => {
-  const partialUri = `localhost:${port}/api/notification`;
+  const partialUri = `http://localhost:${port}/api/notification`;
   return {
     createNotification: async ({ notification }) => {
       return await command({ uri: partialUri, body: notification, method: 'POST' });
