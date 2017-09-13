@@ -1,16 +1,16 @@
 const logger = require('../logger');
 const dbClient = require('../../database/poolClient');
 
-function createWebhook(url, transport) {
+function createWebhook(url, transport, type) {
   return dbClient.db.one(
     `
     INSERT INTO webhook
-    (url, transport)
+    (url, transport, type)
     VALUES
-    ($1, $2)
+    ($1, $2, $3)
     RETURNING *
   `,
-    [url, transport]
+    [url, transport, type]
   );
 }
 

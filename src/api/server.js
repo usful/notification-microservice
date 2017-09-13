@@ -44,6 +44,9 @@ router.delete('template/:id', templateAPI.delete);
 
 router.post('webhook', webhookAPI.createSchema, webhookAPI.create);
 router.get('webhook', webhookAPI.get);
+//todo make a GET endpoint for retreiving info on a singular webhook?
+//todo allow for updating a webhooks details.
+router.put('webhook/:url', webhookAPI.update);
 router.delete('webhook/:url', webhookAPI.delete);
 
 router.get('ping', async ctx => ctx.success({ time: Math.floor(Date.now() / 1000) }));
@@ -75,7 +78,10 @@ app.use(async function onValidationError(ctx, next) {
     }
     logger.info('[Validation Error]', error.details);
 
-    const formatedMessage = error.details.reduce((acc, item) => { acc[item.path] = item.message; return acc; }, {});
+    const formatedMessage = error.details.reduce((acc, item) => {
+      acc[item.path] = item.message;
+      return acc;
+    }, {});
 
     ctx.response.status = 400;
     ctx.fail(formatedMessage);
@@ -85,9 +91,9 @@ app.use(async function onValidationError(ctx, next) {
 app.use(router.middleware());
 
 /** Async version of app.listen **/
-app.asyncListen = (port) => {
+app.asyncListen = port => {
   return new Promise((resolve, reject) => {
-    const server = app.listen(port, (error) => {
+    const server = app.listen(port, error => {
       if (error) {
         reject(error);
         return;
@@ -95,6 +101,6 @@ app.asyncListen = (port) => {
       resolve(server);
     });
   });
-}
+};
 
 module.exports = app;

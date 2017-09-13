@@ -2,7 +2,7 @@
   "name": "notification-microservice",
   "version": "1.0.0",
   "description": "A micro-service for sending notifications",
-  "main": "index.js",
+  "main": "src/index.js",
   "dependencies": {
     "aws-sdk": "^2.92.0",
     "babel-cli": "^6.24.1",
@@ -21,6 +21,7 @@
     "nodemailer": "^4.0.1",
     "pg-promise": "^6.3.5",
     "pg-query-stream": "^1.0.0",
+    "request-promise": "^4.2.1",
     "squel": "^5.11.1",
     "twilio": "^3.6.2",
     "uuid": "^3.1.0",

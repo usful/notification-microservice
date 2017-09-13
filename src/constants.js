@@ -2,6 +2,7 @@
 module.exports = {
   verification_status: ['verified', 'bounced', 'failed', 'unverified'],
   delivery_type: ['email', 'sms', 'push', 'voice', 'web'],
+  webhook_type: ['NotificationFailed', 'NotificationSuccess', 'UserDeliveryFailed', 'UserDeliveryConfirmed', 'SystemError'],
   notification_status: ['new', 'failed', 'sent', 'processing'],
   good_user: {
     id: 0,
