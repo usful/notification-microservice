@@ -107,7 +107,7 @@ class MyWorker extends Worker {
       await dbClient.db.stream(usersQs, s => s.pipe(consumerStream));
       await new Promise(resolve => consumerStream.on('finish', resolve));
       logger.info('[Worker] successfully sent notification');
-      dbClient.db.none(`UPDATE notification SET status='sent' WHERE id='${notification.id}'`);
+      dbClient.db.none(`UPDATE notification SET status='sent', sent=NOW() WHERE id='${notification.id}'`);
       this.webhooks.fire('NotificationSuccess', notification);
     } catch (error) {
       logger.error('[Worker] failed sending notification');

@@ -22,39 +22,25 @@ function getNotificationById(id) {
   );
 }
 
-function getNotificationsSent() {
-  return dbClient.db.any(
-    `
-    SELECT notif.*, users_arrs.users as users
-    FROM notification notif
-    LEFT JOIN (
-      SELECT notif_usrs.notification_id, array_agg(acc.external_id::int) as users
-      FROM notification_users notif_usrs
-      LEFT JOIN account acc
-      ON notif_usrs.user_id = acc.id
-      GROUP BY notif_usrs.notification_id
-    ) users_arrs
-    ON notif.id = users_arrs.notification_id
-    WHERE notif.sent IS NOT NULL
-    `
+function getNotificationsSent({ userId, limit }) {
+  return dbClient.db.any(`
+    SELECT *
+    FROM notification 
+    WHERE sent IS NOT NULL
+    AND ((${userId} = ANY users) OR (${userId} IS NULL))
+    ${limit ? `LIMIT(${limit})` : ''}
+    ORDER BY sent DESC`
   );
 }
 
 function getNotificationsUnsent() {
-  return dbClient.db.any(
-    `
-    SELECT notif.*, users_arrs.users as users
-    FROM notification notif
-    LEFT JOIN (
-      SELECT notif_usrs.notification_id, array_agg(acc.external_id::int) as users
-      FROM notification_users notif_usrs
-      LEFT JOIN account acc
-      ON notif_usrs.user_id = acc.id
-      GROUP BY notif_usrs.notification_id
-    ) users_arrs
-    ON notif.id = users_arrs.notification_id
-    WHERE notif.sent IS NULL
-    `
+  return dbClient.db.any(`
+    SELECT *
+    FROM notification 
+    WHERE sent IS NULL
+    AND ((${userId} = ANY users) OR (${userId} IS NULL))
+    ${limit ? `LIMIT(${limit})` : ''}
+    ORDER BY at ASC`
   );
 }
 
