@@ -5,7 +5,7 @@ const dbClient = require('../database/poolClient');
 const config = require('../config');
 const library = require('./lib');
 
-class Server {
+class API {
   constructor() {
     this.server = null;
   }
@@ -33,4 +33,4 @@ class Server {
   }
 }
 
-module.exports = { API: Server, library };
+module.exports = { API, library };
