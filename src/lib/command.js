@@ -1,7 +1,6 @@
 const request = require('request-promise');
 
-module.exports = async function command({uri , body, method}) {
-
+module.exports = async function command({ uri, body, method }) {
   const opts = {
     uri,
     method,
@@ -19,14 +18,14 @@ module.exports = async function command({uri , body, method}) {
   let response;
   let data;
 
-  try{
+  try {
     response = await request(opts);
     response = await response.toJSON();
 
-    data = response.body;
-  }catch(error){
+    data = await JSON.parse(response.body).data;
+  } catch (error) {
     console.error('request faield', error);
   }
 
-  return {response, data};
-}
+  return { response, data };
+};
