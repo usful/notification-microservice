@@ -1,25 +1,22 @@
-const API = require('./api');
-const API_LIB = require('./api/lib');
+const { API, library } = require('./api');
 const Notificator = require('./notificator');
 
 class NotificationService {
-
   constructor() {
-    this.notificator = new Notificator();
-    this.notificator.init();
+    const notificator = new Notificator();
+    notificator.init();
 
-    this.api = new API();
+    const api = new API();
 
-    this.notificator.run()
+    notificator
+      .run()
       .then(() => console.log('notificator stopped'))
-      .catch((error) => console.error('[Error] notificator error', error));
+      .catch(error => console.error('[Error] notificator error', error));
 
-    this.api.start();
+    api.start();
 
-    for (let key in API_LIB) {
-      this[key] = API_LIB[key];
-    }
-  };
+    return library;
+  }
 }
 
 module.exports = NotificationService;

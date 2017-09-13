@@ -6,11 +6,4 @@ const webhookApi = require('./webhook-api')(config.api.port);
 const templateApi = require('./template-api')(config.api.port);
 const notificationApi = require('./notification-api')(config.api.port);
 
-module.exports = Object.assign({},
-  userApi,
-  groupApi,
-  tagApi,
-  webhookApi,
-  templateApi,
-  notificationApi
-);
+module.exports = Object.assign({}, userApi, groupApi, tagApi, webhookApi, templateApi, notificationApi);

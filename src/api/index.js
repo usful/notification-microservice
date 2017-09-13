@@ -3,6 +3,7 @@ const logger = require('./logger');
 const server = require('./server');
 const dbClient = require('../database/poolClient');
 const config = require('../config');
+const library = require('./lib');
 
 class Server {
   constructor() {
@@ -20,7 +21,7 @@ class Server {
   /** Stop koa server and close database connections **/
   stop() {
     return new Promise((resolve, reject) => {
-      this.server.close((error) => {
+      this.server.close(error => {
         if (error) {
           reject(error);
           return;
@@ -32,4 +33,4 @@ class Server {
   }
 }
 
-module.exports = Server;
+module.exports = { API: Server, library };
