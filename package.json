@@ -6,6 +6,7 @@
   "dependencies": {
     "aws-sdk": "^2.92.0",
     "babel-cli": "^6.24.1",
+    "babel-core": "^6.26.0",
     "dotenv": "^4.0.0",
     "ejs": "^2.5.6",
     "firebase-admin": "^5.2.0",

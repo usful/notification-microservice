@@ -33,4 +33,4 @@ class API {
   }
 }
 
-module.exports = { API, library };
+module.exports = API;
