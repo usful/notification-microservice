@@ -6,8 +6,9 @@ notificator.init();
 
 const api = new API();
 
-notificator.run()
+notificator
+  .run()
   .then(() => console.log('notificator stopped'))
-  .catch((error) => console.error('[Error] notificator error', error));
+  .catch(error => console.error('[Error] notificator error', error));
 
 api.start();

@@ -1,6 +1,5 @@
 const path = require('path');
 const BaseController = require('./Tasker/Controller');
-const queries = require('./queries');
 const logger = require('./logger');
 const config = require('../config');
 const util = require('../lib/util');
@@ -10,9 +9,13 @@ const dirname = __dirname;
 
 class Controller extends BaseController {
   constructor() {
-    const cConfig = Object.assign({}, {
-      script: path.resolve(dirname, './Worker.js'),
-    }, config.notificator);
+    const cConfig = Object.assign(
+      {},
+      {
+        script: path.resolve(dirname, './Worker.js'),
+      },
+      config.notificator
+    );
 
     // logger.info('[Controller] constructor', cConfig);
     super(cConfig);
@@ -26,7 +29,22 @@ class Controller extends BaseController {
   async getData(controller) {
     while (controller.live) {
       logger.info('[Notificator] querying for data...');
-      const notification = await queries.getNextNotificationAndMarkAsProcessing();
+      const notification = await dbClient.db.oneOrNone(
+        `WITH next_notif AS (
+          SELECT *
+          FROM notification
+          WHERE notification.at <= NOW() AND
+          notification.status = 'new'
+          ORDER BY notification.at
+          LIMIT 1
+          FOR UPDATE
+        )
+        UPDATE notification notifs
+        SET status = 'processing'
+        FROM next_notif
+        WHERE notifs.id = next_notif.id
+        RETURNING next_notif.*`
+      );
 
       if (notification) {
         return { notification };

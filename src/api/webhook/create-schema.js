@@ -6,5 +6,6 @@ module.exports = koaJoiBouncer.middleware({
   body: Joi.object().keys({
     url: Joi.string().required(),
     transport: Joi.string().valid(constants.delivery_type).required(),
+    type: Joi.string().valid(constants.webhook_type).required(),
   }),
 });

@@ -3,4 +3,5 @@ module.exports = {
   createSchema: require('./create-schema'),
   get: require('./get'),
   delete: require('./delete'),
+  update: require('./update'),
 };

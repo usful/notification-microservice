@@ -1,16 +1,16 @@
 const logger = require('../logger');
 const dbClient = require('../../database/poolClient');
 
-function createWebhook(url, transport) {
+function createWebhook(url, transport, type) {
   return dbClient.db.one(
     `
     INSERT INTO webhook
-    (url, transport)
+    (url, transport, type)
     VALUES
-    ($1, $2)
+    ($1, $2, $3)
     RETURNING *
   `,
-    [url, transport]
+    [url, transport, type]
   );
 }
 
@@ -19,6 +19,18 @@ function getWebhooks() {
     `
     SELECT * FROM webhook
     `
+  );
+}
+
+function updateWebhook({url, transport, type}) {
+  return dbClient.db.oneOrNone(
+    ` UPDATE FROM webhook
+      ${transport ? `SET transport=${transport}`: ''}
+      ${type ? `SET type=${type}`: ''}
+      WHERE url=$1
+      RETURNING *;
+    `,
+    url
   );
 }
 
@@ -37,4 +49,5 @@ module.exports = {
   createWebhook,
   getWebhooks,
   deleteWebhook,
+  updateWebhook,
 };

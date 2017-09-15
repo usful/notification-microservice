@@ -31,8 +31,8 @@ module.exports = async function createUser(ctx) {
 
   /** Get user, user.groups and user.tags **/
   const createdUser = await queries.getUserByExternalId(external_id);
-  createdUser.groups = (await queries.getUserGroupsById(createdUser.id)).groups;
-  createdUser.tags = (await queries.getUserTagsById(createdUser.id)).tags;
+  createdUser.groups = (await queries.getUserGroupsById(createdUser.id));
+  createdUser.tags = (await queries.getUserTagsById(createdUser.id));
 
   logger.info('[createUser] user created', createdUser);
   ctx.success(createdUser);

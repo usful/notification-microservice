@@ -27,8 +27,8 @@ module.exports = async function updateUser(ctx) {
   }
 
   /** Get user.groups and user.tags **/
-  user.groups = (await queries.getUserGroupsById(user.id)).groups;
-  user.tags = (await queries.getUserTagsById(user.id)).tags;
+  user.groups = (await queries.getUserGroupsById(user.id));
+  user.tags = (await queries.getUserTagsById(user.id));
 
   ctx.success(user);
 };
