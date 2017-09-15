@@ -45,7 +45,6 @@ router.delete('template/:id', templateAPI.delete);
 router.post('webhook', webhookAPI.createSchema, webhookAPI.create);
 router.get('webhook', webhookAPI.get);
 //todo make a GET endpoint for retreiving info on a singular webhook?
-//todo allow for updating a webhooks details.
 router.put('webhook/:url', webhookAPI.update);
 router.delete('webhook/:url', webhookAPI.delete);
 
