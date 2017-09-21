@@ -3,7 +3,6 @@ const logger = require('./logger');
 const server = require('./server');
 const dbClient = require('../database/poolClient');
 const config = require('../config');
-const library = require('./lib');
 
 class API {
   constructor() {

@@ -1,3 +1,4 @@
+const path = require('path');
 module.exports = {
   email: {
     AWSAccessKeyID: process.env.TPS_EMAIL_AWS_ACCESS_KEY_ID,
@@ -6,7 +7,7 @@ module.exports = {
     region: process.env.AWS_REGION,
   },
   push: {
-    serviceAccountKeyPath: process.env.SERVICE_ACCOUNT_KEY_PATH,
+    serviceAccountKeyPath: path.join(process.cwd() ,process.env.SERVICE_ACCOUNT_KEY_PATH),
     dbUrl: process.env.FCM_DB_URL,
     messagingOptions: {},
   },
