@@ -5,7 +5,7 @@ const constants = require('../../constants');
 module.exports = koaJoiBouncer.middleware({
   body: Joi.object().keys({
     by: Joi.array().items(Joi.string().valid(constants.delivery_type)),
-    at: Joi.number().integer().required(),
+    at: Joi.number().date().required(),
     template_id: Joi.number().integer().required(),
     users: Joi.array().items(Joi.string()),
     groups: Joi.array().items(Joi.string()),
