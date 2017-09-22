@@ -5,4 +5,5 @@ module.exports = {
   port: getAssert(process.env.DB_PORT),
   database: getAssert(process.env.DB_NAME),
   user: getAssert(process.env.DB_USER),
+  password: process.env.DB_PASSWORD,
 };

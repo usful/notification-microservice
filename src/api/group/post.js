@@ -4,7 +4,7 @@ const userQueries = require('../user/queries');
 module.exports = async function addUserGroup(ctx) {
   // TODO: add validation
   const userExternalId = ctx.params.user_id;
-  const groupName = ctx.params.group_name.toLowerCase();
+  const groupName = ctx.params.group_name;
 
   const user = await userQueries.getUserByExternalId(userExternalId);
   if (!user) {

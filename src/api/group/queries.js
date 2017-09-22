@@ -3,6 +3,11 @@
 // const utils = require('../../utils');
 const dbClient = require('../../database/poolClient');
 
+/**
+ * Gets all userIds in a group
+ * @param groupName
+ * @returns {*|XPromise<IArrayExt<any>>|external:Promise.<Array>}
+ */
 function getUserIdsByGroupName(groupName) {
   return dbClient.db.any(
     `
@@ -17,6 +22,12 @@ function getUserIdsByGroupName(groupName) {
   );
 }
 
+/**
+ * Adds a user to a group
+ * @param userId
+ * @param groupName
+ * @returns {XPromise<void>|external:Promise.<null>|*}
+ */
 function addUserGroup(userId, groupName) {
   return dbClient.db.none(
     `
@@ -29,6 +40,12 @@ function addUserGroup(userId, groupName) {
   );
 }
 
+/**
+ * Deletes a user from a group
+ * @param userId
+ * @param groupName
+ * @returns {XPromise<any>|external:Promise}
+ */
 function deleteUserGroup(userId, groupName) {
   return dbClient.db.oneOrNone(
     `
@@ -43,8 +60,27 @@ function deleteUserGroup(userId, groupName) {
   );
 }
 
+/**
+ * Deletes all users from a group
+ * @param groupName
+ * @returns {XPromise<any>|external:Promise}
+ */
+function deleteGroup(groupName) {
+  return dbClient.db.any(
+    `
+    DELETE
+    FROM account_groups
+    WHERE
+      account_groups.group_name = $1
+    RETURNING *;
+    `,
+    [groupName]
+  );
+}
+
 module.exports = {
   getUserIdsByGroupName,
   addUserGroup,
   deleteUserGroup,
+  deleteGroup,
 };

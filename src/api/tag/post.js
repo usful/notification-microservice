@@ -4,7 +4,7 @@ const userQueries = require('../user/queries');
 module.exports = async function addUserTag(ctx) {
   // TODO: add validation
   const userExternalId = ctx.params.user_id;
-  const tagName = ctx.params.tag_name.toLowerCase();
+  const tagName = ctx.params.tag_name;
 
   const user = await userQueries.getUserByExternalId(userExternalId);
   if (!user) {
