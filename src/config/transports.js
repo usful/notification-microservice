@@ -3,12 +3,12 @@ module.exports = {
   email: {
     AWSAccessKeyID: process.env.TPS_EMAIL_AWS_ACCESS_KEY_ID,
     AWSSecretKey: process.env.TPS_EMAIL_AWS_SECRET_KEY,
-    from: process.env.TPS_EMAIL_FROM,
-    region: process.env.AWS_REGION,
+    from: 'info@joinlane.com',
+    region: 'us-east-1',
   },
   push: {
     serviceAccountKeyPath: path.join(process.cwd() ,process.env.SERVICE_ACCOUNT_KEY_PATH),
-    dbUrl: process.env.FCM_DB_URL,
+    dbUrl: 'https://todos-lane.firebaseio.com/',
     messagingOptions: {},
   },
   sms: {

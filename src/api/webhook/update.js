@@ -8,7 +8,7 @@ module.exports = async function updateWebhook(ctx) {
   try {
     webhook = await queries.updateWebhook({url, type, transport});
   }catch(error){
-    ctx.fail(`Could'nt update the webhook`, ctx.request.body);
+    ctx.fail(`Couldn't update the webhook`, ctx.request.body);
     throw error;
   }
 

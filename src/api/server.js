@@ -20,6 +20,8 @@ router.post('user', userAPI.createSchema, userAPI.create);
 router.get('user/:id', userAPI.get);
 router.put('user/:id', userAPI.updateSchema, userAPI.update);
 router.delete('user/:id', userAPI.delete);
+router.put('user/:id/group/:group_name', userAPI.addToGroup);
+router.delete('user/:id/group/:group_name', userAPI.removeFromGroup);
 
 router.post('group/:user_id/:group_name', groupAPI.post);
 router.get('group/:name', groupAPI.get);
@@ -44,7 +46,7 @@ router.delete('template/:id', templateAPI.delete);
 
 router.post('webhook', webhookAPI.createSchema, webhookAPI.create);
 router.get('webhook', webhookAPI.get);
-//todo make a GET endpoint for retreiving info on a singular webhook?
+router.get('webhook/:url', webhookAPI.getOne)
 router.put('webhook/:url', webhookAPI.update);
 router.delete('webhook/:url', webhookAPI.delete);
 

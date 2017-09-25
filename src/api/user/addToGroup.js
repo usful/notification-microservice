@@ -1,10 +1,9 @@
 const queries = require('./queries');
 const userQueries = require('../user/queries');
 
-module.exports = async function addUserTag(ctx) {
-  // TODO: add validation
+module.exports = async function addUserGroup(ctx) {
   const userExternalId = ctx.params.user_id;
-  const tagName = ctx.params.tag_name;
+  const groupName = ctx.params.group_name;
 
   const user = await userQueries.getUserByExternalId(userExternalId);
   if (!user) {
@@ -14,15 +13,15 @@ module.exports = async function addUserTag(ctx) {
   }
 
   try {
-    await queries.addUserTag(user.id, tagName);
+    await queries.addUserGroup(user.id, groupName);
   } catch (error) {
     if (error.code === '23505') {
       ctx.response.status = 409;
-      ctx.fail({ tag: 'user already in tag' });
+      ctx.fail({ group: 'user already in group' });
       return;
     }
     throw error;
   }
 
-  ctx.success({ id: userExternalId, tag: tagName });
+  ctx.success({ id: userExternalId, group: groupName });
 };

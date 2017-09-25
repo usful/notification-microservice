@@ -18,45 +18,7 @@ function getUserIdsByGroupName(groupName) {
     WHERE ag.group_name = $1
     GROUP BY ac.external_id
   `,
-    groupName
-  );
-}
-
-/**
- * Adds a user to a group
- * @param userId
- * @param groupName
- * @returns {XPromise<void>|external:Promise.<null>|*}
- */
-function addUserGroup(userId, groupName) {
-  return dbClient.db.none(
-    `
-    INSERT INTO account_groups
-    (user_id, group_name)
-    VALUES
-    ($1, $2)
-    `,
-    [userId, groupName]
-  );
-}
-
-/**
- * Deletes a user from a group
- * @param userId
- * @param groupName
- * @returns {XPromise<any>|external:Promise}
- */
-function deleteUserGroup(userId, groupName) {
-  return dbClient.db.oneOrNone(
-    `
-    DELETE
-    FROM account_groups
-    WHERE
-      account_groups.user_id = $1 AND
-      account_groups.group_name = $2
-    RETURNING *;
-    `,
-    [userId, groupName]
+    [groupName]
   );
 }
 
@@ -80,7 +42,5 @@ function deleteGroup(groupName) {
 
 module.exports = {
   getUserIdsByGroupName,
-  addUserGroup,
-  deleteUserGroup,
   deleteGroup,
 };

@@ -22,6 +22,15 @@ function getWebhooks() {
   );
 }
 
+function getWebhook(url) {
+  return dbClient.db.one(
+    `
+    SELECT * FROM webhook WHERE url=$1
+    `,
+    [url]
+  )
+}
+
 function updateWebhook({url, transport, type}) {
   return dbClient.db.oneOrNone(
     ` UPDATE FROM webhook

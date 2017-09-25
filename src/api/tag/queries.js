@@ -13,38 +13,22 @@ function getUserIdsByTagName(tagName) {
     WHERE ag.tag_name = $1
     GROUP BY ac.external_id
   `,
-    tagName
+    [tagName]
   );
 }
 
-function addUserTag(userId, tagName) {
-  return dbClient.db.none(
+function deleteTag(tagName) {
+  return dbClient.db.any(
     `
-    INSERT INTO account_tags
-    (user_id, tag_name)
-    VALUES
-    ($1, $2)
+     DELETE FROM account_tags
+     WHERE tag_name = $1
+     RETURNING *
     `,
-    [userId, tagName]
-  );
-}
-
-function deleteUserTag(userId, tagName) {
-  return dbClient.db.oneOrNone(
-    `
-    DELETE
-    FROM account_tags
-    WHERE
-      account_tags.user_id = $1 AND
-      account_tags.tag_name = $2
-    RETURNING *;
-    `,
-    [userId, tagName]
+    [tagName]
   );
 }
 
 module.exports = {
   getUserIdsByTagName,
-  addUserTag,
-  deleteUserTag,
+  deleteTag,
 };
