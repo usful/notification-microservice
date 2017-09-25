@@ -22,12 +22,12 @@ router.put('user/:id', userAPI.updateSchema, userAPI.update);
 router.delete('user/:id', userAPI.delete);
 router.put('user/:id/group/:group_name', userAPI.addToGroup);
 router.delete('user/:id/group/:group_name', userAPI.removeFromGroup);
+router.put('user/:id/tag/:tag_name', userAPI.addTag);
+router.delete('user/:id/tag/:tag_name', userAPI.removeTag);
 
-router.post('group/:user_id/:group_name', groupAPI.post);
 router.get('group/:name', groupAPI.get);
 router.delete('group/:user_id/:group_name', groupAPI.delete);
 
-router.post('tag/:user_id/:tag_name', tagAPI.post);
 router.get('tag/:name', tagAPI.get);
 router.delete('tag/:user_id/:tag_name', tagAPI.delete);
 
