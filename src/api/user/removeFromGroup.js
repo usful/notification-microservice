@@ -2,7 +2,7 @@ const queries = require('./queries');
 
 module.exports = async function deleteUserGroup(ctx) {
   const userExternalId = ctx.params.user_id;
-  const groupName = ctx.params.group_name.toLowerCase();
+  const groupName = ctx.params.group_name;
 
   const user = await queries.getUserByExternalId(userExternalId);
   if (!user) {

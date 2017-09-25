@@ -2,7 +2,7 @@ const queries = require('./queries');
 
 module.exports = async function deleteUserTag(ctx) {
   const userExternalId = ctx.params.user_id;
-  const tagName = ctx.params.tag_name.toLowerCase();
+  const tagName = ctx.params.tag_name;
 
   const user = await queries.getUserByExternalId(userExternalId);
   if (!user) {
