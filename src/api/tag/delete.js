@@ -1,5 +1,4 @@
 const queries = require('./queries');
-const userQueries = require('../user/queries');
 
 module.exports = async function deleteUserTag(ctx) {
   const userExternalId = ctx.params.user_id;
