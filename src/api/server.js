@@ -26,10 +26,10 @@ router.put('user/:id/tag/:tag_name', userAPI.addTag);
 router.delete('user/:id/tag/:tag_name', userAPI.removeTag);
 
 router.get('group/:name', groupAPI.get);
-router.delete('group/:user_id/:group_name', groupAPI.delete);
+router.delete('group/:group_name', groupAPI.delete);
 
 router.get('tag/:name', tagAPI.get);
-router.delete('tag/:user_id/:tag_name', tagAPI.delete);
+router.delete('tag/:tag_name', tagAPI.delete);
 
 router.get('notification/sent', notificationAPI.getSent);
 router.get('notification/unsent', notificationAPI.getUnsent);
