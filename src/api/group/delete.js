@@ -1,7 +1,7 @@
 const queries = require('./queries');
 
 module.exports = async function deleteGroup(ctx) {
-  const {groupName} = ctx.body;
+  const groupName = ctx.params.group_name;
 
   const group = await queries.deleteGroup(groupName);
 
