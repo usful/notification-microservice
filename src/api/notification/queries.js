@@ -49,7 +49,7 @@ function createNotification(by, at, template_id, users, groups, tags, required_b
     .insert()
     .into('notification')
     .set('by', util.pgArr(by))
-    .set('at', squel.rstr(`to_timestamp(${at})`))
+    .set('at', squel.rstr(`'${at}'::timestamp`))
     .set('template_id', template_id)
     .returning('*');
 
@@ -101,7 +101,7 @@ function updateNotification({ id, by, at, template_id, required_by, data, status
   }
 
   if (at) {
-    baseQuery.set('at', squel.rstr(`to_timestamp(${at})`));
+    baseQuery.set('at', squel.rstr(`'${at}'::timestamp`));
   }
 
   if (template_id) {

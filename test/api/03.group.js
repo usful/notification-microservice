@@ -81,4 +81,14 @@ describe('Group', () => {
 
     expect(getRes.body.data).to.deep.equal([]);
   });
+
+  it('should delete all users from group successfully', async () => {
+    const deleteRes = await request(server)
+      .delete('/api/group/group-a')
+      .send()
+      .set('Accept', 'application/json')
+      .expect(200);
+
+    expect(getRes.body.data).to.deep.equal({group: 'group-a'});
+  });
 });

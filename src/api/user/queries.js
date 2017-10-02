@@ -3,31 +3,37 @@ const squel = require('squel').useFlavour('postgres');
 const util = require('../../lib/util');
 const dbClient = require('../../database/poolClient');
 
-/** TODO: One query to get the user with its groups and tags
+function addUserGroup(userId, groupName) {
+  return dbClient.db.none(
+    `
+    INSERT INTO account_groups
+    (user_id, group_name)
+    VALUES
+    ($1, $2)
+    `,
+    [userId, groupName]
+  );
+}
 
-// Not working
-WITH account_g AS (
-  SELECT ac.*, array_agg(ag.group_name) groups
-  FROM account ac
-  LEFT JOIN account_groups ag
-  ON ac.id = ag.user_id
-  WHERE ac.id = 1
-  GROUP BY ac.id
-)
-SELECT acc.id, array_agg(acc.groups) groups, array_agg(acc.active), array_agg(a_t.tag_name) tags
-FROM account_g acc
-LEFT JOIN account_tags a_t
-ON acc.id = a_t.user_id
-GROUP BY acc.id;
-
-// Working getting just groups
-SELECT ac.*, array_agg(ug.group_name)
-FROM account ac
-LEFT JOIN account_groups ug
-ON ac.id = ug.user_id
-WHERE ac.external_id = $1
-GROUP BY ac.id
-**/
+/**
+ * Deletes a user from a group
+ * @param userId
+ * @param groupName
+ * @returns {XPromise<any>|external:Promise}
+ */
+function deleteUserGroup(userId, groupName) {
+  return dbClient.db.oneOrNone(
+    `
+    DELETE
+    FROM account_groups
+    WHERE
+      account_groups.user_id = $1 AND
+      account_groups.group_name = $2
+    RETURNING *;
+    `,
+    [userId, groupName]
+  );
+}
 
 function getUserByExternalId(external_id) {
   return dbClient.db.oneOrNone(
@@ -189,6 +195,32 @@ function deleteUserNotifications(user_id) {
   return dbClient.db.none(`DELETE FROM notification_users where user_id = $1`, user_id);
 }
 
+function addUserTag(userId, tagName) {
+  return dbClient.db.none(
+    `
+    INSERT INTO account_tags
+    (user_id, tag_name)
+    VALUES
+    ($1, $2)
+    `,
+    [userId, tagName]
+  );
+}
+
+function deleteUserTag(userId, tagName) {
+  return dbClient.db.oneOrNone(
+    `
+    DELETE
+    FROM account_tags
+    WHERE
+      account_tags.user_id = $1 AND
+      account_tags.tag_name = $2
+    RETURNING *;
+    `,
+    [userId, tagName]
+  );
+}
+
 module.exports = {
   getUserByExternalId,
   getUserGroupsById,
@@ -202,4 +234,8 @@ module.exports = {
   deleteUserTags,
   deleteUserByExternalId,
   deleteUserNotifications,
+  addUserGroup,
+  deleteUserGroup,
+  addUserTag,
+  deleteUserTag,
 };

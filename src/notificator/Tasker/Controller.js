@@ -3,7 +3,6 @@ const EventEmitter = require('events');
 const logger = require('../logger');
 const NUM_CPU = require('os').cpus().length;
 
-// TODO: is taking logger from the upper folder
 // TODO: should we wait on the setup function until all workers are registered?
 // TODO: timeouts and intervals are not cleared always correctly
 // TODO: Exit handling is not working, Test changing the controller.script to something else
